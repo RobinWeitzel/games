@@ -1,0 +1,83 @@
+/*
+ * Peg solitaire. Classes are prefixed with .pg- (all game styles load globally).
+ * States differ in shape: a peg is a solid disc, an empty hole a small hollow, the picked-up peg
+ * gets a ring, holes it can jump to a dashed ring.
+ */
+.pg-area {
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+}
+.pg-board {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: filter 250ms;
+}
+.pg-hole {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+.pg-dot {
+  position: relative;
+  width: var(--hole);
+  height: var(--hole);
+  border-radius: 50%;
+  /* Empty hole: a hollow in the board. */
+  background: var(--fill);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.18);
+  transform: scale(0.55);
+  transition: transform 120ms var(--ease);
+}
+.pg-center .pg-dot {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.18), 0 0 0 2px var(--label-3);
+}
+.pg-peg .pg-dot {
+  transform: none;
+  background: radial-gradient(circle at 35% 30%, #6fb2ff, var(--accent-fill) 60%, #004a9e);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.pg-selected .pg-dot {
+  transform: scale(1.08);
+  outline: 3px solid var(--label);
+  outline-offset: 3px;
+}
+.pg-target .pg-dot {
+  transform: scale(0.8);
+  outline: 2.5px dashed var(--accent);
+  outline-offset: 2px;
+}
+.pg-hint .pg-dot {
+  outline: 3px dashed var(--orange);
+  outline-offset: 3px;
+}
+.pg-shake .pg-dot {
+  animation: pg-shake 320ms var(--ease);
+}
+@keyframes pg-shake {
+  25% {
+    translate: -4px 0;
+  }
+  75% {
+    translate: 4px 0;
+  }
+}
+.pg-hidden {
+  filter: blur(12px);
+}
+.pg-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.pg-tools .tool {
+  min-height: 52px;
+}

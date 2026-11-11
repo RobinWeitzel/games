@@ -89,7 +89,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   black and white dots.
 
 ### Classics: sliding puzzle (15-puzzle), peg solitaire
-- Status: sliding puzzle `shipped`; peg solitaire `planned` · suggested id: `peg-solitaire`
+- Status: `shipped` (both) · ids: `sliding-puzzle`, `peg-solitaire`
 - Trivial engines and great for move-count and best-time stats. The sliding puzzle must only
   generate solvable permutations (parity check).
 
@@ -147,7 +147,7 @@ similar).
 ## Suggested order
 
 1. Kakuro (number pad and `core/numberGrid.ts`).
-2. Peg solitaire, then the grid logic pack (Light Up, Nurikabe, Slitherlink).
+2. The grid logic pack (Light Up, Nurikabe, Slitherlink), Numberlink.
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -168,4 +168,5 @@ similar).
 | Killer Sudoku | `killer-sudoku` | Easy/Medium/Hard by cage size, daily Medium; random grid + cages without repeated digits; while a second solution exists, a cage is split where the solutions differ |
 | Codebreaker | `codebreaker` | 4 of 6, 5 of 8, daily 4 of 6; symbols differ by shape, feedback marks by shape (dot, ring, dash) |
 | Sliding Puzzle | `sliding-puzzle` | 3×3, 4×4, 5×5, daily 4×4; random permutations fixed to be solvable by the parity rule |
+| Peg Solitaire | `peg-solitaire` | 33-hole cross and 15-hole triangle, no daily (fixed boards); hints from a memoised DFS (the cross solves in ~20ms) |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

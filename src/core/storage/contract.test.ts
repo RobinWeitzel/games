@@ -56,6 +56,8 @@ const CONTRACT = {
     'data  games/game/numbers/daily        v1',
     'data  games/game/numbers/save         v1',
     'data  games/game/numbers/stats        v1',
+    'data  games/game/peg-solitaire/save   v1',
+    'data  games/game/peg-solitaire/stats  v1',
     'data  games/game/sliding-puzzle/daily v1',
     'data  games/game/sliding-puzzle/save  v1',
     'data  games/game/sliding-puzzle/stats v1',
