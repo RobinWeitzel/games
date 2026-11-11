@@ -62,4 +62,66 @@ describe('sudoku state', () => {
       if (!v) expect(g.notes[i] & bit(g.solution[i])).toBeTruthy();
     });
   });
+
+  describe('number lock', () => {
+    const emptyCells = (g: SudokuGame) => g.puzzle.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+
+    it('enters the locked digit into every tapped cell', () => {
+      let g = fresh();
+      const d = g.solution[empty(g)];
+      const targets = emptyCells(g).filter((i) => g.solution[i] === d).slice(0, 2);
+      g = run(g, { type: 'lockDigit', digit: d }, ...targets.map((cell) => ({ type: 'select' as const, cell })));
+      for (const i of targets) expect(g.values[i]).toBe(d);
+      expect(g.lockedDigit).toBe(d);
+    });
+
+    it('toggles notes instead when notes mode is on', () => {
+      const g0 = fresh();
+      const i = empty(g0);
+      let g = run(g0, { type: 'toggleNotes' }, { type: 'lockDigit', digit: 5 }, { type: 'select', cell: i });
+      expect(g.notes[i] & bit(5)).toBeTruthy();
+      expect(g.values[i]).toBe(0);
+      g = run(g, { type: 'select', cell: i });
+      expect(g.notes[i] & bit(5)).toBe(0);
+    });
+
+    it('keypad switches the lock; the locked key ends it', () => {
+      let g = run(fresh(), { type: 'lockDigit', digit: 3 });
+      g = run(g, { type: 'input', digit: 7 });
+      expect(g.lockedDigit).toBe(7);
+      g = run(g, { type: 'input', digit: 7 });
+      expect(g.lockedDigit).toBeNull();
+    });
+
+    it('only selects given cells', () => {
+      const g0 = fresh();
+      const given = g0.puzzle.findIndex((v) => v !== 0);
+      const g = run(g0, { type: 'lockDigit', digit: 1 }, { type: 'select', cell: given });
+      expect(g.selected).toBe(given);
+      expect(g.values).toEqual(g0.values);
+    });
+
+    it('counts wrong entries as mistakes', () => {
+      const g0 = fresh();
+      const i = empty(g0);
+      const [g, ev] = reduce(run(g0, { type: 'lockDigit', digit: wrongDigit(g0, i) }), { type: 'select', cell: i }, opts);
+      expect(ev.kind).toBe('mistake');
+      expect(g.mistakes).toBe(1);
+    });
+
+    it('ends when all nine of the digit are placed', () => {
+      let g = fresh();
+      const d = g.solution[empty(g)];
+      g = run(g, { type: 'lockDigit', digit: d });
+      for (const i of emptyCells(g).filter((k) => g.solution[k] === d)) g = run(g, { type: 'select', cell: i });
+      expect(g.lockedDigit).toBeNull();
+    });
+
+    it('loads saves made before the feature (no lockedDigit field)', () => {
+      const { lockedDigit: _unused, ...old } = fresh();
+      const g = run(old as SudokuGame, { type: 'select', cell: empty(old as SudokuGame) });
+      expect(g.values).toEqual(old.values);
+    });
+  });
 });
+

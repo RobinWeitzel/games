@@ -3,7 +3,7 @@
 A collection of small single-player puzzle games, built as a PWA for **portrait play on iPhone**.
 It's hosted on GitHub Pages: no backend, no accounts, works offline. Statistics stay on the device.
 
-**Games:** Sudoku (Easy / Medium / Hard / Expert + Daily Challenge). More to come.
+**Games:** Sudoku (Easy / Medium / Hard / Expert + Daily Challenge; notes, hints, undo, and *number lock*: touch and hold a number, then tap cells to fill them). More to come.
 
 ## Install on iPhone
 

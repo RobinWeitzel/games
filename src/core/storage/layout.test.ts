@@ -30,7 +30,8 @@ describe('layout migrations', () => {
     expect(settings.settingsStore.get()).toEqual({ haptics: false });
     // Chain: layout 1 → 2 writes settings v1, then the store migrates v1 → v2 (theme removed).
     expect(JSON.parse(localStorage.getItem('games/app/settings')!).v).toBe(2);
-    expect(sudoku.sudokuSettings.get()).toEqual({ mistakeLimit: false, highlightSame: true, autoRemoveNotes: false });
+    // Player's values survive; settings added later get their defaults.
+    expect(sudoku.sudokuSettings.get()).toEqual({ mistakeLimit: false, highlightSame: true, autoRemoveNotes: false, numberLockTipSeen: false });
     expect(sudoku.sudokuStats.get('easy')).toEqual(MODE_STATS_V1);
     expect(sudoku.sudokuStats.get('daily').played).toBe(1);
     expect(sudoku.sudokuStats.daily!.get()).toEqual({ '2026-11-10': { timeMs: 500000, assists: 0 } });

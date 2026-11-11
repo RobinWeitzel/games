@@ -31,6 +31,11 @@ export interface SudokuGame {
   undo: Snapshot[];
   /** True once the player made any move (abandoning an untouched game isn't a loss). */
   touched: boolean;
+  /**
+   * Number lock: while set, tapping a cell enters this digit (or toggles it as a note in notes
+   * mode). Optional, added after release: saves without it simply have no lock.
+   */
+  lockedDigit?: number | null;
 }
 
 export interface Options {
@@ -42,6 +47,8 @@ export type Action =
   | { type: 'select'; cell: number }
   | { type: 'move'; dr: number; dc: number }
   | { type: 'input'; digit: number }
+  /** Lock a digit for repeated entry; locking the locked digit again ends the lock. */
+  | { type: 'lockDigit'; digit: number }
   | { type: 'erase' }
   | { type: 'toggleNotes' }
   | { type: 'undo' }
@@ -128,8 +135,16 @@ export function reduce(g: SudokuGame, action: Action, opts: Options): [SudokuGam
   if (g.status !== 'playing') return [g, none];
 
   switch (action.type) {
-    case 'select':
-      return [{ ...g, selected: action.cell }, none];
+    case 'select': {
+      const selected = { ...g, selected: action.cell };
+      if (!g.lockedDigit) return [selected, none];
+      // Number lock: tapping a cell enters the locked digit there.
+      const [next, ev] = enterDigit(selected, action.cell, g.lockedDigit, opts);
+      return [next, ev];
+    }
+
+    case 'lockDigit':
+      return [{ ...g, lockedDigit: g.lockedDigit === action.digit ? null : action.digit }, none];
 
     case 'move': {
       const cur = g.selected ?? 40;
@@ -142,31 +157,10 @@ export function reduce(g: SudokuGame, action: Action, opts: Options): [SudokuGam
       return [{ ...g, notesMode: !g.notesMode }, none];
 
     case 'input': {
-      const i = g.selected;
-      const d = action.digit;
-      if (i == null || !isEditable(g, i)) return [g, none];
-
-      if (g.notesMode) {
-        if (g.values[i]) return [g, none]; // can't annotate a (wrong) filled cell
-        const notes = g.notes.slice();
-        notes[i] ^= bit(d);
-        return [{ ...g, notes, undo: snapshot(g), touched: true }, none];
-      }
-
-      if (g.values[i] === d) return [g, none];
-      const base = { ...g, undo: snapshot(g), touched: true };
-      if (d === g.solution[i]) return placeCorrect(base, i, opts);
-
-      const values = g.values.slice();
-      values[i] = d;
-      const notes = g.notes.slice();
-      notes[i] = 0;
-      const mistakes = g.mistakes + 1;
-      const lost = opts.mistakeLimit && mistakes >= MAX_MISTAKES;
-      return [
-        { ...base, values, notes, mistakes, status: lost ? 'lost' : 'playing' },
-        lost ? { kind: 'lost' } : { kind: 'mistake', cell: i },
-      ];
+      // While a digit is locked, the keypad switches the lock instead of entering numbers.
+      if (g.lockedDigit) return reduce(g, { type: 'lockDigit', digit: action.digit }, opts);
+      if (g.selected == null) return [g, none];
+      return enterDigit(g, g.selected, action.digit, opts);
     }
 
     case 'erase': {
@@ -212,6 +206,42 @@ export function reduce(g: SudokuGame, action: Action, opts: Options): [SudokuGam
       return [{ ...g, notes, undo: snapshot(g), touched: true }, none];
     }
   }
+}
+
+/**
+ * Enter `d` into cell `i`: toggles a note in notes mode, otherwise places the digit (counting a
+ * mistake if it's wrong). Returns `g` unchanged if the cell can't take it. Ends the number lock
+ * once all nine of the locked digit are placed.
+ */
+function enterDigit(g: SudokuGame, i: number, d: number, opts: Options): [SudokuGame, GameEvent] {
+  const none: GameEvent = { kind: 'none' };
+  if (!isEditable(g, i)) return [g, none];
+
+  if (g.notesMode) {
+    if (g.values[i]) return [g, none]; // can't annotate a (wrong) filled cell
+    const notes = g.notes.slice();
+    notes[i] ^= bit(d);
+    return [{ ...g, notes, undo: snapshot(g), touched: true }, none];
+  }
+
+  if (g.values[i] === d) return [g, none];
+  const base = { ...g, undo: snapshot(g), touched: true };
+  if (d === g.solution[i]) {
+    const [next, ev] = placeCorrect(base, i, opts);
+    const done = next.lockedDigit && digitCounts(next)[next.lockedDigit] === 9;
+    return [done ? { ...next, lockedDigit: null } : next, ev];
+  }
+
+  const values = g.values.slice();
+  values[i] = d;
+  const notes = g.notes.slice();
+  notes[i] = 0;
+  const mistakes = g.mistakes + 1;
+  const lost = opts.mistakeLimit && mistakes >= MAX_MISTAKES;
+  return [
+    { ...base, values, notes, mistakes, status: lost ? 'lost' : 'playing' },
+    lost ? { kind: 'lost' } : { kind: 'mistake', cell: i },
+  ];
 }
 
 /** Values with wrong entries removed, so candidates aren't computed from mistakes. */

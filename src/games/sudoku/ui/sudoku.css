@@ -40,7 +40,7 @@
   position: relative;
   width: 100%;
   /* Fit the height on short phones: total minus nav bar and the controls below. */
-  max-width: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 44px - 290px);
+  max-width: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 44px - 320px);
   align-self: center;
 }
 .board {
@@ -240,6 +240,21 @@
   white-space: nowrap;
 }
 
+/* ---------- Number lock status ---------- */
+.lock-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: -4px;
+}
+.lock-status strong {
+  color: var(--label);
+}
+
 /* ---------- Number pad ---------- */
 .numpad {
   display: grid;
@@ -258,6 +273,16 @@
   color: var(--accent);
   box-shadow: var(--shadow);
   transition: transform 100ms var(--ease), background 100ms;
+}
+.numpad .num.locked {
+  /* Filled (shape) + colour: locked state isn't conveyed by colour alone. White on
+     --accent-fill is ≥ 4.5:1, also in notes mode. */
+  background: var(--accent-fill);
+  color: #fff;
+  box-shadow: none;
+}
+.numpad .num.locked .num-left {
+  color: #fff;
 }
 .num:disabled {
   opacity: 0.3;

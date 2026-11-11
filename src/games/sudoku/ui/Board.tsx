@@ -1,10 +1,13 @@
 import { memo } from 'preact/compat';
+import { useRef } from 'preact/hooks';
 import { boxOf, colOf, rowOf } from '../engine/board';
 import type { SudokuGame } from '../state';
 
 interface Props {
   game: SudokuGame;
   highlightSame: boolean;
+  /** Number lock: always highlight this digit (overrides the selected cell's digit). */
+  lockedDigit?: number | null;
   /** Cells currently playing the "unit completed" flash. */
   flash: Set<number>;
   shake: number | null;
@@ -15,9 +18,11 @@ interface Props {
 
 const NOTE_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-export const Board = memo(function Board({ game, highlightSame, flash, shake, hidden, won, onSelect }: Props) {
+export const Board = memo(function Board({ game, highlightSame, lockedDigit, flash, shake, hidden, won, onSelect }: Props) {
+  const pointerTapped = useRef(false);
   const sel = game.selected;
-  const selVal = sel != null ? game.values[sel] : 0;
+  // Digit to highlight across the board: the locked one, else the selected cell's (if enabled).
+  const selVal = lockedDigit || (highlightSame && sel != null ? game.values[sel] : 0);
 
   return (
     <div
@@ -26,11 +31,18 @@ export const Board = memo(function Board({ game, highlightSame, flash, shake, hi
       aria-label="Sudoku board"
       // pointerdown: selection feels instant on touch. click: VoiceOver / Switch Control /
       // keyboard activation (they don't send pointer events). Selecting twice is harmless.
+      // Each tap must select exactly once: in number lock, a tap enters (or toggles) a digit.
       onPointerDown={(e) => {
         const t = (e.target as HTMLElement).closest<HTMLElement>('[data-cell]');
-        if (t) onSelect(Number(t.dataset.cell));
+        if (!t) return;
+        pointerTapped.current = true;
+        onSelect(Number(t.dataset.cell));
       }}
       onClick={(e) => {
+        if (pointerTapped.current) {
+          pointerTapped.current = false; // already handled on pointerdown
+          return;
+        }
         const t = (e.target as HTMLElement).closest<HTMLElement>('[data-cell]');
         if (t) onSelect(Number(t.dataset.cell));
       }}
@@ -42,7 +54,7 @@ export const Board = memo(function Board({ game, highlightSame, flash, shake, hi
         const wrong = v !== 0 && v !== game.solution[i];
         const related =
           sel != null && i !== sel && (rowOf(sel) === r || colOf(sel) === c || boxOf(sel) === boxOf(i));
-        const same = highlightSame && selVal !== 0 && v === selVal && i !== sel;
+        const same = selVal !== 0 && v === selVal && i !== sel;
         const cls = [
           'cell',
           given ? 'given' : v ? 'user' : '',
@@ -72,7 +84,7 @@ export const Board = memo(function Board({ game, highlightSame, flash, shake, hi
             ) : game.notes[i] ? (
               <span class="notes">
                 {NOTE_DIGITS.map((d) => (
-                  <span class={highlightSame && d === selVal ? 'note-hl' : ''}>{game.notes[i] & (1 << d) ? d : ''}</span>
+                  <span class={d === selVal ? 'note-hl' : ''}>{game.notes[i] & (1 << d) ? d : ''}</span>
                 ))}
               </span>
             ) : null}

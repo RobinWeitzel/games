@@ -70,6 +70,18 @@ what can be checked automatically. The rest is the review checklist at the end.
   a whole is the target), the native switch (51×31pt inside a ≥ 44pt row), and segmented-control
   segments (standard 32pt control).
 
+### 5b. Custom gestures (HIG Gestures)
+A custom gesture (like Sudoku's *touch and hold a number*) is only allowed as a **shortcut on top
+of standard taps**, and must:
+- **Be taught in context:** an unobtrusive one-line tip near the control until the player has used it
+  once (stored as a non-visible game setting, e.g. `numberLockTipSeen`).
+- **Show its state and the way out:** a visible mode indicator (filled key plus status line) and a
+  plain-tap exit ("tap 7 again to stop").
+- **Have alternatives:** a keyboard shortcut, plus an accessible name and description on the control
+  (`aria-describedby`), so VoiceOver users can discover it (double-tap and hold).
+- Use the standard long-press duration (~400ms). Cancel on movement (> 10pt) and suppress the
+  context menu.
+
 ### 6. Sheets and alerts
 - Confirmations of an intentional action are **action sheets** (`Sheet` with actions + Cancel).
   The destructive option comes first and uses `style: 'destructive'`.
@@ -90,7 +102,10 @@ what can be checked automatically. The rest is the review checklist at the end.
   | A move is accepted (piece placed, cell revealed) | `selection` |
   | Something completes (row/box/line, level) or the game is won | `success` |
   | A mistake, or the game is lost | `error` |
+  | A game mode switched by a gesture (e.g. Sudoku number lock on, moved or off) | `selection` |
 
+- iOS only plays haptics inside a real touch event. For long presses, fire the haptic on
+  release (`pointerup`), not from the timer.
 - Haptics complement visual feedback, never replace it. They can be turned off in Settings (`haptic()` respects this).
 
 ### 8. Motion
@@ -157,3 +172,7 @@ controls, Toggles, Accessibility, Motion, Loading, Launching, Designing for game
 | Relaunch always opened Home | Launching ("restore previous state") | Session store + restored navigation stack, game resumes paused |
 | Board not operable with VoiceOver / Switch Control | Accessibility | Click activation, state in cell labels |
 | No Increase Contrast / Reduce Transparency support | Accessibility, Materials | Token overrides via media queries |
+
+**2026-11 Sudoku number lock.** New custom gesture (touch and hold a number, then tap cells),
+designed to rule 5b: in-context tip, filled key plus status line with the exit, Shift+number on
+keyboards, VoiceOver description. Filled keys use `--accent-fill` (white text ≥ 4.5:1; system blue is 4.0:1).
