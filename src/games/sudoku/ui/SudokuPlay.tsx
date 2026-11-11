@@ -191,28 +191,31 @@ export function SudokuPlay() {
           <span class="hints">{game.hints ? `Hints ${game.hints}` : ''}</span>
         </div>
 
-        <div class="board-wrap">
-          <Board
-            game={game}
-            highlightSame={settings.highlightSame}
-            lockedDigit={game.lockedDigit}
-            flash={flash}
-            shake={shake}
-            hidden={showPause}
-            won={result?.outcome === 'won'}
-            onSelect={(cell) => dispatch({ type: 'select', cell })}
-          />
-          {showPause && (
-            <button
-              class="pause-overlay"
-              onClick={() => setPaused(false)}
-            >
-              <span class="pause-play">
-                <IconPlay size={34} />
-              </span>
-              <span>Paused · tap to resume</span>
-            </button>
-          )}
+        {/* Takes all height left over by the controls; the board is the largest square that fits. */}
+        <div class="board-area">
+          <div class="board-wrap">
+            <Board
+              game={game}
+              highlightSame={settings.highlightSame}
+              lockedDigit={game.lockedDigit}
+              flash={flash}
+              shake={shake}
+              hidden={showPause}
+              won={result?.outcome === 'won'}
+              onSelect={(cell) => dispatch({ type: 'select', cell })}
+            />
+            {showPause && (
+              <button
+                class="pause-overlay"
+                onClick={() => setPaused(false)}
+              >
+                <span class="pause-play">
+                  <IconPlay size={34} />
+                </span>
+                <span>Paused · tap to resume</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div class="tools">

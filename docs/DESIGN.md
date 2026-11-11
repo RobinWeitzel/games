@@ -26,11 +26,13 @@ what can be checked automatically. The rest is the review checklist at the end.
 - The back button shows the previous screen's title (`back="Sudoku"`), never just "Back".
 - The navigation bar has no background at rest and gets material plus a hairline once content
   scrolls under it (automatic in `Screen`).
-- Never block the left 14pt edge with controls: that's the swipe-back strip.
+- The left 16pt edge is the swipe-back strip. It only takes horizontal drags: taps on it are forwarded
+  to the content underneath, so content may extend under it.
 
 ### 2. Layout
 - Respect safe areas: use `--safe-top`, `--safe-bottom` and so on, already handled by `Screen` and the sheets.
-- 16pt side margins for content screens (inset grouped lists), 14pt for game screens.
+- 16pt side margins for content screens (inset grouped lists). Game screens use 8pt so the board can use
+  the full width (only safe areas are mandatory in the HIG; margins are ours to choose).
 - Game screens **fit without scrolling** in portrait, from iPhone SE (375×667pt) up, including
   with large text. Size the board from the available height, like `sudoku.css`'s `.board-wrap`.
 - Primary game controls in the **bottom half** (thumb reach). Navigation and status at the top.

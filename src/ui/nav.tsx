@@ -134,25 +134,53 @@ function EdgeSwipe({ onBack }: { onBack: () => void }) {
       if (b) b.style.transition = b.style.transform = '';
     };
 
+    let startY = 0;
+    let dragging = false;
+
     const down = (e: PointerEvent) => {
       active = true;
+      dragging = false;
       startX = lastX = e.clientX;
+      startY = e.clientY;
       lastT = e.timeStamp;
       velocity = 0;
       strip.setPointerCapture(e.pointerId);
-      screen.classList.add('screen-dragging');
     };
     const move = (e: PointerEvent) => {
       if (!active) return;
+      if (!dragging) {
+        // Only a horizontal movement starts the swipe; until then it may still be a tap.
+        if (Math.abs(e.clientX - startX) < 8 && Math.abs(e.clientY - startY) < 8) return;
+        dragging = true;
+        screen.classList.add('screen-dragging');
+      }
       const dt = e.timeStamp - lastT || 1;
       velocity = (e.clientX - lastX) / dt;
       lastX = e.clientX;
       lastT = e.timeStamp;
       set(Math.max(0, e.clientX - startX), false);
     };
-    const up = () => {
+    /**
+     * A tap on the strip belongs to whatever is underneath (e.g. the first board column or a
+     * key): forward it, so the strip never makes content near the edge harder to hit.
+     */
+    const forwardTap = (e: PointerEvent) => {
+      strip.style.pointerEvents = 'none';
+      const target = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+      strip.style.pointerEvents = '';
+      if (!target || target === strip) return;
+      const init = { bubbles: true, cancelable: true, clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId, pointerType: e.pointerType, isPrimary: true };
+      target.dispatchEvent(new PointerEvent('pointerdown', init));
+      target.dispatchEvent(new PointerEvent('pointerup', init));
+      target.click();
+    };
+    const up = (e: PointerEvent) => {
       if (!active) return;
       active = false;
+      if (!dragging) {
+        if (e.type === 'pointerup') forwardTap(e);
+        return;
+      }
       const w = screen.offsetWidth;
       const dx = lastX - startX;
       if (dx > w * 0.35 || velocity > 0.5) {

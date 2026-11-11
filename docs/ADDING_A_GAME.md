@@ -92,7 +92,7 @@ for a game screen:
 
 - Fit the screen **without scrolling** in portrait, from iPhone SE (375×667pt) up, also with
   large text. Size the board from `100dvh` like `sudoku.css` does.
-- Controls in the bottom half, **≥ 44×44pt**, 8–12pt apart. 14pt side padding (the swipe-back strip).
+- Controls in the bottom half, **≥ 44×44pt**, 8–12pt apart. 8pt side padding, so the board uses the full width.
 - Text with the `--fs-*` tokens (cap them with `min()` in the fixed game layout), never below 11pt.
 - Colours from the tokens. Contrast ≥ 4.5:1. Never colour alone (add shape or text).
 - Haptics only for game events: `selection` = move accepted, `success` = completed or won, `error` = mistake or lost.

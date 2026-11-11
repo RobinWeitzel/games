@@ -57,7 +57,8 @@
   top: 0;
   bottom: 0;
   left: 0;
-  width: 14px;
+  /* Taps on the strip are forwarded to the content below (see EdgeSwipe), so it can overlap it. */
+  width: 16px;
   z-index: 40;
   touch-action: none;
 }
