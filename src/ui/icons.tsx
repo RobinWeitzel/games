@@ -104,3 +104,9 @@ export const IconBolt = (p: P) => (
     <path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12l1-8Z" />
   </Icon>
 );
+export const IconBook = (p: P) => (
+  <Icon {...p}>
+    <path d="M12 7c-1.6-1.4-4-2-8-2v13c4 0 6.4.6 8 2 1.6-1.4 4-2 8-2V5c-4 0-6.4.6-8 2Z" />
+    <path d="M12 7v13" />
+  </Icon>
+);

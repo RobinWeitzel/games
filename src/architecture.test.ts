@@ -68,3 +68,13 @@ it('has a valid registry', () => {
   expect(() => validateRegistry()).not.toThrow();
   expect(GAMES.length).toBeGreaterThan(0);
 });
+
+it('every game explains its rules on its hub (GameModule.rules + <HowToPlayRow/>)', () => {
+  const missing: string[] = [];
+  for (const g of GAMES) {
+    if (!g.rules?.length) missing.push(`${g.id}: GameModule.rules is empty`);
+    const shown = files(join(SRC, 'games', g.id)).some((f) => /<HowToPlayRow\b/.test(readFileSync(f, 'utf8')));
+    if (!shown) missing.push(`${g.id}: the hub doesn't render <HowToPlayRow rules={…}/>`);
+  }
+  expect(missing).toEqual([]);
+});

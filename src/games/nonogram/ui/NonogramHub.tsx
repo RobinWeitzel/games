@@ -1,7 +1,8 @@
 import { useState } from 'preact/hooks';
 import { Screen, useNav } from '../../../ui/nav';
-import { ConfirmNewGameSheet, ContinueRow, DailyCard, ModeList, StatsRow } from '../../../ui/game/hub';
+import { ConfirmNewGameSheet, ContinueRow, DailyCard, ModeList, HowToPlayRow, StatsRow } from '../../../ui/game/hub';
 import { useStore } from '../../../core/storage';
+import { RULES } from '../rules';
 import { todayKey } from '../../../core/daily';
 import { formatTime } from '../../../core/format';
 import { ngSave, ngStats } from '../storage';
@@ -46,6 +47,7 @@ export function NonogramHub() {
         modes={(['small', 'medium', 'large'] as const).map((m) => ({ id: m, label: MODE_LABEL[m], color: MODE_COLORS[m] }))}
         onSelect={(id) => request(id as NonogramMode)}
       />
+      <HowToPlayRow rules={RULES} gameName="Nonogram" />
       <StatsRow stats={ngStats} gameName="Nonogram" />
 
       <ConfirmNewGameSheet open={confirm != null} onCancel={() => setConfirm(null)} onConfirm={() => confirm && launch(confirm)} />

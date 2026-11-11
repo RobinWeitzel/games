@@ -14,7 +14,7 @@ src/
     nav.tsx         navigation stack, Screen layout, swipe-back
     components.tsx  lists, rows, toggles, segmented control, sheets, toast
     icons.tsx
-    game/           hub building blocks, StatsScreen, ResultSheet, useGameClock, useRestorable
+    game/           hub building blocks, How to Play (rules.tsx), StatsScreen, ResultSheet, useGameClock, useRestorable
   core/           SERVICES, no UI
     storage/        versioned key-value storage, layout migrations, backups
     settings.ts     app settings + createGameSettings()
@@ -45,6 +45,7 @@ The shell only knows the `GameModule` interface (`src/games/types.ts`):
 | Shell feature | Uses |
 |---|---|
 | Home tile | `name`, `tagline`, `Icon`, `color`. Tapping pushes `<Hub/>` |
+| How to Play | `rules` (the hub shows them with `HowToPlayRow`; required for every game) |
 | Home "Continue" card | `resume.describe()`, `resume.store` (to update live), `resume.Screen` |
 | Settings | `SettingsSection` |
 | Reset statistics | `stats.reset()` |
@@ -93,6 +94,6 @@ another screen covers the game).
 | `core/storage/store.test.ts` | envelopes, per-key migrations, read-only safety |
 | `core/storage/layout.test.ts` | layout migrations from real old data, backups |
 | `core/storage/contract.test.ts` | no unnoticed change to persisted keys/versions |
-| `architecture.test.ts` | module boundaries, registry validity |
+| `architecture.test.ts` | module boundaries, registry validity, every game shows its rules |
 | `design.test.ts` | static HIG rules: 11pt minimum, Dynamic Type tokens, haptics only in games, no browser dialogs, system appearance |
 | `npm run audit:ios` | rendered HIG checks: 44pt targets, text sizes, overflow, game fits (SE, large text, Pro Max) |

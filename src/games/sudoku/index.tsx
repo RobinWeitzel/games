@@ -1,4 +1,5 @@
 import type { GameModule } from '../types';
+import { RULES } from './rules';
 import { savedGame, sudokuStats, GAME_ID } from './storage';
 import { progress } from './state';
 import { prefetchAll } from './puzzles';
@@ -17,6 +18,7 @@ export const sudoku: GameModule = {
   Icon: SudokuIcon,
   color: 'linear-gradient(135deg, #4b49c9, #5856d6)', // white text ≥ 4.5:1
   Hub: SudokuHub,
+  rules: RULES,
   stats: sudokuStats,
   resume: {
     store: savedGame as Store<unknown>,

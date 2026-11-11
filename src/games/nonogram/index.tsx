@@ -1,4 +1,5 @@
 import type { GameModule } from '../types';
+import { RULES } from './rules';
 import type { Store } from '../../core/storage';
 import { GAME_ID, ngSave, ngStats } from './storage';
 import { progress } from './state';
@@ -15,6 +16,7 @@ export const nonogram: GameModule = {
   Icon: NonogramIcon,
   color: 'linear-gradient(135deg, #c2185b, #8e1450)',
   Hub: NonogramHub,
+  rules: RULES,
   stats: ngStats,
   resume: {
     store: ngSave as Store<unknown>,
