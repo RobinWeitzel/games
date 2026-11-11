@@ -31,6 +31,10 @@ Pushing to `main` runs `.github/workflows/deploy.yml`: test → build → deploy
 One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 The base path is the repository name (`/games/`).
 
+Installed apps check for a new version on launch, whenever they return to the foreground (at most once a
+minute) and hourly while open. They then show an "Update available" toast; nothing reloads until it's
+tapped. Settings shows the installed build (version + commit).
+
 ## Documentation
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the app is put together and the module boundaries

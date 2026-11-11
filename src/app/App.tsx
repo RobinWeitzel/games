@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'preact/hooks';
-import { registerSW } from 'virtual:pwa-register';
 import { Navigator } from '../ui/nav';
 import { Home } from './screens/Home';
 import { Toast } from '../ui/components';
@@ -7,6 +6,7 @@ import { getReadOnlyReason, onReadOnlyChange } from '../core/storage';
 import { markRestored, sessionStore } from '../core/session';
 import { GAMES } from '../games/registry';
 import { GameHubScreen } from './screens/GameHubScreen';
+import { watchForUpdates } from './updates';
 
 /** Rebuild the navigation stack the player left (HIG: restore state on relaunch). */
 function restoredStack() {
@@ -24,9 +24,7 @@ export function App() {
   const [initial] = useState(restoredStack);
 
   useEffect(() => {
-    const updateSW = registerSW({
-      onNeedRefresh: () => setUpdate(() => () => updateSW(true)),
-    });
+    watchForUpdates((apply) => setUpdate(() => apply));
     return onReadOnlyChange(() => setReadOnly(getReadOnlyReason()));
   }, []);
 

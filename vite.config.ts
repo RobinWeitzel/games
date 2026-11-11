@@ -9,7 +9,10 @@ const base = process.env.BASE_PATH ?? '/games/';
 export default defineConfig({
   base,
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? 'dev'),
+    // e.g. "0.1.0 (06dff72)" on GitHub Pages, so you can see which build is installed.
+    __APP_VERSION__: JSON.stringify(
+      `${process.env.npm_package_version ?? 'dev'}${process.env.GITHUB_SHA ? ` (${process.env.GITHUB_SHA.slice(0, 7)})` : ''}`,
+    ),
   },
   plugins: [
     preact(),
