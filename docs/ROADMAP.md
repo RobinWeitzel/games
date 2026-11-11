@@ -55,7 +55,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 ## Tier 2: good fit, small new engines
 
 ### Bridges (Hashiwokakero)
-- Status: `planned` · suggested id: `bridges`
+- Status: `shipped` · id: `bridges`
 - Connect islands so each has as many bridges as its number, all connected, no crossings.
 - Tap between two islands to cycle 0 → 1 → 2 bridges. Islands are large targets even when the
   grid is dense. It generates well.
@@ -145,7 +145,7 @@ similar).
 ## Suggested order
 
 1. Killer Sudoku (number pad from `ui/game/numpad.tsx`).
-2. Bridges or Star Battle.
+2. Star Battle.
 3. TriPeaks or Golf (on `ui/cards`).
 4. Word guessing, once a name, look and word list are settled (see the rules above).
 
@@ -160,4 +160,5 @@ similar).
 | FreeCell | `freecell` | Classic and daily; deals proven winnable by a best-first solver (also used for hints); supermoves; safe cards go home by themselves |
 | Spider | `spider` | 1, 2 and 4 suits, no daily (deals aren't checked for winnability). Possible follow-up: a solver for winnable 1-suit deals and a daily |
 | Calcudoku | `calcudoku` | 4×4 to 7×7 and a daily 6×6; random Latin square + random cages, kept only with exactly one solution (cage-by-cage solver) |
+| Bridges | `bridges` | 7×7, 9×9, 11×11 and a daily 9×9; grown island networks kept only with one solution (bounds-propagation solver); tap the water or drag from an island |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
