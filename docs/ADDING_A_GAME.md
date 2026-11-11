@@ -81,6 +81,7 @@ Then add the new keys to the list in `src/core/storage/contract.test.ts`. Read
 | Timer that pauses in the background and saves | `useGameClock` from `ui/game/useGameClock` |
 | Come back to the game after iOS closes the app | `useRestorable` from `ui/game/useRestorable` |
 | Win / lose sheet with big time | `ResultSheet` from `ui/game/hub` |
+| Card games: cards, pile slots, tap and drag on the table | `CardView`, `Slot`, `useCardTable` from `ui/cards`, card logic from `core/cards` (see `src/games/freecell/`) |
 | Lists, toggles, segmented control, sheets | `ui/components` |
 | Icons | `ui/icons` |
 | Haptics | `haptic('selection' \| 'success' \| 'error')` from `core/haptics` (call it inside a tap handler) |

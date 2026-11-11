@@ -1,21 +1,6 @@
 import { memo } from 'preact/compat';
-import { useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { useClickEcho } from '../../../ui/game/clickEcho';
-import {
-  Card,
-  Move,
-  Pile,
-  RANKS,
-  SUITS,
-  SUIT_NAMES,
-  SolitaireGame,
-  canPickUp,
-  cardName,
-  isRed,
-  pileCards,
-  rankOf,
-  suitOf,
-} from '../state';
+import { CardView, RecycleGlyph, Slot, SlotSuit, tableVars, useCardTable } from '../../../ui/cards';
+import { Card, Move, Pile, RANKS, SUIT_NAMES, SolitaireGame, canPickUp, cardName, pileCards } from '../state';
 
 interface Props {
   game: SolitaireGame;
@@ -31,12 +16,6 @@ interface Props {
   onDrop: (from: Pile, index: number, to: Pile) => void;
 }
 
-/** Text presentation selector: keeps ♥ and ♦ from turning into emoji on iOS. */
-export const TEXT = '︎';
-export const suitText = (c: Card) => SUITS[suitOf(c)] + TEXT;
-
-/** Movement before a press becomes a drag (HIG: cancel taps on movement). */
-const SLOP = 10;
 const ROW_GAP = 10;
 /** Card height / width. */
 const RATIO = 1.42;
@@ -125,48 +104,26 @@ function pileAt(L: Layout, x: number, y: number): Pile | null {
 }
 
 export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onTap, onDrop }: Props) {
-  const area = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const [drag, setDrag] = useState<{ from: Pile; index: number; dx: number; dy: number } | null>(null);
-  const press = useRef<{ pile: Pile; index: number; x: number; y: number; pickable: boolean; dragging: boolean } | null>(null);
-  // Pointer taps are handled on pointerup; the click that follows must not count again.
-  const echo = useClickEcho();
-
-  useLayoutEffect(() => {
-    const el = area.current!;
-    const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+  const { ref, size, drag, handlers } = useCardTable<Pile>({
+    hidden,
+    canPickUp: (pile, index) => canPickUp(game, pile, index),
+    onTap,
+    onDragEnd: (pile, index, dx, dy) => {
+      const start = posOf(pile, index);
+      if (!start) return;
+      const to = pileAt(L, start.x + dx + L.cw / 2, start.y + dy + L.ch / 3);
+      if (to && to !== pile) onDrop(pile, index, to);
+    },
+  });
 
   const L = computeLayout(size.w, size.h);
   const cards = size.w ? place(game, L) : [];
   const posOf = (pile: Pile, index: number) => cards.find((c) => c.pile === pile && c.index === index);
 
-  const targetOf = (e: Event): { pile: Pile; index: number } | null => {
-    const t = (e.target as HTMLElement).closest<HTMLElement>('[data-pile]');
-    return t ? { pile: t.dataset.pile as Pile, index: Number(t.dataset.index) } : null;
-  };
-
   const hintFrom = hint && hint.from !== 's' ? hint : null;
   const hintTo = hint && hint.to !== 's' ? hint.to : null;
   const hintToTop = hintTo ? pileCards(game, hintTo).length - 1 : -1;
-
-  const slot = (pile: Pile, x: number, y: number, label: string, content: preact.ComponentChildren = null, extra = '') => (
-    <div
-      key={`slot-${pile}`}
-      class={`sol-slot ${extra} ${hintTo === pile && hintToTop < 0 ? 'sol-hint-target' : ''}`}
-      style={{ transform: `translate(${x}px, ${y}px)` }}
-      data-pile={pile}
-      data-index={-1}
-      role="img"
-      aria-label={label}
-    >
-      {content}
-    </div>
-  );
+  const targetCls = (pile: Pile) => (hintTo === pile && hintToTop < 0 ? 'pc-hint-target' : '');
 
   const stockLabel = game.stock.length
     ? `Stock, ${game.stock.length} card${game.stock.length === 1 ? '' : 's'}. Draw ${game.draw}`
@@ -176,76 +133,43 @@ export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onT
 
   return (
     <div
-      ref={area}
-      class={`sol-board ${hidden ? 'sol-board-hidden' : ''}`}
-      style={{ '--cw': `${L.cw}px`, '--ch': `${L.ch}px`, '--sol-font': `${L.font}px` }}
+      ref={ref}
+      class={`pc-table ${hidden ? 'pc-table-hidden' : ''}`}
+      style={tableVars(L.cw, L.ch, L.font)}
       aria-label="Solitaire table"
       aria-describedby="sol-board-hint"
-      onPointerDown={(e) => {
-        if (!e.isPrimary || hidden) return;
-        const t = targetOf(e);
-        if (!t) return;
-        press.current = { ...t, x: e.clientX, y: e.clientY, pickable: canPickUp(game, t.pile, t.index), dragging: false };
-        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-      }}
-      onPointerMove={(e) => {
-        const p = press.current;
-        if (!p || !p.pickable) return;
-        const dx = e.clientX - p.x;
-        const dy = e.clientY - p.y;
-        if (!p.dragging && Math.hypot(dx, dy) <= SLOP) return;
-        p.dragging = true;
-        setDrag({ from: p.pile, index: p.index, dx, dy });
-      }}
-      onPointerUp={(e) => {
-        const p = press.current;
-        press.current = null;
-        if (p?.dragging) {
-          setDrag(null);
-          const start = posOf(p.pile, p.index);
-          if (start) {
-            const to = pileAt(L, start.x + (e.clientX - p.x) + L.cw / 2, start.y + (e.clientY - p.y) + L.ch / 3);
-            if (to && to !== p.pile) onDrop(p.pile, p.index, to);
-          }
-        } else if (p) {
-          onTap(p.pile, p.index);
-        }
-        echo.touched();
-      }}
-      onPointerCancel={() => {
-        press.current = null;
-        setDrag(null);
-        echo.touched();
-      }}
-      onContextMenu={(e) => e.preventDefault()}
-      onClick={(e) => {
-        if (echo.isEcho(e)) return; // already handled on pointerup
-        const t = targetOf(e);
-        if (t) onTap(t.pile, t.index);
-      }}
+      {...handlers}
     >
       {size.w > 0 && (
         <>
           {/* Stock: one button (the top card's back, or "turn over" when used up). */}
-          <div
+          <Slot
             key="stock"
-            class={`sol-slot sol-stock ${game.stock.length ? 'sol-down' : ''} ${hint?.from === 's' ? 'sol-hint' : ''}`}
-            style={{ transform: `translate(${colX(L, 0)}px, 0px)` }}
-            data-pile="s"
-            data-index={game.stock.length - 1}
+            pile="s"
+            index={game.stock.length - 1}
+            x={colX(L, 0)}
+            y={0}
+            cls={`pc-stock ${game.stock.length ? 'pc-down' : ''} ${hint?.from === 's' ? 'pc-hint' : ''}`}
             role="button"
-            aria-label={stockLabel}
+            label={stockLabel}
           >
             {!game.stock.length && game.waste.length > 0 && <RecycleGlyph />}
-          </div>
-          {[0, 1, 2, 3].map((f) =>
-            slot(`f${f}`, colX(L, 3 + f), 0, `${SUIT_NAMES[f]} foundation, ${game.foundations[f] ? `up to ${RANKS[game.foundations[f] - 1]}` : 'empty'}`, (
-              <span class="sol-slot-suit" aria-hidden="true">
-                {SUITS[f] + TEXT}
-              </span>
-            )),
-          )}
-          {game.tableau.map((col, i) => slot(`t${i}`, colX(L, i), L.tabTop, col.length ? `Column ${i + 1}` : `Column ${i + 1}, empty`, null, 'sol-col-slot'))}
+          </Slot>
+          {[0, 1, 2, 3].map((f) => (
+            <Slot
+              key={`slot-f${f}`}
+              pile={`f${f}`}
+              x={colX(L, 3 + f)}
+              y={0}
+              cls={targetCls(`f${f}`)}
+              label={`${SUIT_NAMES[f]} foundation, ${game.foundations[f] ? `up to ${RANKS[game.foundations[f] - 1]}` : 'empty'}`}
+            >
+              <SlotSuit suit={f} />
+            </Slot>
+          ))}
+          {game.tableau.map((col, i) => (
+            <Slot key={`slot-t${i}`} pile={`t${i}`} x={colX(L, i)} y={L.tabTop} cls={targetCls(`t${i}`)} label={col.length ? `Column ${i + 1}` : `Column ${i + 1}, empty`} />
+          ))}
 
           {cards.map((c) => {
             const dragged = drag && c.pile === drag.from && c.index >= drag.index;
@@ -253,41 +177,28 @@ export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onT
             const isTop = c.index === pileCards(game, c.pile).length - 1;
             const hinted = hintFrom && c.pile === hintFrom.from && c.index >= hintFrom.index;
             const cls = [
-              'sol-card',
-              c.up ? 'sol-up' : 'sol-down',
-              c.up && isRed(c.card) ? 'sol-red' : '',
-              dragged ? 'sol-dragging' : '',
-              fresh.has(c.card) ? 'sol-fresh' : '',
-              shake === c.card ? 'sol-shake' : '',
-              hinted ? 'sol-hint' : '',
-              hintTo === c.pile && c.index === hintToTop ? 'sol-hint-target' : '',
+              dragged ? 'pc-dragging' : '',
+              fresh.has(c.card) ? 'pc-fresh' : '',
+              shake === c.card ? 'pc-shake' : '',
+              hinted ? 'pc-hint' : '',
+              hintTo === c.pile && c.index === hintToTop ? 'pc-hint-target' : '',
             ].join(' ');
-            const x = c.x + (dragged ? drag.dx : 0);
-            const y = c.y + (dragged ? drag.dy : 0);
             const where = c.pile[0] === 't' ? `column ${Number(c.pile.slice(1)) + 1}` : c.pile === 'w' ? 'waste' : 'foundation';
             return (
-              <div
+              <CardView
                 key={c.card}
-                class={cls}
-                style={{ transform: `translate(${x}px, ${y}px)`, zIndex: dragged ? 100 + c.z : c.z }}
-                data-pile={c.pile}
-                data-index={c.index}
+                card={c.card}
+                up={c.up}
+                pile={c.pile}
+                index={c.index}
+                x={c.x + (dragged ? drag.dx : 0)}
+                y={c.y + (dragged ? drag.dy : 0)}
+                z={dragged ? 100 + c.z : c.z}
+                cls={cls}
                 role={pickable ? 'button' : 'img'}
-                aria-label={c.up ? `${cardName(c.card)}, ${where}` : `Face-down card, ${where}`}
-                aria-hidden={!c.up && !isTop ? 'true' : undefined}
-              >
-                {c.up && (
-                  <>
-                    <span class="sol-corner" aria-hidden="true">
-                      {RANKS[rankOf(c.card) - 1]}
-                      <span class="sol-corner-suit">{suitText(c.card)}</span>
-                    </span>
-                    <span class="sol-pip" aria-hidden="true">
-                      {suitText(c.card)}
-                    </span>
-                  </>
-                )}
-              </div>
+                label={c.up ? `${cardName(c.card)}, ${where}` : `Face-down card, ${where}`}
+                ariaHidden={!c.up && !isTop}
+              />
             );
           })}
         </>
@@ -295,10 +206,3 @@ export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onT
     </div>
   );
 });
-
-const RecycleGlyph = () => (
-  <svg class="sol-recycle" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
-    <path d="M19.5 3.5v4.5H15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-  </svg>
-);

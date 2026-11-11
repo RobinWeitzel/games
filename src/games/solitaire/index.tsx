@@ -7,7 +7,6 @@ import { MODE_LABEL } from './session';
 import { SolitaireHub } from './ui/SolitaireHub';
 import { SolitairePlay } from './ui/SolitairePlay';
 import { SolitaireIcon } from './ui/SolitaireIcon';
-import './ui/solitaire.css';
 
 export const solitaire: GameModule = {
   id: GAME_ID,
