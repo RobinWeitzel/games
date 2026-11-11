@@ -39,8 +39,10 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   builds its deals backwards from a random winning game, which is fast and certain).
 
 ### Calcudoku / Killer Sudoku
-- Status: Calcudoku `shipped`; Killer Sudoku `planned` · suggested id: `killer-sudoku`
-- The number pad (keys, notes look, touch-and-hold number lock) is shared in `ui/game/numpad.tsx`.
+- Status: `shipped` (both) · ids: `calcudoku`, `killer-sudoku`
+- The number pad (keys, notes look, touch-and-hold number lock) is shared in `ui/game/numpad.tsx`,
+  and the play logic of number grids with a known solution (digits, notes, mistakes, undo, hints)
+  in `core/numberGrid.ts`. Kakuro can build on both.
 - Arithmetic cages. They reuse Sudoku's input UX: number pad, notes, number lock, autofill.
   Share that via `ui/`, not by importing `sudoku/`.
 - Calcudoku 4×4 to 6×6 gets 44pt cells easily. Killer Sudoku is 9×9 under the `.cell` exemption.
@@ -144,7 +146,7 @@ similar).
 
 ## Suggested order
 
-1. Killer Sudoku (number pad from `ui/game/numpad.tsx`).
+1. Kakuro (number pad and `core/numberGrid.ts`).
 2. Codebreaker, sliding puzzle, peg solitaire (small engines).
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
@@ -163,4 +165,5 @@ similar).
 | Star Battle | `star-battle` | 6×6, 8×8 (1 star), 10×10 (2 stars), daily 8×8; random star layout, regions grown around it, then repaired until one solution remains; neighbouring regions get different tints plus thick borders |
 | TriPeaks | `tripeaks` | Classic and daily; deals proven winnable by a memoised DFS (~90% of random deals pass), which also gives hints |
 | Golf | `golf` | Classic and daily; only ~30% of random deals can be won, so deals are built backwards from a random winning game |
+| Killer Sudoku | `killer-sudoku` | Easy/Medium/Hard by cage size, daily Medium; random grid + cages without repeated digits; while a second solution exists, a cage is split where the solutions differ |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

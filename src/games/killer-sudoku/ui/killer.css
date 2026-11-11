@@ -1,0 +1,179 @@
+/*
+ * Killer Sudoku. Classes are prefixed with .ks- (all game styles load globally); cells use the
+ * shared `.cell` class (the audit's board-cell exemption), styled here under .ks-board.
+ * Cages are dashed outlines in --label-2 (shape, not colour); boxes are solid 2px lines.
+ */
+.ks-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.ks-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+}
+.ks-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--card);
+  transition: filter 250ms;
+  touch-action: none;
+}
+.ks-board .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+  font-size: inherit;
+  transition: background-color 120ms;
+  font-variant-numeric: tabular-nums;
+}
+.ks-board .cell:nth-child(9n) {
+  border-right: 0;
+}
+.ks-board .cell:nth-child(n + 73) {
+  border-bottom: 0;
+}
+.ks-board .cell.ks-box-r {
+  border-right: 2px solid var(--label);
+}
+.ks-board .cell.ks-box-b {
+  border-bottom: 2px solid var(--label);
+}
+.ks-cage {
+  position: absolute;
+  border: 1.5px var(--label-2);
+  border-style: none;
+  pointer-events: none;
+}
+.ks-sum {
+  position: absolute;
+  left: 2px;
+  top: 1px;
+  padding: 0 1px;
+  font-size: max(11px, calc(100cqw / 9 * 0.26));
+  font-weight: 700;
+  line-height: 1;
+  color: var(--label);
+  /* Hides the dashed line behind the sum. */
+  background: inherit;
+  background-color: var(--card);
+}
+.ks-value {
+  font-size: calc(100cqw / 9 * 0.56);
+  line-height: 1;
+  color: var(--accent);
+}
+.ks-board .cell.wrong .ks-value {
+  color: var(--red);
+  /* Not colour alone (HIG accessibility): wrong digits are also underlined. */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.ks-board .cell.wrong:not(.selected) {
+  background: var(--red-soft);
+}
+.ks-board .cell.related,
+.ks-board .cell.ks-in-cage {
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+}
+.ks-board .cell.same {
+  background: color-mix(in srgb, var(--accent) 20%, var(--card));
+}
+.ks-board .cell.selected {
+  background: color-mix(in srgb, var(--accent) 32%, var(--card));
+}
+.ks-board .cell.related .ks-sum,
+.ks-board .cell.ks-in-cage .ks-sum {
+  background-color: color-mix(in srgb, var(--accent) 7%, var(--card));
+}
+.ks-board .cell.same .ks-sum {
+  background-color: color-mix(in srgb, var(--accent) 20%, var(--card));
+}
+.ks-board .cell.selected .ks-sum {
+  background-color: color-mix(in srgb, var(--accent) 32%, var(--card));
+}
+.ks-notes {
+  position: absolute;
+  inset: 4px 3px 3px 3px;
+  top: calc(100cqw / 9 * 0.3);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  font-size: max(11px, calc(100cqw / 9 * 0.22));
+  line-height: 1;
+  color: var(--label-2);
+  font-weight: 500;
+}
+.ks-notes span {
+  display: grid;
+  place-items: center;
+}
+.ks-notes .note-hl {
+  color: var(--accent);
+  font-weight: 700;
+}
+.ks-board .cell.flash {
+  animation: ks-flash 650ms var(--ease);
+}
+@keyframes ks-flash {
+  30% {
+    background: color-mix(in srgb, var(--green) 35%, var(--card));
+  }
+}
+.ks-board .cell.shake .ks-value {
+  animation: ks-shake 380ms ease;
+}
+@keyframes ks-shake {
+  20%,
+  60% {
+    transform: translateX(-3px);
+  }
+  40%,
+  80% {
+    transform: translateX(3px);
+  }
+}
+.ks-won .cell {
+  animation: ks-won 700ms var(--ease) both;
+  animation-delay: var(--d);
+}
+@keyframes ks-won {
+  40% {
+    background: color-mix(in srgb, var(--green) 40%, var(--card));
+  }
+}
+.ks-hidden {
+  filter: blur(12px);
+}
+.ks-hidden .ks-value,
+.ks-hidden .ks-notes,
+.ks-hidden .ks-sum {
+  visibility: hidden;
+}
+.ks-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.ks-mistakes.has {
+  color: var(--red);
+}

@@ -65,9 +65,9 @@ export function CalcudokuPlay() {
     setGame(next);
     switch (ev.kind) {
       case 'correct':
-        if (ev.cageDone) {
+        if (ev.groupDone) {
           haptic('success');
-          setFlash(new Set(ev.cageDone));
+          setFlash(new Set(ev.groupDone));
           setTimeout(() => setFlash(new Set()), 650);
         } else haptic('selection');
         break;
