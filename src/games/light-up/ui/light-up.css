@@ -1,0 +1,155 @@
+/*
+ * Light Up. Classes are prefixed with .lu- (all game styles load globally); cells use the shared
+ * `.cell` class (the audit's board-cell exemption), styled here under .lu-board.
+ * Lit cells differ by brightness and a diagonal hatch, not only by hue. A bulb that lights
+ * another becomes a white bulb on a red disc; a number with too many bulbs gets a red ring, a
+ * satisfied number fades.
+ */
+:root {
+  --lu-wall: #2c2c2e;
+  --lu-wall-ink: #ffffff; /* 14.0 */
+  --lu-lit: #fff1b8;
+  --lu-hatch: rgba(160, 120, 0, 0.14);
+  --lu-bulb: #1c1c1e;
+}
+:root {
+  --lu-cell: var(--card);
+}
+:root[data-theme='dark'] {
+  /* Walls stay the darkest thing on the board, as in light mode. */
+  --lu-wall: #000000;
+  --lu-wall-ink: #ffffff; /* 21 */
+  --lu-cell: #3a3a3c;
+  --lu-lit: #5c4d12;
+  --lu-hatch: rgba(255, 214, 10, 0.14);
+  --lu-bulb: #ffffff;
+}
+.lu-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.lu-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+}
+.lu-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--lu-cell);
+  transition: filter 250ms;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.lu-board .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+  transition: background-color 150ms;
+}
+.lu-board .cell.lu-wall {
+  background: var(--lu-wall);
+  color: var(--lu-wall-ink);
+}
+.lu-board .cell.lu-lit {
+  background:
+    repeating-linear-gradient(135deg, var(--lu-hatch) 0 2px, transparent 2px 7px),
+    var(--lu-lit);
+}
+.lu-num {
+  display: grid;
+  place-items: center;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: calc(100cqw / var(--n) * 0.5);
+  font-weight: 700;
+  line-height: 1;
+}
+.lu-ok .lu-num {
+  opacity: 0.45;
+}
+.lu-over .lu-num {
+  box-shadow: 0 0 0 2.5px #ff453a;
+}
+.lu-mark {
+  display: grid;
+  place-items: center;
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.lu-bulb {
+  width: 80%;
+  height: 80%;
+}
+.lu-bulb path {
+  fill: var(--lu-bulb);
+  stroke: var(--lu-bulb);
+}
+.lu-clash {
+  background: #c40012;
+}
+.lu-clash .lu-bulb path {
+  fill: #fff;
+  stroke: #fff;
+}
+.lu-dot {
+  width: 18%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--label-2);
+}
+.lu-flash .lu-mark {
+  animation: lu-pop 450ms var(--ease) both;
+}
+@keyframes lu-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+.lu-won .lu-white {
+  animation: lu-won 700ms var(--ease) both;
+  animation-delay: var(--d);
+}
+@keyframes lu-won {
+  40% {
+    filter: brightness(1.15);
+  }
+}
+.lu-hidden {
+  filter: blur(12px);
+}
+.lu-hidden .lu-num,
+.lu-hidden .lu-mark,
+.lu-hidden .lu-dot {
+  visibility: hidden;
+}
+.lu-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.lu-tools .tool {
+  min-height: 52px;
+}

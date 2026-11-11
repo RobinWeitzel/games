@@ -69,7 +69,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 - Sizes 6×6 to 10×10. Needs a uniqueness solver.
 
 ### Grid logic pack: Slitherlink, Nurikabe, Light Up (Akari)
-- Status: `planned` · suggested ids: `slitherlink`, `nurikabe`, `light-up`
+- Status: Light Up `shipped`; Slitherlink and Nurikabe `planned` · suggested ids: `slitherlink`, `nurikabe`
 - Classic generated logic puzzles. Each needs its own solver for uniqueness. A shared
   constraint-propagation and backtracking helper in `core/` would serve all of them (and Nonogram,
   Star Battle, Kakuro).
@@ -169,4 +169,5 @@ similar).
 | Codebreaker | `codebreaker` | 4 of 6, 5 of 8, daily 4 of 6; symbols differ by shape, feedback marks by shape (dot, ring, dash) |
 | Sliding Puzzle | `sliding-puzzle` | 3×3, 4×4, 5×5, daily 4×4; random permutations fixed to be solvable by the parity rule |
 | Peg Solitaire | `peg-solitaire` | 33-hole cross and 15-hole triangle, no daily (fixed boards); hints from a memoised DFS (the cross solves in ~20ms) |
+| Light Up | `light-up` | Easy 7×7, Medium/Hard 10×10, daily Medium; symmetric walls, greedy bulbs, then numbers removed while a propagation solver keeps one solution |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
