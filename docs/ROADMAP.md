@@ -30,16 +30,13 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 
 ## Tier 1: strong fit, builds on existing code
 
-### More solitaire: FreeCell, Spider, Pyramid, TriPeaks, Golf
-- Status: `planned` · suggested ids: `freecell`, `spider`, `pyramid`, `tripeaks`, `golf`
-- **Prerequisite:** move the reusable card code (card rendering, deck, shuffle/deal, drag)
-  out of `src/games/solitaire/` into `src/ui/cards/` (components) and `src/core/cards.ts`
-  (logic). Games may not import each other (`src/architecture.test.ts`). Do this as its own
-  change, with Solitaire behaving identically and its storage untouched.
-- FreeCell: almost every deal is solvable, so it's a great daily. Spider: 1, 2 and 4 suit modes,
-  but 10 columns are tight on the SE, so overlap cards more. TriPeaks and Golf: fast, low effort.
-- Each could be a separate game (own stats) or a mode of Solitaire. Separate games are simpler:
-  adding modes to `solitaire` means a storage migration.
+### More solitaire: Pyramid, TriPeaks, Golf
+- Status: `planned` · suggested ids: `pyramid`, `tripeaks`, `golf`
+- FreeCell and Spider have shipped (see below). The card code they share with Solitaire lives in
+  `src/ui/cards/` (card faces, pile slots, tap and drag) and `src/core/cards.ts` (encoding, names,
+  shuffle). Build new card games on those, as separate games with their own stats.
+- TriPeaks and Golf: fast, low effort. Pyramid: pairs that add up to 13; needs a solver or
+  reverse dealing for winnable deals.
 
 ### Calcudoku / Killer Sudoku
 - Status: `planned` · suggested ids: `calcudoku`, `killer-sudoku`
@@ -146,9 +143,9 @@ similar).
 
 ## Suggested order
 
-1. Extract card code to `ui/` and `core/`, then FreeCell and Spider.
-2. Calcudoku or Killer Sudoku (share Sudoku's number-pad UX via `ui/`).
-3. Bridges or Star Battle.
+1. Calcudoku or Killer Sudoku (share Sudoku's number-pad UX via `ui/`).
+2. Bridges or Star Battle.
+3. TriPeaks or Golf (on `ui/cards`).
 4. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -159,4 +156,6 @@ similar).
 | Numbers | `numbers` | reach a target with six numbers |
 | Minesweeper | `minesweeper` | no-guess boards |
 | Solitaire | `solitaire` | Klondike, Draw 1 / Draw 3, daily |
+| FreeCell | `freecell` | Classic and daily; deals proven winnable by a best-first solver (also used for hints); supermoves; safe cards go home by themselves |
+| Spider | `spider` | 1, 2 and 4 suits, no daily (deals aren't checked for winnability). Possible follow-up: a solver for winnable 1-suit deals and a daily |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

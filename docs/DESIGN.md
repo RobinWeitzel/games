@@ -73,7 +73,8 @@ what can be checked automatically. The rest is the review checklist at the end.
   iOS switch, **only inside list rows**), `Segmented` (**≤ 5 segments**, text only), `Sheet`.
 - Buttons react on touch-down (`:active` styles; `touchstart` listener in `main.tsx`).
 - Allowed exceptions (listed in `ios-audit.mjs`): board cells in a dense game grid (the board as
-  a whole is the target), the native switch (51×31pt inside a ≥ 44pt row), and segmented-control
+  a whole is the target), playing cards on 8- and 10-column card tables (FreeCell, Spider: a tap
+  moves a card to the best place, so the table works as one large target), the native switch (51×31pt inside a ≥ 44pt row), and segmented-control
   segments (standard 32pt control).
 
 ### 5b. Custom gestures (HIG Gestures)
