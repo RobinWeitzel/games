@@ -14,13 +14,15 @@ interface Props {
   onHold: (cell: number) => void;
   /** Finger lifted after a hold: iOS can play haptics here. */
   onRelease: () => void;
+  /** True while the board is still scrolling: a touch then only stops the scroll (as in any iOS list). */
+  isScrolling?: () => boolean;
 }
 
 /** Touch-and-hold duration and movement tolerance (HIG: standard long press, cancel on movement). */
 const HOLD_MS = 400;
 const SLOP = 10;
 
-export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, onRelease }: Props) {
+export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, onRelease, isScrolling }: Props) {
   const press = useRef<{ cell: number | null; x: number; y: number; held: boolean; timer?: ReturnType<typeof setTimeout> }>({
     cell: null,
     x: 0,
@@ -31,6 +33,7 @@ export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, o
   const pointerTapped = useRef(false);
   const finished = game.status !== 'playing';
 
+  /** The press became a scroll (or was interrupted): it's neither a tap nor a hold. */
   const cancel = () => {
     clearTimeout(press.current.timer);
     press.current.cell = null;
@@ -51,8 +54,12 @@ export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, o
         if (!e.isPrimary) return;
         const cell = cellOf(e);
         clearTimeout(press.current.timer);
-        if (cell == null) return;
         pointerTapped.current = true;
+        // A touch that stops a flick-scroll must never open a cell.
+        if (cell == null || isScrolling?.()) {
+          press.current.cell = null;
+          return;
+        }
         press.current = {
           cell,
           x: e.clientX,
@@ -79,7 +86,11 @@ export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, o
         // If no click follows (finger moved away), don't swallow a later VoiceOver activation.
         setTimeout(() => (pointerTapped.current = false), 500);
       }}
-      onPointerCancel={cancel}
+      // The browser took over the touch to scroll the board.
+      onPointerCancel={() => {
+        cancel();
+        setTimeout(() => (pointerTapped.current = false), 500);
+      }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={(e) => {
         if (pointerTapped.current) {

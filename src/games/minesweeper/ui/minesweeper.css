@@ -54,39 +54,56 @@
 
 /* ---------- Board ---------- */
 .ms-board-area {
-  /* All vertical space the controls don't need: the board is the largest rectangle that fits. */
+  /* All vertical space the controls don't need. */
+  position: relative;
   flex: 1 1 0;
   min-height: 0;
-  container-type: size;
-  display: grid;
-  place-items: center;
+}
+/* The board scrolls vertically inside the area when it's taller (never horizontally: the left
+   edge is swipe-back). The status line and controls stay fixed. */
+.ms-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+}
+.ms-scroll-paused {
+  overflow-y: hidden;
 }
 .ms-board-wrap {
-  position: relative;
-  width: min(100cqw, 100cqh * var(--cols) / var(--rows));
+  /* Centred when it fits, top-aligned (and scrollable) when it doesn't. */
+  margin: auto;
+  width: min(100%, var(--cols) * 60px);
 }
 .ms-board {
   container-type: inline-size;
   display: grid;
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
-  aspect-ratio: var(--cols) / var(--rows);
   width: 100%;
-  gap: 2px;
   padding: 2px;
   border-radius: 8px;
   background: var(--card);
   box-shadow: var(--shadow);
   transition: filter 250ms;
-  touch-action: none;
+  /* Vertical drags scroll the board; taps and holds are handled by the board. */
+  touch-action: pan-y;
   -webkit-touch-callout: none;
 }
 .ms-cell {
+  aspect-ratio: 1;
   min-width: 0;
-  min-height: 0;
   display: grid;
   place-items: center;
-  border-radius: 4px;
+  /* The 4pt spacing between tiles is a transparent border: it's part of the cell, so there are
+     no dead gaps between hit targets. */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 5px;
   font-size: calc(100cqw / var(--cols) * 0.6);
   font-weight: 700;
   line-height: 1;
@@ -94,7 +111,7 @@
 }
 /* Closed cells are raised tiles; open cells are flat (shape, not only colour). */
 .ms-closed {
-  background: var(--fill-strong);
+  background-color: var(--fill-strong);
   color: var(--label);
   transition: transform 100ms var(--ease);
 }
@@ -102,7 +119,7 @@
   transform: scale(0.88);
 }
 .ms-open {
-  background: transparent;
+  background-color: transparent;
 }
 .ms-n1 { color: var(--ms-1); }
 .ms-n2 { color: var(--ms-2); }
@@ -125,7 +142,7 @@
 }
 /* The mine that was opened: solid red tile with an outline, so it stands out by shape too. */
 .ms-exploded {
-  background: var(--ms-flag);
+  background-color: var(--ms-flag);
   color: #fff;
   outline: 2px solid var(--label);
   outline-offset: -2px;
@@ -150,7 +167,7 @@
 }
 @keyframes ms-won {
   40% {
-    background: color-mix(in srgb, var(--green) 45%, var(--card));
+    background-color: color-mix(in srgb, var(--green) 45%, var(--card));
   }
 }
 

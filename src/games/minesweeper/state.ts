@@ -10,12 +10,16 @@ import { isSolvable, provablySafe } from './solver';
 
 export type MinesweeperMode = 'easy' | 'medium' | 'hard' | 'daily';
 
-/** Board sizes: portrait boards (more rows than columns) so they fill an iPhone screen. */
+/**
+ * Board sizes. Always 8 columns: that keeps every cell ≥ 44pt wide on iPhone SE (HIG minimum
+ * hit target). Bigger boards get more rows and scroll vertically. Mine densities follow the
+ * classic beginner / intermediate / expert levels (12.5%, 15.6%, 20.8%).
+ */
 export const BOARDS: Record<MinesweeperMode, { cols: number; rows: number; mines: number }> = {
   easy: { cols: 8, rows: 10, mines: 10 },
-  medium: { cols: 10, rows: 14, mines: 22 },
-  hard: { cols: 12, rows: 17, mines: 40 },
-  daily: { cols: 10, rows: 14, mines: 22 },
+  medium: { cols: 8, rows: 16, mines: 20 },
+  hard: { cols: 8, rows: 24, mines: 40 },
+  daily: { cols: 8, rows: 16, mines: 20 },
 };
 
 /** Cell states in `MinesweeperGame.cells`. */
