@@ -1,4 +1,5 @@
 import type { GameModule } from '../types';
+import { RULES } from './rules';
 import type { Store } from '../../core/storage';
 import { GAME_ID, numbersSave, numbersStats } from './storage';
 import { progress } from './state';
@@ -15,6 +16,7 @@ export const numbers: GameModule = {
   Icon: NumbersIcon,
   color: 'linear-gradient(135deg, #00727a, #00666d)', // white text ≥ 4.5:1
   Hub: NumbersHub,
+  rules: RULES,
   stats: numbersStats,
   resume: {
     store: numbersSave as Store<unknown>,

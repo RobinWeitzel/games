@@ -1,7 +1,8 @@
 import { useState } from 'preact/hooks';
 import { Screen, useNav } from '../../../ui/nav';
-import { ConfirmNewGameSheet, ContinueRow, DailyCard, ModeList, StatsRow } from '../../../ui/game/hub';
+import { ConfirmNewGameSheet, ContinueRow, DailyCard, ModeList, HowToPlayRow, StatsRow } from '../../../ui/game/hub';
 import { useStore } from '../../../core/storage';
+import { RULES } from '../rules';
 import { todayKey } from '../../../core/daily';
 import { formatTime } from '../../../core/format';
 import { msSave, msStats } from '../storage';
@@ -46,6 +47,7 @@ export function MinesweeperHub() {
         modes={(['easy', 'medium', 'hard'] as const).map((m) => ({ id: m, label: MODE_LABEL[m], color: MODE_COLORS[m] }))}
         onSelect={(id) => request(id as MinesweeperMode)}
       />
+      <HowToPlayRow rules={RULES} gameName="Minesweeper" />
       <StatsRow stats={msStats} gameName="Minesweeper" />
 
       <ConfirmNewGameSheet open={confirm != null} onCancel={() => setConfirm(null)} onConfirm={() => confirm && launch(confirm)} />

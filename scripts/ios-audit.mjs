@@ -112,7 +112,7 @@ try {
     await wait();
     issues.push(...(await audit(page, 'Settings')));
     await back();
-    // Every game: hub, statistics, game screen (and its next step, if it has one), paused.
+    // Every game: hub, statistics, how to play, game screen (and its next step, if it has one), paused.
     const games = await page.locator('.tile:not(.tile-soon)').count();
     for (let g = 0; g < games; g++) {
       const name = (await page.locator('.tile:not(.tile-soon) .tile-name').nth(g).textContent()).trim();
@@ -122,6 +122,10 @@ try {
       await page.click('.screen:last-child .row >> text=Statistics');
       await wait();
       issues.push(...(await audit(page, `${name} statistics`)));
+      await back();
+      await page.click('.screen:last-child .row >> text=How to Play');
+      await wait();
+      issues.push(...(await audit(page, `${name} how to play`)));
       await back();
       await page.click('.screen:last-child .section-body .row >> nth=0'); // first mode (or Continue)
       await page.waitForSelector('.content-fixed');

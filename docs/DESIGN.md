@@ -156,6 +156,7 @@ of standard taps**, and must:
 - [ ] Leave mid-game, kill the app, relaunch: you're back in the game, paused
 - [ ] VoiceOver can read and operate the main flow
 - [ ] Confirmations use action sheets with a destructive first option and Cancel
+- [ ] The game's How to Play (`rules.ts`) still matches its rules, modes and tools
 
 ## Review log
 
@@ -234,3 +235,9 @@ dimmed. Undo (also ⌘Z) is free; a hint corrects a wrong mark first, else marks
 from one line, and counts as an assist. Haptics: `selection` for a stroke or a hint, `success` for
 the solved picture. There is no `error`: nonograms don't reveal mistakes while playing. When solved,
 the crosses and grid lines fade out so only the picture is left, and "Show Picture" closes the sheet.
+
+**2026-11 How to Play.** Every game hub has a "How to Play" row (above Statistics) that pushes a
+detail screen with an inline title and the back label of the game. The rules are text rows in
+inset-grouped sections (Goal, Playing, Modes…), using `--fs-body` so they follow Dynamic Type. Each
+game keeps its rules in `rules.ts`; a game without rules, or a hub without the row, fails
+`npm test`. `audit:ios` checks the screen for every game.

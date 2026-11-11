@@ -1,4 +1,5 @@
 import type { GameModule } from '../types';
+import { RULES } from './rules';
 import type { Store } from '../../core/storage';
 import { GAME_ID, solSave, solStats } from './storage';
 import { progress } from './state';
@@ -15,6 +16,7 @@ export const solitaire: GameModule = {
   Icon: SolitaireIcon,
   color: 'linear-gradient(135deg, #1f7a46, #145c34)', // white text ≥ 4.5:1 (5.3:1 / 8.0:1)
   Hub: SolitaireHub,
+  rules: RULES,
   stats: solStats,
   resume: {
     store: solSave as Store<unknown>,

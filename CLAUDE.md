@@ -36,7 +36,11 @@ Read before working:
    restored, save on every move and on backgrounding (`useGameClock` `onSuspend`).
 10. **Accessible:** labels on icon buttons, state in labels (e.g. "incorrect"), click activation
     for VoiceOver/Switch Control, a hidden table for charts.
-11. **Launch images stay plain** (no logo or text). Portrait-only is an intentional product decision.
+11. **Every game explains its rules.** Each game has a `rules.ts` (`GameModule.rules`) covering the
+    goal, how a move works, how you win/lose, and every mode and tool, shown on its hub via
+    `<HowToPlayRow/>` (enforced by `src/architecture.test.ts`). When you change a game's rules,
+    modes or tools, update its `rules.ts` in the same change.
+12. **Launch images stay plain** (no logo or text). Portrait-only is an intentional product decision.
 
 ### Data safety (details in docs/STORAGE.md)
 - Before changing anything persisted (`defineStore`, `createGameSettings`, `createGameStats`, game

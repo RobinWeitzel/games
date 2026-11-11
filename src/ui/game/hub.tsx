@@ -9,9 +9,11 @@ import { IconCalendar, IconChart, IconCheck, IconFlame, IconPlay } from '../icon
 import { StatsScreen } from './StatsScreen';
 import './game.css';
 
+export { HowToPlayRow } from './rules';
+
 /**
  * Building blocks for a game's hub screen. A typical hub is:
- *   <ContinueRow/> <DailyCard/> <ModeList/> <StatsRow/>
+ *   <ContinueRow/> <DailyCard/> <ModeList/> <HowToPlayRow/> <StatsRow/>
  * See src/games/sudoku/ui/SudokuHub.tsx.
  */
 

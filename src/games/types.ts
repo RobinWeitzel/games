@@ -1,6 +1,7 @@
 import type { FunctionComponent } from 'preact';
 import type { GameStats } from '../core/stats';
 import type { Store } from '../core/storage';
+import type { GameRules } from '../ui/game/rules';
 
 /**
  * The contract between the app shell and a game. The shell (home screen, settings,
@@ -25,6 +26,12 @@ export interface GameModule {
 
   /** First screen of the game (difficulty picker, daily, stats link…). Pushed on tile tap. */
   Hub: FunctionComponent;
+
+  /**
+   * How to play: goal, moves, winning, modes and tools. Required for every game. The hub shows
+   * it with `<HowToPlayRow rules={…}/>` (from ui/game/hub).
+   */
+  rules: GameRules;
 
   /** Per-mode statistics; drives the Statistics screen, reset and backups. */
   stats: GameStats;

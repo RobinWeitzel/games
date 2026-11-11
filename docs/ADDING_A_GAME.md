@@ -21,6 +21,7 @@ name can.
 ```
 src/games/minesweeper/
   index.tsx        the GameModule definition (the only file the registry imports)
+  rules.ts         How to Play: the rules shown on the hub (required)
   storage.ts       EVERY persisted value of this game (settings, stats, save, caches)
   state.ts         pure game logic / reducer, with tests next to it (state.test.ts)
   ui/
@@ -76,7 +77,7 @@ Then add the new keys to the list in `src/core/storage/contract.test.ts`. Read
 |---|---|
 | Screen with nav bar, back button, swipe-back | `Screen` from `ui/nav` (`largeTitle` for the hub, `title` + `fixed` for the game screen) |
 | Game screen chrome (layout, status line, timer, tool row, pause overlay) | classes `play`, `play-layout`, `play-info`, `timer`, `tools`/`tool`, `pause-overlay` from `ui/game/game.css` (loaded with the game kit) |
-| Hub building blocks | `ContinueRow`, `DailyCard`, `ModeList`, `StatsRow`, `ConfirmNewGameSheet`, `LoadingOverlay` from `ui/game/hub` |
+| Hub building blocks | `ContinueRow`, `DailyCard`, `ModeList`, `HowToPlayRow`, `StatsRow`, `ConfirmNewGameSheet`, `LoadingOverlay` from `ui/game/hub` |
 | Timer that pauses in the background and saves | `useGameClock` from `ui/game/useGameClock` |
 | Come back to the game after iOS closes the app | `useRestorable` from `ui/game/useRestorable` |
 | Win / lose sheet with big time | `ResultSheet` from `ui/game/hub` |
@@ -106,11 +107,34 @@ for a game screen:
   Count an abandoned game (a new game started over a touched one) as `'abandoned'`.
 - VoiceOver: label controls and cells (including state), and make activation work via `click`.
 
-## 5. Define the module (`index.tsx`)
+## 5. Write the rules (`rules.ts`), required
+
+Every game explains itself on its hub. `rules.ts` exports the rules as inset-grouped sections,
+and the hub shows them with `<HowToPlayRow rules={RULES} gameName="Minesweeper" />` right above
+`<StatsRow/>`. The row opens a "How to Play" detail screen.
+
+```ts
+import type { GameRules } from '../../ui/game/rules';
+
+export const RULES: GameRules = [
+  { header: 'Goal', rules: ['Open every cell that doesn’t hide a mine. If you open a mine, the game is lost.'] },
+  { header: 'Playing', rules: ['Tap a cell to open it. Touch and hold a cell to put a flag on it.', '…'] },
+  { header: 'Modes', rules: ['Easy: 8 × 10 with 10 mines. …', 'The Daily Challenge …'] },
+];
+```
+
+Cover: the goal, how a move works, how you win (and lose), every mode, every tool (Undo, Hint,
+assists), and every gesture. Short, plain sentences, one per entry. Describe what the game actually
+does (read `state.ts`), and update `rules.ts` whenever the rules, modes or tools change.
+`validateRegistry` rejects a game without rules, and `src/architecture.test.ts` fails if a game's hub
+doesn't render `<HowToPlayRow/>`.
+
+## 6. Define the module (`index.tsx`)
 
 ```tsx
 import type { GameModule } from '../types';
 import type { Store } from '../../core/storage';
+import { RULES } from './rules';
 import { GAME_ID, msSave, msStats } from './storage';
 import { MinesweeperHub } from './ui/MinesweeperHub';
 import { MinesweeperPlay } from './ui/MinesweeperPlay';
@@ -124,6 +148,7 @@ export const minesweeper: GameModule = {
   Icon: MinesweeperIcon,
   color: 'linear-gradient(135deg, #30b0c7, #0a84ff)',
   Hub: MinesweeperHub,
+  rules: RULES,
   stats: msStats,
   resume: {
     store: msSave as Store<unknown>,
@@ -138,7 +163,7 @@ export const minesweeper: GameModule = {
 };
 ```
 
-## 6. Register it
+## 7. Register it
 
 ```ts
 // src/games/registry.ts
@@ -146,7 +171,7 @@ import { minesweeper } from './minesweeper';
 export const GAMES: GameModule[] = [sudoku, minesweeper];
 ```
 
-## 7. Check
+## 8. Check
 
 ```sh
 npm test           # logic tests, storage contract, architecture boundaries, design lint
@@ -156,6 +181,7 @@ npm run preview    # try it on the phone
 ```
 
 - [ ] The review checklist in [DESIGN.md](DESIGN.md) is done
+- [ ] How to Play explains the goal, moves, winning/losing, every mode and every tool
 - [ ] Game id and mode ids are final
 - [ ] All persisted data is declared in `storage.ts` and listed in the contract test
 - [ ] Game logic is in pure functions with unit tests

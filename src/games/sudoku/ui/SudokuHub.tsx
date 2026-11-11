@@ -1,7 +1,8 @@
 import { useState } from 'preact/hooks';
 import { Screen, useNav } from '../../../ui/nav';
-import { ConfirmNewGameSheet, ContinueRow, DailyCard, LoadingOverlay, ModeList, StatsRow } from '../../../ui/game/hub';
+import { ConfirmNewGameSheet, ContinueRow, DailyCard, LoadingOverlay, ModeList, HowToPlayRow, StatsRow } from '../../../ui/game/hub';
 import { useStore } from '../../../core/storage';
+import { RULES } from '../rules';
 import { todayKey } from '../../../core/daily';
 import { formatTime } from '../../../core/format';
 import { DIFFICULTIES } from '../engine/generator';
@@ -60,6 +61,7 @@ export function SudokuHub() {
         modes={DIFFICULTIES.map((d) => ({ id: d, label: DIFFICULTY_LABEL[d], color: DIFF_COLORS[d] }))}
         onSelect={(id) => request(id as StartKind)}
       />
+      <HowToPlayRow rules={RULES} gameName="Sudoku" />
       <StatsRow stats={sudokuStats} gameName="Sudoku" />
 
       <ConfirmNewGameSheet open={confirm != null} onCancel={() => setConfirm(null)} onConfirm={() => confirm && void launch(confirm)} />
