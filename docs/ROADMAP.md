@@ -61,7 +61,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   grid is dense. It generates well.
 
 ### Star Battle / Queens
-- Status: `planned` · suggested id: `star-battle`
+- Status: `shipped` · id: `star-battle`
 - One star (or two on larger boards) per row, column and region, and no two stars touching.
 - Regions are normally colour-only. **Draw thick region borders as well** (colour rule).
 - Sizes 6×6 to 10×10. Needs a uniqueness solver.
@@ -145,9 +145,8 @@ similar).
 ## Suggested order
 
 1. Killer Sudoku (number pad from `ui/game/numpad.tsx`).
-2. Star Battle.
-3. TriPeaks or Golf (on `ui/cards`).
-4. Word guessing, once a name, look and word list are settled (see the rules above).
+2. TriPeaks or Golf (on `ui/cards`).
+3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
 
@@ -161,4 +160,5 @@ similar).
 | Spider | `spider` | 1, 2 and 4 suits, no daily (deals aren't checked for winnability). Possible follow-up: a solver for winnable 1-suit deals and a daily |
 | Calcudoku | `calcudoku` | 4×4 to 7×7 and a daily 6×6; random Latin square + random cages, kept only with exactly one solution (cage-by-cage solver) |
 | Bridges | `bridges` | 7×7, 9×9, 11×11 and a daily 9×9; grown island networks kept only with one solution (bounds-propagation solver); tap the water or drag from an island |
+| Star Battle | `star-battle` | 6×6, 8×8 (1 star), 10×10 (2 stars), daily 8×8; random star layout, regions grown around it, then repaired until one solution remains; neighbouring regions get different tints plus thick borders |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

@@ -1,0 +1,147 @@
+/*
+ * Star Battle. Classes are prefixed with .sb- (all game styles load globally); cells use the
+ * shared `.cell` class (the audit's board-cell exemption), styled here under .sb-board.
+ *
+ * Regions are never told apart by colour alone: thick 2.5px borders in --label outline them, the
+ * tints only help. Marks on the tints (ratios in light / dark): star and cross ink ≥ 12:1 / 7:1. Neighbouring
+ * regions always get different tints (Board.tsx colours the region map).
+ * A star in conflict becomes a white star on a red disc (shape change; white on red ≥ 4.5:1).
+ */
+:root {
+  --sb-0: #ffd0cc;
+  --sb-1: #ffe0b8;
+  --sb-2: #fff3a8;
+  --sb-3: #d4f2c4;
+  --sb-4: #bfeee9;
+  --sb-5: #cde2ff;
+  --sb-6: #d9d4ff;
+  --sb-7: #efd2f7;
+  --sb-8: #ffd3e6;
+  --sb-9: #e3e3e8;
+  --sb-ink: #1c1c1e;
+  --sb-bad: #c40012;
+}
+:root[data-theme='dark'] {
+  --sb-0: #6b2a26;
+  --sb-1: #6b4318;
+  --sb-2: #5f5514;
+  --sb-3: #2e5a22;
+  --sb-4: #1d5752;
+  --sb-5: #1f4470;
+  --sb-6: #3b3478;
+  --sb-7: #5b2d66;
+  --sb-8: #6a2846;
+  --sb-9: #48484d;
+  --sb-ink: #ffffff;
+  --sb-bad: #d70015;
+}
+.sb-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.sb-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+}
+.sb-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2.5px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: filter 250ms;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.sb-board .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+  color: var(--sb-ink);
+}
+.sb-board .cell.sb-r {
+  border-right: 2.5px solid var(--label);
+}
+.sb-board .cell.sb-b {
+  border-bottom: 2.5px solid var(--label);
+}
+.sb-g0 { background: var(--sb-0); }
+.sb-g1 { background: var(--sb-1); }
+.sb-g2 { background: var(--sb-2); }
+.sb-g3 { background: var(--sb-3); }
+.sb-g4 { background: var(--sb-4); }
+.sb-g5 { background: var(--sb-5); }
+.sb-g6 { background: var(--sb-6); }
+.sb-g7 { background: var(--sb-7); }
+.sb-g8 { background: var(--sb-8); }
+.sb-g9 { background: var(--sb-9); }
+
+.sb-star {
+  font-size: calc(100cqw / var(--n) * 0.62);
+  line-height: 1;
+}
+.sb-star.sb-bad {
+  display: grid;
+  place-items: center;
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--sb-bad);
+  color: #fff;
+  font-size: calc(100cqw / var(--n) * 0.5);
+}
+.sb-cross {
+  font-size: calc(100cqw / var(--n) * 0.45);
+  line-height: 1;
+  opacity: 0.6;
+}
+.sb-flash .sb-star {
+  animation: sb-pop 450ms var(--ease) both;
+}
+@keyframes sb-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+.sb-won .cell .sb-star {
+  animation: sb-won 700ms var(--ease) both;
+  animation-delay: var(--d);
+}
+@keyframes sb-won {
+  40% {
+    transform: scale(1.3);
+  }
+}
+.sb-hidden {
+  filter: blur(12px);
+}
+.sb-hidden .sb-star,
+.sb-hidden .sb-cross {
+  visibility: hidden;
+}
+.sb-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.sb-tools .tool {
+  min-height: 52px;
+}
