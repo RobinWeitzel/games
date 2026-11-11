@@ -39,7 +39,8 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   reverse dealing for winnable deals.
 
 ### Calcudoku / Killer Sudoku
-- Status: `planned` · suggested ids: `calcudoku`, `killer-sudoku`
+- Status: Calcudoku `shipped`; Killer Sudoku `planned` · suggested id: `killer-sudoku`
+- The number pad (keys, notes look, touch-and-hold number lock) is shared in `ui/game/numpad.tsx`.
 - Arithmetic cages. They reuse Sudoku's input UX: number pad, notes, number lock, autofill.
   Share that via `ui/`, not by importing `sudoku/`.
 - Calcudoku 4×4 to 6×6 gets 44pt cells easily. Killer Sudoku is 9×9 under the `.cell` exemption.
@@ -143,7 +144,7 @@ similar).
 
 ## Suggested order
 
-1. Calcudoku or Killer Sudoku (share Sudoku's number-pad UX via `ui/`).
+1. Killer Sudoku (number pad from `ui/game/numpad.tsx`).
 2. Bridges or Star Battle.
 3. TriPeaks or Golf (on `ui/cards`).
 4. Word guessing, once a name, look and word list are settled (see the rules above).
@@ -158,4 +159,5 @@ similar).
 | Solitaire | `solitaire` | Klondike, Draw 1 / Draw 3, daily |
 | FreeCell | `freecell` | Classic and daily; deals proven winnable by a best-first solver (also used for hints); supermoves; safe cards go home by themselves |
 | Spider | `spider` | 1, 2 and 4 suits, no daily (deals aren't checked for winnability). Possible follow-up: a solver for winnable 1-suit deals and a daily |
+| Calcudoku | `calcudoku` | 4×4 to 7×7 and a daily 6×6; random Latin square + random cages, kept only with exactly one solution (cage-by-cage solver) |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
