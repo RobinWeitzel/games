@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { Screen, useIsTop, useNav, useScreenIndex } from '../../../ui/nav';
 import { ResultSheet } from '../../../ui/game/hub';
 import { useGameClock } from '../../../ui/game/useGameClock';
+import { useRestorable } from '../../../ui/game/useRestorable';
 import { haptic } from '../../../core/haptics';
 import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
 import { IconBulb, IconErase, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
-import { savedGame, sudokuSettings, sudokuStats } from '../storage';
+import { GAME_ID, savedGame, sudokuSettings, sudokuStats } from '../storage';
 import { Action, MAX_MISTAKES, SudokuGame, digitCounts, reduce } from '../state';
 import { createGame } from '../session';
 import { Board } from './Board';
@@ -23,6 +24,8 @@ export function SudokuPlay() {
   const nav = useNav();
   const isTop = useIsTop();
   const screenIndex = useScreenIndex();
+  // Relaunching the app comes straight back here (paused, so the player can get oriented).
+  const restored = useRestorable(GAME_ID, 'resume');
   const settings = useStore(sudokuSettings);
   const [game, setGame] = useState<SudokuGame | null>(() => savedGame.get());
   const gameRef = useRef(game);
@@ -42,6 +45,7 @@ export function SudokuPlay() {
   const clock = useGameClock({
     initialMs: game?.elapsedMs ?? 0,
     active: !!game && game.status === 'playing',
+    startPaused: restored,
     onSuspend: () => persist(),
   });
   const { paused, setPaused } = clock;
@@ -88,8 +92,7 @@ export function SudokuPlay() {
         haptic('error');
         finish(next, 'lost');
         return;
-      default:
-        if (action.type !== 'select' && action.type !== 'move') haptic('selection');
+      // Tools, notes and selection: no haptic (HIG: don't overuse; reserve for meaningful events).
     }
     if (action.type !== 'select' && action.type !== 'move' && action.type !== 'toggleNotes') persist(next);
   };
@@ -153,10 +156,7 @@ export function SudokuPlay() {
           class="nav-icon"
           aria-label={paused ? 'Resume' : 'Pause'}
           disabled={game.status !== 'playing'}
-          onClick={() => {
-            haptic('selection');
-            setPaused((p) => !p);
-          }}
+          onClick={() => setPaused((p) => !p)}
         >
           {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
         </button>
@@ -187,10 +187,7 @@ export function SudokuPlay() {
           {showPause && (
             <button
               class="pause-overlay"
-              onClick={() => {
-                haptic('selection');
-                setPaused(false);
-              }}
+              onClick={() => setPaused(false)}
             >
               <span class="pause-play">
                 <IconPlay size={34} />
@@ -204,12 +201,8 @@ export function SudokuPlay() {
           <Tool label="Undo" onClick={() => dispatch({ type: 'undo' })} disabled={!game.undo.length}>
             <IconUndo />
           </Tool>
-          <Tool label="Erase" onClick={() => dispatch({ type: 'erase' })} disabled={selectedLocked}>
-            <IconErase />
-          </Tool>
           <Tool label="Notes" onClick={() => dispatch({ type: 'toggleNotes' })} active={game.notesMode}>
             <IconPencil />
-            <span class="tool-badge">{game.notesMode ? 'ON' : 'OFF'}</span>
           </Tool>
           <Tool label="Auto notes" onClick={() => dispatch({ type: 'fillNotes' })}>
             <IconWand />
@@ -219,22 +212,26 @@ export function SudokuPlay() {
           </Tool>
         </div>
 
-        <div class={`numpad ${game.notesMode ? 'notes-mode' : ''}`}>
+        {/* Two rows so every key is at least 44pt wide (HIG minimum hit target). */}
+        <div class={`numpad ${game.notesMode ? 'notes-mode' : ''}`} aria-label={game.notesMode ? 'Notes keypad' : 'Number keypad'}>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => {
             const left = 9 - counts[d];
             return (
               <button
                 key={d}
                 class="num"
-                style={{ visibility: left ? 'visible' : 'hidden' }}
-                aria-label={`${d}, ${left} left`}
+                disabled={!left}
+                aria-label={game.notesMode ? `Note ${d}` : `${d}, ${left} left`}
                 onClick={() => dispatch({ type: 'input', digit: d })}
               >
                 <span class="num-digit">{d}</span>
-                <span class="num-left">{left}</span>
+                <span class="num-left">{left ? left : ''}</span>
               </button>
             );
           })}
+          <button class="num num-erase" aria-label="Erase" disabled={selectedLocked} onClick={() => dispatch({ type: 'erase' })}>
+            <IconErase size={26} />
+          </button>
         </div>
       </div>
 

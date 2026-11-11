@@ -4,6 +4,7 @@ import { CURRENT_LAYOUT } from './layout';
 
 // Load every storage declaration in the app: app settings + each game's storage.ts.
 import '../settings';
+import '../session';
 const gameStorage = import.meta.glob('../../games/*/storage.ts', { eager: true });
 
 /**
@@ -22,7 +23,8 @@ const gameStorage = import.meta.glob('../../games/*/storage.ts', { eager: true }
 const CONTRACT = {
   layout: 2,
   stores: [
-    'data  games/app/settings              v1',
+    'data  games/app/session               v1',
+    'data  games/app/settings              v2',
     'cache games/cache/sudoku/daily-puzzle v1',
     'cache games/cache/sudoku/pool         v1',
     'data  games/game/sudoku/daily         v1',

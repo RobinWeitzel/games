@@ -4,7 +4,6 @@ import { Row, Section, Sheet, SheetAction } from '../components';
 import { useStore } from '../../core/storage';
 import { dailyStreak, todayKey } from '../../core/daily';
 import { formatDate, formatTime } from '../../core/format';
-import { haptic } from '../../core/haptics';
 import type { GameStats } from '../../core/stats';
 import { IconCalendar, IconChart, IconCheck, IconFlame, IconPlay } from '../icons';
 import { StatsScreen } from './StatsScreen';
@@ -32,11 +31,8 @@ export function DailyCard(props: { stats: GameStats; badge: string; inProgress: 
   return (
     <button
       class={`daily-card ${done ? 'done' : ''}`}
-      onClick={() => {
-        if (done) return;
-        haptic('selection');
-        props.onPlay();
-      }}
+      onClick={() => !done && props.onPlay()}
+      aria-disabled={!!done}
     >
       <div class="daily-top">
         <IconCalendar size={22} />

@@ -1,26 +1,32 @@
 import { useEffect, useState } from 'preact/hooks';
 import { GAMES } from '../../games/registry';
 import type { GameModule } from '../../games/types';
-import { useNav, Screen } from '../../ui/nav';
-import { haptic } from '../../core/haptics';
+import { useIsTop, useNav, Screen } from '../../ui/nav';
+import { sessionStore } from '../../core/session';
 import { IconGear, IconPlay, IconShare } from '../../ui/icons';
 import { Settings } from './Settings';
+import { GameHubScreen } from './GameHubScreen';
 
 const isStandalone =
   (navigator as { standalone?: boolean }).standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
 export function Home() {
   const nav = useNav();
+  const isTop = useIsTop();
+  // Back on the home screen: nothing to restore on the next launch.
+  useEffect(() => {
+    if (isTop) sessionStore.set(null);
+  }, [isTop]);
   return (
     <Screen
       class="home"
+      largeTitle="Games"
       right={
         <button class="nav-icon" aria-label="Settings" onClick={() => nav.push(<Settings />)}>
           <IconGear size={24} />
         </button>
       }
     >
-      <h1 class="large-title">Games</h1>
       {!isStandalone && <InstallHint />}
       {GAMES.map((g) => (
         <ContinueCard key={g.id} game={g} />
@@ -31,10 +37,7 @@ export function Home() {
             key={g.id}
             class="tile"
             style={{ background: g.color }}
-            onClick={() => {
-              haptic('selection');
-              nav.push(<g.Hub />);
-            }}
+            onClick={() => nav.push(<GameHubScreen game={g} />)}
           >
             <g.Icon size={44} />
             <span class="tile-name">{g.name}</span>
@@ -60,10 +63,7 @@ function ContinueCard({ game }: { game: GameModule }) {
   return (
     <button
       class="continue-card"
-      onClick={() => {
-        haptic('selection');
-        nav.push(<resume.Screen />);
-      }}
+      onClick={() => nav.push(<resume.Screen />)}
     >
       <span class="continue-icon" style={{ background: game.color }}>
         <game.Icon size={28} />

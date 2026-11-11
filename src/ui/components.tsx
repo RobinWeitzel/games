@@ -1,6 +1,5 @@
 import { ComponentChildren, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { haptic } from '../core/haptics';
 import { IconChevron } from './icons';
 
 /** Grouped list section (iOS "inset grouped" table). */
@@ -29,13 +28,7 @@ export function Row(props: {
   return (
     <Tag
       class={`row ${props.onClick ? 'row-tappable' : ''} ${props.destructive ? 'row-destructive' : ''}`}
-      onClick={
-        props.onClick &&
-        (() => {
-          haptic('selection');
-          props.onClick!();
-        })
-      }
+      onClick={props.onClick}
     >
       {props.icon && (
         <span class="row-icon" style={{ background: props.iconBg }}>
@@ -81,10 +74,7 @@ export function Segmented<T extends string>(props: {
           role="tab"
           aria-selected={o.value === props.value}
           class={o.value === props.value ? 'active' : ''}
-          onClick={() => {
-            if (o.value !== props.value) haptic('selection');
-            props.onChange(o.value);
-          }}
+          onClick={() => props.onChange(o.value)}
         >
           {o.label}
         </button>
@@ -136,10 +126,7 @@ export function Sheet(props: {
           {props.actions?.map((a) => (
             <button
               class={`sheet-action ${a.style ?? 'default'}`}
-              onClick={() => {
-                haptic('selection');
-                a.onClick();
-              }}
+              onClick={a.onClick}
             >
               {a.label}
             </button>

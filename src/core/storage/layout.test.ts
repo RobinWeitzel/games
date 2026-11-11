@@ -27,7 +27,9 @@ describe('layout migrations', () => {
     expect(report).toMatchObject({ from: 1, status: 'migrated' });
     expect(store.getReadOnlyReason()).toBeNull();
 
-    expect(settings.settingsStore.get()).toEqual({ theme: 'dark', haptics: false });
+    expect(settings.settingsStore.get()).toEqual({ haptics: false });
+    // Chain: layout 1 → 2 writes settings v1, then the store migrates v1 → v2 (theme removed).
+    expect(JSON.parse(localStorage.getItem('games/app/settings')!).v).toBe(2);
     expect(sudoku.sudokuSettings.get()).toEqual({ mistakeLimit: false, highlightSame: true, autoRemoveNotes: false });
     expect(sudoku.sudokuStats.get('easy')).toEqual(MODE_STATS_V1);
     expect(sudoku.sudokuStats.get('daily').played).toBe(1);
@@ -101,7 +103,7 @@ describe('backups', () => {
     restoreBackup(legacy);
     const after = await boot();
     expect(after.sudoku.sudokuStats.get('easy')).toEqual(MODE_STATS_V1);
-    expect(after.settings.settingsStore.get().theme).toBe('dark');
+    expect(after.settings.settingsStore.get().haptics).toBe(false);
   });
 
   it('rejects foreign files and backups from newer versions', async () => {

@@ -8,9 +8,9 @@ import { useIsTop } from '../nav';
  *   calling `onSuspend` so the game can save
  * - re-renders twice a second while running, for the on-screen time
  */
-export function useGameClock(opts: { initialMs: number; active: boolean; onSuspend?: () => void }) {
+export function useGameClock(opts: { initialMs: number; active: boolean; startPaused?: boolean; onSuspend?: () => void }) {
   const isTop = useIsTop();
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(!!opts.startPaused);
   const [, setTick] = useState(0);
   const clock = useRef({ base: opts.initialMs, since: null as number | null });
   const onSuspend = useRef(opts.onSuspend);

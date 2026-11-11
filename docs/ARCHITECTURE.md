@@ -14,10 +14,11 @@ src/
     nav.tsx         navigation stack, Screen layout, swipe-back
     components.tsx  lists, rows, toggles, segmented control, sheets, toast
     icons.tsx
-    game/           hub building blocks, StatsScreen, ResultSheet, useGameClock
+    game/           hub building blocks, StatsScreen, ResultSheet, useGameClock, useRestorable
   core/           SERVICES, no UI
     storage/        versioned key-value storage, layout migrations, backups
     settings.ts     app settings + createGameSettings()
+    session.ts      which screen to restore on relaunch
     stats.ts        createGameStats(): per-mode results, best times, streaks, daily
     daily.ts, random.ts, format.ts, haptics.ts
   styles/         global tokens (iOS colours, light/dark) and shell styles
@@ -57,13 +58,20 @@ All persistence goes through `core/storage` with namespaced keys and versioned e
 declares everything it stores in its own `storage.ts`. See [STORAGE.md](STORAGE.md) for the full
 rules. Short version: **data written by any earlier release must stay readable forever.**
 
+## Design
+
+Every screen follows the iOS Human Interface Guidelines as written down in
+[DESIGN.md](DESIGN.md) (mandatory). Shared tokens (colours, text styles) live in
+`src/styles/base.css`, and standard components in `src/ui/`.
+
 ## Startup sequence (`main.tsx`)
 
 1. `initStorage()`: detect the layout version and run layout migrations (with a safety copy).
    Stores are lazy and read their keys only after this.
 2. `validateRegistry()`: unique, valid game ids.
 3. `initTheme()`: apply light/dark and the status bar colour.
-4. Render `<App/>`: navigation stack with `<Home/>` at the root.
+4. Render `<App/>`: navigation stack with `<Home/>` at the root, plus the game hub and game screen
+   restored from `games/app/session` if the player was in a game when iOS closed the app.
 5. When idle: `game.prefetch()` for each game (e.g. Sudoku pre-generates puzzles in a Web Worker).
 
 ## Navigation
@@ -86,3 +94,5 @@ another screen covers the game).
 | `core/storage/layout.test.ts` | layout migrations from real old data, backups |
 | `core/storage/contract.test.ts` | no unnoticed change to persisted keys/versions |
 | `architecture.test.ts` | module boundaries, registry validity |
+| `design.test.ts` | static HIG rules: 11pt minimum, Dynamic Type tokens, haptics only in games, no browser dialogs, system appearance |
+| `npm run audit:ios` | rendered HIG checks: 44pt targets, text sizes, overflow, game fits (SE, large text, Pro Max) |

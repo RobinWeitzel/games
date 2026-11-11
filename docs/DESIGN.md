@@ -1,0 +1,159 @@
+# Design rules: feeling native on iPhone
+
+This app is a web app that must be **indistinguishable from a native iOS app**. These rules apply
+Apple's Human Interface Guidelines
+([Designing for iOS](https://developer.apple.com/design/human-interface-guidelines/designing-for-ios)
+and the pages it links) to this codebase. They are **mandatory** for every change and every new
+game. `npm test` (`src/design.test.ts`) and `npm run audit:ios` (`scripts/ios-audit.mjs`) enforce
+what can be checked automatically. The rest is the review checklist at the end.
+
+## The iOS fundamentals (from "Designing for iOS")
+
+| HIG says | What it means here |
+|---|---|
+| Limit onscreen controls so people can concentrate on the primary task. Make secondary actions discoverable with minimal interaction | Game screens show the board plus a single row of tools. Options live in Settings, details in Statistics |
+| Adapt seamlessly to appearance changes (Dark Mode, Dynamic Type) | Follow the system appearance only. All text scales with Dynamic Type |
+| Put controls where hands reach them: middle and bottom of the screen. Let people swipe to navigate back | Game controls sit in the bottom half. Every pushed screen supports left-edge swipe-back *and* a back button |
+| Short sessions and frequent app switching | Save on every move. Pause and save when backgrounded. Restore the exact screen on relaunch |
+| Device orientation | **Documented exception:** the product is portrait-only by design (user requirement). Landscape shows a "rotate back" hint |
+
+## Rules
+
+### 1. Navigation and structure
+- Use `Screen` from `ui/nav` for every screen. Push/pop and swipe-back come with it.
+- **Top-level screens** (home, a game's hub, Settings) use `largeTitle`, which collapses into the
+  bar on scroll. **Detail screens** (Statistics, the game itself) use the inline `title`.
+- The back button shows the previous screen's title (`back="Sudoku"`), never just "Back".
+- The navigation bar has no background at rest and gets material plus a hairline once content
+  scrolls under it (automatic in `Screen`).
+- Never block the left 14pt edge with controls: that's the swipe-back strip.
+
+### 2. Layout
+- Respect safe areas: use `--safe-top`, `--safe-bottom` and so on, already handled by `Screen` and the sheets.
+- 16pt side margins for content screens (inset grouped lists), 14pt for game screens.
+- Game screens **fit without scrolling** in portrait, from iPhone SE (375×667pt) up, including
+  with large text. Size the board from the available height, like `sudoku.css`'s `.board-wrap`.
+- Primary game controls in the **bottom half** (thumb reach). Navigation and status at the top.
+
+### 3. Typography (Dynamic Type)
+- Use the text style tokens: `--fs-large-title`, `--fs-title1`, `--fs-title2`, `--fs-title3`,
+  `--fs-body`, `--fs-callout`, `--fs-subheadline`, `--fs-footnote`, `--fs-caption1` and `--fs-caption2`.
+  They are `rem`-based, and the root size comes from iOS Dynamic Type (`font: -apple-system-body`).
+- **No fixed `px` font sizes in the shell or shared UI** (enforced by a test). Games may use `px` only for
+  elements whose size is tied to the board or keys, and should cap scalable labels with
+  `min(var(--fs-…), Npx)` so the fixed layout still fits.
+- **Nothing below 11pt** (HIG minimum, enforced). Use `max(11px, …)` for computed sizes.
+- Use the system font (`-apple-system`, SF Pro). Use tabular numbers for times and counters.
+- Layouts must reflow at large text sizes (e.g. home tiles go to one column) rather than overflow.
+
+### 4. Colour, Dark Mode and contrast
+- **No app-specific light/dark setting.** The app follows the system (HIG: "Avoid offering an
+  app-specific appearance setting"). Enforced by a test.
+- Use the semantic tokens in `styles/base.css` (`--label`, `--label-2`, `--bg`, `--card`,
+  `--separator`, `--accent`, `--red` and so on). They're the iOS system colours, with light and dark values
+  and Increase Contrast variants. Never hard-code a grey.
+- Text contrast **≥ 4.5:1** against its background in both appearances. Check custom colours,
+  especially white text on coloured cards, by computing the ratio, not by eye.
+- **Never use colour alone** to carry meaning. Pair it with shape or text: wrong digits are red
+  *and* underlined, and the active Notes tool is tinted *and* filled.
+- Support **Increase Contrast** (`prefers-contrast: more`) and **Reduce Transparency**
+  (`prefers-reduced-transparency`). The tokens handle both.
+
+### 5. Touch targets and controls
+- Every tappable element is **at least 44×44pt** (enforced by `audit:ios`). Make the *hit area*
+  bigger, not the visual: e.g. the stats chart scrubs anywhere along its width.
+- About 8–12pt of spacing between bezelled buttons (keypads).
+- Use the standard components in `ui/components`: inset-grouped `Section` + `Row`, `Toggle` (the native
+  iOS switch, **only inside list rows**), `Segmented` (**≤ 5 segments**, text only), `Sheet`.
+- Buttons react on touch-down (`:active` styles; `touchstart` listener in `main.tsx`).
+- Allowed exceptions (listed in `ios-audit.mjs`): board cells in a dense game grid (the board as
+  a whole is the target), the native switch (51×31pt inside a ≥ 44pt row), and segmented-control
+  segments (standard 32pt control).
+
+### 6. Sheets and alerts
+- Confirmations of an intentional action are **action sheets** (`Sheet` with actions + Cancel).
+  The destructive option comes first and uses `style: 'destructive'`.
+- Never use `alert()`, `confirm()` or `prompt()` (enforced). Never show a dialog at launch:
+  use a non-modal banner (`Toast`) instead.
+- Titles describe the situation ("Start a new game?"). Buttons are verbs ("Start New Game"), not "OK",
+  except for purely informational messages.
+- Don't confirm undoable or trivial actions. Only confirm data loss (abandoning a game,
+  resetting stats, restoring a backup).
+
+### 7. Haptics
+- **Only for meaningful game events**, never for navigation, list rows, toggles, segmented controls or
+  sheet buttons (native controls don't do that). Enforced: only `src/games/` may call `haptic()`.
+- Consistent meaning across all games:
+
+  | Event | Haptic |
+  |---|---|
+  | A move is accepted (piece placed, cell revealed) | `selection` |
+  | Something completes (row/box/line, level) or the game is won | `success` |
+  | A mistake, or the game is lost | `error` |
+
+- Haptics complement visual feedback, never replace it. They can be turned off in Settings (`haptic()` respects this).
+
+### 8. Motion
+- Motion explains something: push/pop, sheet presentation, a completed row flashing, a wrong
+  digit shaking. No decorative or looping animation.
+- Everything respects **Reduce Motion** (global rule in `base.css`). Information must never be
+  conveyed only by animation.
+
+### 9. Launch, state and loading
+- **Launch images are plain** backgrounds that match the first screen (no logo or text), in light and dark.
+  Generated by `npm run icons`.
+- **Restore state on relaunch:** iOS kills background apps freely, and the player should land exactly
+  where they were. Game screens call `useRestorable(GAME_ID, 'resume')` and start **paused** when
+  restored. Hubs are tracked by the shell.
+- Save on every move and on backgrounding (`useGameClock`'s `onSuspend`).
+- Show something immediately. Heavy work (puzzle generation) runs in a worker and is pre-warmed
+  in `prefetch()`, with a spinner overlay only as a fallback.
+
+### 10. Accessibility (VoiceOver and Switch Control)
+- Every control has an accessible name (`aria-label` for icon buttons), and toggled tools set
+  `aria-pressed`.
+- Game boards expose cells with labels that include their state (e.g. "Row 3, column 5, 7, incorrect").
+  Activation must work via **click** (VoiceOver, Switch Control and keyboards don't send pointer events).
+- Charts have a visually hidden table (`.sr-only`) with the same data.
+- Offer difficulty accommodations (difficulties, hints, an optional mistake limit).
+
+### 11. Games specifically
+- Pause button in the bar. Pausing hides the board (no peeking) and shows a large resume button.
+- The timer stops when paused, when the app is backgrounded, and when another screen is on top.
+- Win/lose uses `ResultSheet`: a big time readout, the next action first, then "Done".
+- Assisted results (hints) never count as best times.
+
+## Review checklist (for every PR and new game)
+
+- [ ] `npm test` passes (includes `design.test.ts` and `architecture.test.ts`)
+- [ ] `npm run audit:ios` passes: SE light, SE dark with large text, Pro Max
+- [ ] Looked at every changed screen in light *and* dark on a 375pt-wide screen
+- [ ] Large title on top-level screens, inline title on detail screens, back label = previous title
+- [ ] Game screen fits without scrolling, controls in the bottom half
+- [ ] No colour-only meaning. Contrast computed for custom colours
+- [ ] Haptics only for game events, per the table above
+- [ ] Leave mid-game, kill the app, relaunch: you're back in the game, paused
+- [ ] VoiceOver can read and operate the main flow
+- [ ] Confirmations use action sheets with a destructive first option and Cancel
+
+## Review log
+
+**2026-11 HIG review** of the whole app against Designing for iOS and the linked pages (Layout,
+Typography, Color, Dark Mode, Buttons, Gestures, Playing haptics, Action sheets, Alerts, Segmented
+controls, Toggles, Accessibility, Motion, Loading, Launching, Designing for games). Fixed:
+
+| Finding | HIG page | Fix |
+|---|---|---|
+| App had its own Light/Dark/Auto setting | Dark Mode | Removed. Follows the system (settings store v1 → v2 migration) |
+| Launch images showed the app icon | Launching | Plain background matching the home screen |
+| Text did not follow Dynamic Type | Typography, Accessibility | rem-based iOS text styles from `-apple-system-body`; tiles reflow |
+| Notes digits ~10pt, a 9pt "ON/OFF" badge | Typography (11pt minimum) | Notes ≥ 11pt. Badge removed (filled state instead) |
+| Number keys 35pt wide | Buttons (44pt) | Two-row keypad (≥ 63pt wide). Erase moved into it |
+| Stats bars ~16pt wide tap targets | Gestures ("bigger tap targets") | Scrub anywhere along the chart |
+| Haptic on every row, tile, sheet and segment tap | Playing haptics ("avoid overusing") | Haptics only for game events |
+| White text on orange/green cards at 2.1–2.6:1 | Color / Accessibility (4.5:1) | Darker gradients (5.0–5.7:1) |
+| Wrong digits / Notes state shown by colour only | Accessibility | Underline / filled shape added |
+| No large titles. Bar always translucent | Navigation bars | Collapsing large titles, scroll-edge bar |
+| Relaunch always opened Home | Launching ("restore previous state") | Session store + restored navigation stack, game resumes paused |
+| Board not operable with VoiceOver / Switch Control | Accessibility | Click activation, state in cell labels |
+| No Increase Contrast / Reduce Transparency support | Accessibility, Materials | Token overrides via media queries |

@@ -33,8 +33,15 @@ export const useScreenIndex = () => useContext(IndexContext);
 const DURATION = 380;
 let keySeq = 1;
 
-export function Navigator({ root }: { root: VNode }) {
-  const [stack, setStack] = useState<Entry[]>([{ key: 0, node: root, phase: 'idle' }]);
+/**
+ * @param root    first screen (never popped)
+ * @param initial screens pushed on top at startup without animation (state restoration)
+ */
+export function Navigator({ root, initial = [] }: { root: VNode; initial?: VNode[] }) {
+  const [stack, setStack] = useState<Entry[]>(() => [
+    { key: 0, node: root, phase: 'idle' },
+    ...initial.map((node): Entry => ({ key: keySeq++, node, phase: 'idle' })),
+  ]);
   const stackRef = useRef(stack);
   stackRef.current = stack;
   const busy = useRef(false);
@@ -178,9 +185,17 @@ function EdgeSwipe({ onBack }: { onBack: () => void }) {
   return <div ref={ref} class="edge-swipe" />;
 }
 
-/** Standard screen layout: navigation bar + scrollable content. */
+/**
+ * Standard screen layout: navigation bar + content.
+ *
+ * - `largeTitle`: top-level screens (HIG): a large title at the top of the content that
+ *   collapses into the navigation bar as you scroll.
+ * - `title`: inline title for detail screens.
+ * - The bar shows its material + hairline only once content scrolls underneath it.
+ */
 export function Screen(props: {
-  title?: ComponentChildren;
+  title?: string;
+  largeTitle?: string;
   back?: string | false;
   right?: ComponentChildren;
   children: ComponentChildren;
@@ -190,12 +205,21 @@ export function Screen(props: {
 }) {
   const nav = useNav();
   const index = useScreenIndex();
+  const [scrolled, setScrolled] = useState(0);
+  const onScroll = (e: Event) => {
+    const y = (e.currentTarget as HTMLElement).scrollTop;
+    // 0: at top, 1: content under the bar, 2: large title scrolled away
+    setScrolled(y <= 0 ? 0 : props.largeTitle && y < 44 ? 1 : 2);
+  };
+  const barTitle = props.largeTitle ?? props.title;
+  const showBarTitle = !props.largeTitle || scrolled === 2;
+
   return (
     <div class={`screen-inner ${props.class ?? ''}`}>
-      <header class="navbar">
+      <header class={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
         <div class="navbar-side">
           {props.back !== false && index > 0 && (
-            <button class="nav-back" onClick={() => nav.pop()} aria-label="Back">
+            <button class="nav-back" onClick={() => nav.pop()} aria-label={`Back to ${props.back ?? 'previous screen'}`}>
               <svg viewBox="0 0 12 20" width="12" height="20" aria-hidden="true">
                 <path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -203,10 +227,15 @@ export function Screen(props: {
             </button>
           )}
         </div>
-        <div class="navbar-title">{props.title}</div>
+        <div class={`navbar-title ${showBarTitle ? '' : 'navbar-title-hidden'}`} aria-hidden={!showBarTitle}>
+          {barTitle}
+        </div>
         <div class="navbar-side navbar-right">{props.right}</div>
       </header>
-      <main class={props.fixed ? 'content-fixed' : 'content-scroll'}>{props.children}</main>
+      <main class={props.fixed ? 'content-fixed' : 'content-scroll'} onScroll={props.fixed ? undefined : onScroll}>
+        {props.largeTitle && <h1 class="large-title">{props.largeTitle}</h1>}
+        {props.children}
+      </main>
     </div>
   );
 }

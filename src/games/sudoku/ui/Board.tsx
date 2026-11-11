@@ -24,8 +24,13 @@ export const Board = memo(function Board({ game, highlightSame, flash, shake, hi
       class={`board ${hidden ? 'board-hidden' : ''} ${won ? 'board-won' : ''}`}
       role="grid"
       aria-label="Sudoku board"
-      // pointerdown: selection should feel instant.
+      // pointerdown: selection feels instant on touch. click: VoiceOver / Switch Control /
+      // keyboard activation (they don't send pointer events). Selecting twice is harmless.
       onPointerDown={(e) => {
+        const t = (e.target as HTMLElement).closest<HTMLElement>('[data-cell]');
+        if (t) onSelect(Number(t.dataset.cell));
+      }}
+      onClick={(e) => {
         const t = (e.target as HTMLElement).closest<HTMLElement>('[data-cell]');
         if (t) onSelect(Number(t.dataset.cell));
       }}
@@ -56,7 +61,10 @@ export const Board = memo(function Board({ game, highlightSame, flash, shake, hi
             data-cell={i}
             class={cls}
             role="gridcell"
-            aria-label={`Row ${r + 1}, column ${c + 1}${v ? `, ${v}` : ', empty'}`}
+            aria-selected={i === sel}
+            aria-label={`Row ${r + 1}, column ${c + 1}, ${
+              v ? `${v}${wrong ? ', incorrect' : given ? ', given' : ''}` : game.notes[i] ? `notes ${NOTE_DIGITS.filter((d) => game.notes[i] & (1 << d)).join(' ')}` : 'empty'
+            }`}
             style={{ '--d': `${(r + c) * 35}ms` }}
           >
             {v ? (

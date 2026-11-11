@@ -1,19 +1,25 @@
 import { appKey, defineStore, gameKey } from './storage';
 
-export type ThemeSetting = 'system' | 'light' | 'dark';
-
-/** App-wide settings. Game-specific options live in each game (createGameSettings). */
+/**
+ * App-wide settings. Game-specific options live in each game (createGameSettings).
+ *
+ * There is deliberately no appearance (light/dark) setting: the HIG says to follow the system
+ * appearance instead of offering an app-specific one (docs/DESIGN.md).
+ */
 export interface AppSettings {
-  theme: ThemeSetting;
   haptics: boolean;
 }
 
-export const DEFAULT_APP_SETTINGS: AppSettings = { theme: 'system', haptics: true };
+export const DEFAULT_APP_SETTINGS: AppSettings = { haptics: true };
 
 export const settingsStore = defineStore<AppSettings>({
   key: appKey('settings'),
-  version: 1,
+  version: 2,
   initial: DEFAULT_APP_SETTINGS,
+  migrations: {
+    // v1 → v2: the app-specific `theme` setting was removed (app follows the system appearance).
+    1: (d: { theme?: string; haptics?: boolean }) => ({ haptics: d?.haptics }),
+  },
   // New settings get their default automatically, no version bump needed.
   normalize: (s) => ({ ...DEFAULT_APP_SETTINGS, ...stripUndefined(s) }),
 });

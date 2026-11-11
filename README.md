@@ -19,6 +19,7 @@ npm test           # unit tests, storage migrations + contract, architecture bou
 npm run build      # type-check + production build into dist/
 npm run preview    # serve the production build (service worker active)
 npm run icons      # re-render icons + iOS launch images from public/favicon.svg
+npm run audit:ios  # build, then check every screen against the iOS HIG rules (Playwright)
 ```
 
 `npm run icons` uses Playwright's Chromium and writes `scripts/splash-links.html`. Paste those tags into
@@ -33,6 +34,7 @@ The base path is the repository name (`/games/`).
 ## Documentation
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the app is put together and the module boundaries
+- [docs/DESIGN.md](docs/DESIGN.md): **mandatory** iOS design rules (Apple HIG) and the review checklist
 - [docs/ADDING_A_GAME.md](docs/ADDING_A_GAME.md): step-by-step guide and checklist for a new game
 - [docs/STORAGE.md](docs/STORAGE.md): how saved data is versioned and migrated so updates never lose
   progress. **Read this before changing anything that is stored.**
@@ -54,9 +56,11 @@ is the same puzzle for everyone on a given day. Its difficulty rotates through t
 
 ## iPhone-specific details
 
-- Standalone display, launch images for current iPhones (light and dark), safe-area insets, `100dvh` layouts.
-- No zoom, text selection, callouts, tap highlight or rubber-banding. Buttons react on touch.
-- Haptics through the iOS 18+ `<input switch>` trick (no Vibration API on iOS).
-- In-app back button plus left-edge swipe-back, since standalone apps have no browser back gesture.
-- Saves on every move and when the app is backgrounded. The timer pauses while the app is hidden.
+The app follows Apple's Human Interface Guidelines. See [docs/DESIGN.md](docs/DESIGN.md) for all the rules. Highlights:
+
+- Standalone display with plain launch images (light/dark), safe areas, portrait layouts that fit without scrolling.
+- System light/dark, Dynamic Type, Increase Contrast, Reduce Transparency, Reduce Motion, VoiceOver.
+- Large titles that collapse into the navigation bar, left-edge swipe-back, action sheets, native switches.
+- Haptics for game events only (via the iOS 18+ `<input switch>` trick; there's no Vibration API on iOS).
+- Relaunching after iOS closed the app returns to the same screen. Games resume paused.
 - The service worker update is offered as a toast and never reloads in the middle of a game.

@@ -15,7 +15,7 @@ export const sudoku: GameModule = {
   name: 'Sudoku',
   tagline: 'Classic 9×9 number puzzle',
   Icon: SudokuIcon,
-  color: 'linear-gradient(135deg, #5e5ce6, #7d7aff)',
+  color: 'linear-gradient(135deg, #4b49c9, #5856d6)', // white text ≥ 4.5:1
   Hub: SudokuHub,
   stats: sudokuStats,
   resume: {

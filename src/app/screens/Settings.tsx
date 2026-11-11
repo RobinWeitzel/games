@@ -1,7 +1,7 @@
 import { useRef, useState } from 'preact/hooks';
 import { Screen } from '../../ui/nav';
-import { Row, Section, Segmented, Sheet, Toggle } from '../../ui/components';
-import { ThemeSetting, settingsStore } from '../../core/settings';
+import { Row, Section, Sheet, Toggle } from '../../ui/components';
+import { settingsStore } from '../../core/settings';
 import { createBackup, restoreBackup, useStore } from '../../core/storage';
 import { GAMES } from '../../games/registry';
 
@@ -52,19 +52,8 @@ export function Settings() {
   };
 
   return (
-    <Screen title="Settings" back="Games">
-      <Section header="Appearance">
-        <Row title="Theme">
-          <Segmented<ThemeSetting>
-            value={settings.theme}
-            onChange={(theme) => settingsStore.set((s) => ({ ...s, theme }))}
-            options={[
-              { value: 'system', label: 'Auto' },
-              { value: 'light', label: 'Light' },
-              { value: 'dark', label: 'Dark' },
-            ]}
-          />
-        </Row>
+    <Screen largeTitle="Settings" back="Games">
+      <Section header="General" footer="Light and Dark follow your iPhone's Display & Brightness setting.">
         <Row title="Haptics">
           <Toggle label="Haptics" checked={settings.haptics} onChange={(haptics) => settingsStore.set((s) => ({ ...s, haptics }))} />
         </Row>

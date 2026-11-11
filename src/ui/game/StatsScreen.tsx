@@ -61,7 +61,11 @@ function StatTile({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-/** Bar per recent win; tap a bar for its exact time. Single series → no legend. */
+/**
+ * Bar per recent win. Touch anywhere on the chart and slide to scrub (like the Health app):
+ * the whole chart is the hit area, so tiny bars never need precise taps (HIG hit targets).
+ * Single series → no legend. A visually hidden table gives VoiceOver the same data.
+ */
 function TimesChart({ history }: { history: GameResult[] }) {
   const wins = history.filter((h) => h.outcome === 'won').slice(-20);
   const [active, setActive] = useState<number | null>(null);
@@ -73,18 +77,35 @@ function TimesChart({ history }: { history: GameResult[] }) {
   const slot = W / 20;
   const barW = Math.max(4, slot - 4);
   const shown = active != null ? wins[active] : wins[wins.length - 1];
+  const date = (w: GameResult) => new Date(w.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  const scrub = (e: PointerEvent) => {
+    const svg = e.currentTarget as SVGSVGElement;
+    const rect = svg.getBoundingClientRect();
+    const i = Math.floor(((e.clientX - rect.left) / rect.width) * 20);
+    setActive(Math.max(0, Math.min(wins.length - 1, i)));
+  };
 
   return (
     <div class="chart">
-      <div class="chart-readout">
+      <div class="chart-readout" aria-live="polite">
         <span class="chart-readout-value">{formatTime(shown.timeMs)}</span>
         <span class="chart-readout-label">
-          {new Date(shown.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          {date(shown)}
           {shown.assists > 0 ? ' · assisted' : ''}
           {active == null ? ' · latest' : ''}
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H + 2}`} class="chart-svg" role="img" aria-label="Recent solve times">
+      <svg
+        viewBox={`0 0 ${W} ${H + 2}`}
+        class="chart-svg"
+        aria-hidden="true"
+        onPointerDown={(e) => {
+          (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId);
+          scrub(e);
+        }}
+        onPointerMove={(e) => e.buttons && scrub(e)}
+      >
         <line x1="0" x2={W} y1={H + 1} y2={H + 1} class="chart-baseline" />
         {wins.map((w, i) => {
           const h = Math.max(4, (w.timeMs / max) * H);
@@ -92,16 +113,21 @@ function TimesChart({ history }: { history: GameResult[] }) {
           const r = Math.min(4, barW / 2);
           // Rounded top, square base anchored to the baseline.
           const d = `M${x},${H} V${H - h + r} q0,-${r} ${r},-${r} h${barW - 2 * r} q${r},0 ${r},${r} V${H} Z`;
-          return (
-            <g key={w.at} onClick={() => setActive(active === i ? null : i)}>
-              <rect x={i * slot} y="0" width={slot} height={H} fill="transparent" />
-              <path d={d} class={`chart-bar ${active === i ? 'active' : ''} ${w.assists ? 'assisted' : ''}`}>
-                <title>{formatTime(w.timeMs)}</title>
-              </path>
-            </g>
-          );
+          return <path key={w.at} d={d} class={`chart-bar ${active === i ? 'active' : ''} ${w.assists ? 'assisted' : ''}`} />;
         })}
       </svg>
+      <table class="sr-only">
+        <caption>Recent solve times</caption>
+        <tbody>
+          {wins.map((w) => (
+            <tr key={w.at}>
+              <td>{date(w)}</td>
+              <td>{formatTime(w.timeMs)}</td>
+              <td>{w.assists ? 'assisted' : ''}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -42,7 +42,7 @@ export function SudokuHub() {
   };
 
   return (
-    <Screen title="Sudoku" back="Games">
+    <Screen largeTitle="Sudoku" back="Games">
       {inProgress && (
         <ContinueRow
           subtitle={`${inProgress.mode === 'daily' ? 'Daily · ' : ''}${DIFFICULTY_LABEL[inProgress.difficulty]} · ${formatTime(inProgress.elapsedMs)} · ${Math.round(progress(inProgress) * 100)}%`}
