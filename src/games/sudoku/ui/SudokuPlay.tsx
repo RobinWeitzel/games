@@ -1,17 +1,15 @@
 import type { ComponentChildren } from 'preact';
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
-import { Screen, useIsTop, useNav, useScreenIndex } from '../../../app/nav';
-import { Sheet } from '../../../ui/components';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { Screen, useIsTop, useNav, useScreenIndex } from '../../../ui/nav';
+import { ResultSheet } from '../../../ui/game/hub';
+import { useGameClock } from '../../../ui/game/useGameClock';
 import { haptic } from '../../../core/haptics';
-import { settingsStore } from '../../../core/settings';
-import { useStore } from '../../../core/store';
-import { recordResult } from '../../../core/stats';
-import { markDailyDone } from '../../../core/daily';
+import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
 import { IconBulb, IconErase, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
-import { GAME_ID, savedGame } from '../saved';
+import { savedGame, sudokuSettings, sudokuStats } from '../storage';
 import { Action, MAX_MISTAKES, SudokuGame, digitCounts, reduce } from '../state';
-import { createGame } from '../start';
+import { createGame } from '../session';
 import { Board } from './Board';
 import { DIFFICULTY_LABEL } from './labels';
 
@@ -25,56 +23,28 @@ export function SudokuPlay() {
   const nav = useNav();
   const isTop = useIsTop();
   const screenIndex = useScreenIndex();
-  const settings = useStore(settingsStore);
+  const settings = useStore(sudokuSettings);
   const [game, setGame] = useState<SudokuGame | null>(() => savedGame.get());
   const gameRef = useRef(game);
   gameRef.current = game;
 
-  const [paused, setPaused] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [flash, setFlash] = useState<Set<number>>(new Set());
   const [shake, setShake] = useState<number | null>(null);
-  const [, setTick] = useState(0);
   const [starting, setStarting] = useState(false);
 
-  // ---- Clock: accumulates only while visible, on top, playing and not paused. ----
-  const clock = useRef({ base: game?.elapsedMs ?? 0, since: null as number | null });
-  const elapsed = () => clock.current.base + (clock.current.since != null ? performance.now() - clock.current.since : 0);
-  const running = !!game && game.status === 'playing' && !paused && isTop;
-
-  const persist = useCallback((g: SudokuGame | null) => {
+  /** Save the game in progress (with the current time); finished games are removed. */
+  const persist = (g: SudokuGame | null = gameRef.current) => {
     if (!g) return;
-    savedGame.set(g.status === 'playing' ? { ...g, elapsedMs: elapsed() } : null);
-  }, []);
+    savedGame.set(g.status === 'playing' ? { ...g, elapsedMs: clock.elapsed() } : null);
+  };
 
-  useEffect(() => {
-    if (running) {
-      clock.current.since = performance.now();
-      const t = setInterval(() => setTick((n) => n + 1), 500);
-      return () => {
-        clearInterval(t);
-        clock.current.base = elapsed();
-        clock.current.since = null;
-        persist(gameRef.current);
-      };
-    }
-  }, [running]);
-
-  // iOS may kill a backgrounded PWA at any time: pause + save when hidden.
-  useEffect(() => {
-    const onHide = () => {
-      if (document.visibilityState === 'hidden' && gameRef.current?.status === 'playing') {
-        setPaused(true);
-        persist(gameRef.current);
-      }
-    };
-    document.addEventListener('visibilitychange', onHide);
-    window.addEventListener('pagehide', onHide);
-    return () => {
-      document.removeEventListener('visibilitychange', onHide);
-      window.removeEventListener('pagehide', onHide);
-    };
-  }, []);
+  const clock = useGameClock({
+    initialMs: game?.elapsedMs ?? 0,
+    active: !!game && game.status === 'playing',
+    onSuspend: () => persist(),
+  });
+  const { paused, setPaused } = clock;
 
   // Nothing to play (e.g. finished in another screen): go back.
   useEffect(() => {
@@ -82,10 +52,9 @@ export function SudokuPlay() {
   }, []);
 
   const finish = (g: SudokuGame, outcome: 'won' | 'lost') => {
-    const timeMs = elapsed();
-    clock.current = { base: timeMs, since: null };
-    const { newBest } = recordResult(GAME_ID, g.mode, { outcome, timeMs, assists: g.hints });
-    if (outcome === 'won' && g.mode === 'daily' && g.date) markDailyDone(GAME_ID, g.date, { timeMs, assists: g.hints });
+    const timeMs = clock.stop();
+    const { newBest } = sudokuStats.record(g.mode, { outcome, timeMs, assists: g.hints });
+    if (outcome === 'won' && g.mode === 'daily' && g.date) sudokuStats.markDaily(g.date, { timeMs, assists: g.hints });
     savedGame.set(null);
     setResult({ outcome, timeMs, newBest });
   };
@@ -93,7 +62,7 @@ export function SudokuPlay() {
   const dispatch = (action: Action) => {
     const g = gameRef.current;
     if (!g || paused) return;
-    const [next, ev] = reduce(g, action, settingsStore.get().sudoku);
+    const [next, ev] = reduce(g, action, sudokuSettings.get());
     if (next === g) return;
     gameRef.current = next;
     setGame(next);
@@ -157,8 +126,8 @@ export function SudokuPlay() {
   const restart = () => {
     const g = gameRef.current;
     if (!g) return;
-    const [next] = reduce(g, { type: 'restart' }, settingsStore.get().sudoku);
-    clock.current = { base: 0, since: null };
+    const [next] = reduce(g, { type: 'restart' }, sudokuSettings.get());
+    clock.reset(0);
     setResult(null);
     gameRef.current = next;
     setGame(next);
@@ -197,10 +166,10 @@ export function SudokuPlay() {
         <div class="play-info">
           <span class={game.mistakes ? 'mistakes has' : 'mistakes'}>
             Mistakes {game.mistakes}
-            {settings.sudoku.mistakeLimit ? `/${MAX_MISTAKES}` : ''}
+            {settings.mistakeLimit ? `/${MAX_MISTAKES}` : ''}
           </span>
           <span class="timer" aria-label="Time">
-            {formatTime(result ? result.timeMs : elapsed())}
+            {formatTime(result ? result.timeMs : clock.elapsed())}
           </span>
           <span class="hints">{game.hints ? `Hints ${game.hints}` : ''}</span>
         </div>
@@ -208,7 +177,7 @@ export function SudokuPlay() {
         <div class="board-wrap">
           <Board
             game={game}
-            highlightSame={settings.sudoku.highlightSame}
+            highlightSame={settings.highlightSame}
             flash={flash}
             shake={shake}
             hidden={showPause}
@@ -269,25 +238,22 @@ export function SudokuPlay() {
         </div>
       </div>
 
-      <Sheet
+      <ResultSheet
         open={result?.outcome === 'won'}
         title={result?.newBest ? 'New best time! 🎉' : 'Solved! 🎉'}
-        message={
-          <div class="result">
-            <div class="result-time">{result && formatTime(result.timeMs)}</div>
-            <div class="result-meta">
-              {title} · {game.mistakes} mistake{game.mistakes === 1 ? '' : 's'}
-              {game.hints ? ` · ${game.hints} hint${game.hints === 1 ? '' : 's'}` : ''}
-            </div>
-          </div>
+        timeMs={result?.timeMs}
+        meta={
+          <>
+            {title} · {game.mistakes} mistake{game.mistakes === 1 ? '' : 's'}
+            {game.hints ? ` · ${game.hints} hint${game.hints === 1 ? '' : 's'}` : ''}
+          </>
         }
         actions={[
           ...(game.mode === 'daily' ? [] : [{ label: starting ? 'Preparing…' : 'New Game', style: 'primary' as const, onClick: newGame }]),
           { label: 'Done', onClick: () => nav.pop() },
         ]}
-        cancel={false}
       />
-      <Sheet
+      <ResultSheet
         open={result?.outcome === 'lost'}
         title="Game over"
         message={`You made ${MAX_MISTAKES} mistakes. The mistake limit can be turned off in Settings.`}
@@ -296,7 +262,6 @@ export function SudokuPlay() {
           ...(game.mode === 'daily' ? [] : [{ label: starting ? 'Preparing…' : 'New Game', onClick: newGame }]),
           { label: 'Done', onClick: () => nav.pop() },
         ]}
-        cancel={false}
       />
     </Screen>
   );

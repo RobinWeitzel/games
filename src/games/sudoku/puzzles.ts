@@ -1,17 +1,9 @@
-import { load, save } from '../../core/storage';
 import { hashString, randomSeed } from '../../core/random';
 import { todayKey } from '../../core/daily';
 import type { Difficulty } from './engine/generator';
 import type { WorkerRequest } from './engine/worker';
+import { CachedPuzzle as StoredPuzzle, dailyCache, poolCache } from './storage';
 
-export interface StoredPuzzle {
-  puzzle: number[];
-  solution: number[];
-}
-
-type Pool = Partial<Record<Difficulty, StoredPuzzle[]>>;
-const POOL_KEY = 'sudoku:pool';
-const DAILY_KEY = 'sudoku:daily-cache';
 const POOL_SIZE = 2;
 
 let worker: Worker | null = null;
@@ -46,10 +38,10 @@ export async function refillPool(difficulty: Difficulty): Promise<void> {
   if (filling.has(difficulty)) return;
   filling.add(difficulty);
   try {
-    while ((load<Pool>(POOL_KEY, {})[difficulty]?.length ?? 0) < POOL_SIZE) {
+    while ((poolCache.get()?.[difficulty]?.length ?? 0) < POOL_SIZE) {
       const p = await generateInWorker(difficulty, randomSeed());
-      const pool = load<Pool>(POOL_KEY, {});
-      save(POOL_KEY, { ...pool, [difficulty]: [...(pool[difficulty] ?? []), p] });
+      const pool = poolCache.get() ?? {};
+      poolCache.set({ ...pool, [difficulty]: [...(pool[difficulty] ?? []), p] });
     }
   } finally {
     filling.delete(difficulty);
@@ -57,12 +49,12 @@ export async function refillPool(difficulty: Difficulty): Promise<void> {
 }
 
 export async function getPuzzle(difficulty: Difficulty): Promise<StoredPuzzle> {
-  const pool = load<Pool>(POOL_KEY, {});
+  const pool = poolCache.get() ?? {};
   const list = pool[difficulty] ?? [];
   let p: StoredPuzzle;
   if (list.length) {
     p = list[0];
-    save(POOL_KEY, { ...pool, [difficulty]: list.slice(1) });
+    poolCache.set({ ...pool, [difficulty]: list.slice(1) });
   } else {
     p = await generateInWorker(difficulty, randomSeed());
   }
@@ -80,21 +72,18 @@ export function dailyDifficulty(date: string): Difficulty {
 
 export async function getDaily(date = todayKey()): Promise<StoredPuzzle & { difficulty: Difficulty }> {
   const difficulty = dailyDifficulty(date);
-  const cached = load<{ date: string; p: StoredPuzzle } | null>(DAILY_KEY, null);
+  const cached = dailyCache.get();
   if (cached?.date === date) return { ...cached.p, difficulty };
   // Same seed for everyone on the same day.
   const p = await generateInWorker(difficulty, hashString(`sudoku-daily-${date}`));
-  save(DAILY_KEY, { date, p });
+  dailyCache.set({ date, p });
   return { ...p, difficulty };
 }
 
-/** Warm up: fill pools and today's daily while the user browses. */
+/** Warm up: today's daily and the puzzle pools, while the user browses. */
 export function prefetchAll(): void {
-  const run = async () => {
+  void (async () => {
     await getDaily();
     for (const d of ['easy', 'medium', 'hard', 'expert'] as Difficulty[]) await refillPool(d);
-  };
-  const idle = (window as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
-  if (idle) idle(() => void run());
-  else setTimeout(() => void run(), 1500);
+  })();
 }

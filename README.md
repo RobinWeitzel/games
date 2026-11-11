@@ -15,7 +15,7 @@ and works offline.
 ```sh
 npm install
 npm run dev        # http://localhost:5173/games/
-npm test           # unit tests (Sudoku engine, game state, stats)
+npm test           # unit tests, storage migrations + contract, architecture boundaries
 npm run build      # type-check + production build into dist/
 npm run preview    # serve the production build (service worker active)
 npm run icons      # re-render icons + iOS launch images from public/favicon.svg
@@ -30,26 +30,17 @@ Pushing to `main` runs `.github/workflows/deploy.yml`: test → build → deploy
 One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 The base path is the repository name (`/games/`).
 
-## Structure
+## Documentation
 
-```
-src/
-  app/            shell: navigation stack (push/pop + edge swipe), theme, screens (Home, Settings, Stats)
-  core/           storage (versioned localStorage, export/import), stats, daily streaks, haptics, settings
-  ui/             shared iOS-style components (lists, sheets, segmented control, toggles) and icons
-  games/
-    registry.tsx  list of games shown on the home screen
-    sudoku/
-      engine/     solver, generator, difficulty grader, Web Worker (pure TS, unit-tested)
-      state.ts    game state reducer (input, notes, undo, hints, mistakes)
-      puzzles.ts  puzzle pool (pre-generated in the background) + daily puzzle
-      ui/         hub, play screen, board, styles
-```
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the app is put together and the module boundaries
+- [docs/ADDING_A_GAME.md](docs/ADDING_A_GAME.md): step-by-step guide and checklist for a new game
+- [docs/STORAGE.md](docs/STORAGE.md): how saved data is versioned and migrated so updates never lose
+  progress. **Read this before changing anything that is stored.**
 
 ### Sudoku difficulty
 
 Every puzzle has exactly one solution. Difficulty comes from the hardest **technique** needed, as
-measured by a human-style solver (`engine/grader.ts`):
+measured by a human-style solver (`src/games/sudoku/engine/grader.ts`):
 
 | Difficulty | Givens | Hardest technique needed |
 |---|---|---|
@@ -60,13 +51,6 @@ measured by a human-style solver (`engine/grader.ts`):
 
 Puzzles that need guessing or chains are never served. The Daily Challenge is seeded by date, so it
 is the same puzzle for everyone on a given day. Its difficulty rotates through the week.
-
-### Adding a game
-
-1. Create `src/games/<id>/` with its screens.
-2. Record results with `recordResult(gameId, mode, …)` from `core/stats.ts`.
-3. Add an entry to `GAMES` in `src/games/registry.tsx` (tile, home screen, stats modes, optional
-   "continue" support). The home screen, stats screen and backup work automatically.
 
 ## iPhone-specific details
 

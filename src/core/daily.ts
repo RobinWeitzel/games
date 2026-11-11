@@ -1,6 +1,4 @@
-import { persistentStore } from './store';
-
-/** Local calendar date as YYYY-MM-DD. */
+/** Date helpers for daily challenges (local calendar days, "YYYY-MM-DD"). */
 export function todayKey(d = new Date()): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -8,7 +6,7 @@ export function todayKey(d = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
-function addDays(key: string, delta: number): string {
+export function addDays(key: string, delta: number): string {
   const [y, m, d] = key.split('-').map(Number);
   return todayKey(new Date(y, m - 1, d + delta));
 }
@@ -18,20 +16,11 @@ export interface DailyEntry {
   assists: number;
 }
 
-/** gameId -> date -> completion */
-export type DailyData = Record<string, Record<string, DailyEntry>>;
-
-export const dailyStore = persistentStore<DailyData>('daily', {});
-
-export function markDailyDone(gameId: string, date: string, entry: DailyEntry): void {
-  dailyStore.set((data) => {
-    if (data[gameId]?.[date]) return data; // first completion counts
-    return { ...data, [gameId]: { ...data[gameId], [date]: entry } };
-  });
-}
+/** date → first successful completion */
+export type DailyRecord = Record<string, DailyEntry>;
 
 /** Consecutive days solved, ending today (or yesterday if today isn't solved yet). */
-export function dailyStreak(done: Record<string, DailyEntry> | undefined, today = todayKey()): number {
+export function dailyStreak(done: DailyRecord | undefined, today = todayKey()): number {
   if (!done) return 0;
   let day = done[today] ? today : addDays(today, -1);
   let n = 0;
@@ -42,13 +31,12 @@ export function dailyStreak(done: Record<string, DailyEntry> | undefined, today 
   return n;
 }
 
-export function bestDailyStreak(done: Record<string, DailyEntry> | undefined): number {
+export function bestDailyStreak(done: DailyRecord | undefined): number {
   if (!done) return 0;
-  const days = Object.keys(done).sort();
   let best = 0;
   let run = 0;
   let prev = '';
-  for (const d of days) {
+  for (const d of Object.keys(done).sort()) {
     run = prev && addDays(prev, 1) === d ? run + 1 : 1;
     best = Math.max(best, run);
     prev = d;

@@ -1,26 +1,19 @@
 import { useRef, useState } from 'preact/hooks';
-import { Screen } from '../nav';
+import { Screen } from '../../ui/nav';
 import { Row, Section, Segmented, Sheet, Toggle } from '../../ui/components';
-import { Settings as S, ThemeSetting, settingsStore } from '../../core/settings';
-import { useStore } from '../../core/store';
-import { exportAll, importAll } from '../../core/storage';
-import { resetStats, statsStore } from '../../core/stats';
-import { dailyStore } from '../../core/daily';
-import { savedGame } from '../../games/sudoku/saved';
-
-const reloadAll = () => [settingsStore, statsStore, dailyStore, savedGame].forEach((s) => s.reload());
+import { ThemeSetting, settingsStore } from '../../core/settings';
+import { createBackup, restoreBackup, useStore } from '../../core/storage';
+import { GAMES } from '../../games/registry';
 
 export function Settings() {
   const settings = useStore(settingsStore);
   const fileRef = useRef<HTMLInputElement>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [pendingImport, setPendingImport] = useState<unknown>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const setSudoku = (patch: Partial<S['sudoku']>) =>
-    settingsStore.set((s) => ({ ...s, sudoku: { ...s.sudoku, ...patch } }));
-
   const doExport = async () => {
-    const json = JSON.stringify(exportAll(), null, 2);
+    const json = JSON.stringify(createBackup(), null, 2);
     const name = `games-backup-${new Date().toISOString().slice(0, 10)}.json`;
     const file = new File([json], name, { type: 'application/json' });
     // iOS: the share sheet offers "Save to Files", AirDrop, etc.
@@ -39,13 +32,22 @@ export function Settings() {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
 
-  const doImport = async (file: File) => {
+  const readImport = async (file: File) => {
     try {
-      importAll(JSON.parse(await file.text()));
-      reloadAll();
-      setMessage('Backup restored.');
+      setPendingImport(JSON.parse(await file.text()));
+    } catch {
+      setMessage('Could not read this file.');
+    }
+  };
+
+  const doImport = () => {
+    try {
+      restoreBackup(pendingImport);
+      // Reload so every store re-reads (and migrates) the restored data.
+      location.reload();
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Could not read this file.');
+      setPendingImport(null);
+      setMessage(e instanceof Error ? e.message : 'Could not restore this backup.');
     }
   };
 
@@ -68,21 +70,11 @@ export function Settings() {
         </Row>
       </Section>
 
-      <Section header="Sudoku" footer="Assisted games (with hints) never count towards best times.">
-        <Row title="Mistake limit" subtitle="Game over after 3 mistakes">
-          <Toggle label="Mistake limit" checked={settings.sudoku.mistakeLimit} onChange={(v) => setSudoku({ mistakeLimit: v })} />
-        </Row>
-        <Row title="Highlight same numbers">
-          <Toggle label="Highlight same numbers" checked={settings.sudoku.highlightSame} onChange={(v) => setSudoku({ highlightSame: v })} />
-        </Row>
-        <Row title="Auto-remove notes" subtitle="When a number is placed">
-          <Toggle label="Auto-remove notes" checked={settings.sudoku.autoRemoveNotes} onChange={(v) => setSudoku({ autoRemoveNotes: v })} />
-        </Row>
-      </Section>
+      {GAMES.map((g) => g.SettingsSection && <g.SettingsSection key={g.id} />)}
 
       <Section
         header="Data"
-        footer="Statistics are stored only on this device. Deleting the app from your Home Screen deletes them too, so export a backup now and then."
+        footer="Your games and statistics are stored only on this device. Deleting the app from your Home Screen deletes them too, so export a backup now and then."
       >
         <Row title="Export backup" chevron onClick={doExport} />
         <Row title="Import backup" chevron onClick={() => fileRef.current?.click()} />
@@ -95,7 +87,7 @@ export function Settings() {
         hidden
         onChange={(e) => {
           const f = (e.currentTarget as HTMLInputElement).files?.[0];
-          if (f) void doImport(f);
+          if (f) void readImport(f);
           (e.currentTarget as HTMLInputElement).value = '';
         }}
       />
@@ -106,18 +98,24 @@ export function Settings() {
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
         title="Reset all statistics?"
-        message="Best times, streaks and daily history will be deleted. This can't be undone."
+        message="Best times, streaks and daily history of all games will be deleted. This can't be undone."
         actions={[
           {
             label: 'Reset Statistics',
             style: 'destructive',
             onClick: () => {
-              resetStats();
-              dailyStore.set({});
+              GAMES.forEach((g) => g.stats.reset());
               setConfirmReset(false);
             },
           },
         ]}
+      />
+      <Sheet
+        open={pendingImport != null}
+        onClose={() => setPendingImport(null)}
+        title="Restore this backup?"
+        message="All current games, statistics and settings on this device will be replaced."
+        actions={[{ label: 'Restore Backup', style: 'destructive', onClick: doImport }]}
       />
       <Sheet open={!!message} onClose={() => setMessage(null)} title={message} cancel="OK" />
     </Screen>

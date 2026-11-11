@@ -278,17 +278,3 @@
   font-size: 22px;
   font-weight: 500;
 }
-
-/* ---------- Result sheet ---------- */
-.result {
-  padding-top: 6px;
-}
-.result-time {
-  font-size: 44px;
-  font-weight: 700;
-  color: var(--label);
-  font-variant-numeric: tabular-nums;
-}
-.result-meta {
-  font-size: 14px;
-}

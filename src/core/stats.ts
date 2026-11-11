@@ -1,4 +1,5 @@
-import { persistentStore } from './store';
+import { defineStore, gameKey, Store } from './storage';
+import { DailyEntry, DailyRecord } from './daily';
 
 /** One finished (or abandoned) game. */
 export interface GameResult {
@@ -6,7 +7,7 @@ export interface GameResult {
   at: number;
   outcome: 'won' | 'lost' | 'abandoned';
   timeMs: number;
-  /** Assists used (hints). Assisted wins don't count for best time. */
+  /** Assists used (hints etc.). Assisted wins never count for best time. */
   assists: number;
 }
 
@@ -14,7 +15,7 @@ export interface ModeStats {
   played: number;
   won: number;
   bestTimeMs: number | null;
-  /** Sum and count of winning times, for the average. */
+  /** Sum of winning times, for the average. */
   winTimeTotalMs: number;
   currentStreak: number;
   bestStreak: number;
@@ -22,8 +23,14 @@ export interface ModeStats {
   history: GameResult[];
 }
 
-/** gameId -> mode (e.g. difficulty or "daily") -> stats */
-export type StatsData = Record<string, Record<string, ModeStats>>;
+/** mode id (difficulty, "daily", …) → stats */
+export type StatsByMode = Record<string, ModeStats>;
+
+export interface StatsMode {
+  /** Permanent id, part of stored data. Never rename. */
+  id: string;
+  label: string;
+}
 
 const HISTORY = 30;
 
@@ -37,12 +44,6 @@ export const emptyModeStats = (): ModeStats => ({
   history: [],
 });
 
-export const statsStore = persistentStore<StatsData>('stats', {});
-
-export function getModeStats(data: StatsData, gameId: string, mode: string): ModeStats {
-  return data[gameId]?.[mode] ?? emptyModeStats();
-}
-
 /** Pure update, exported for tests. */
 export function applyResult(prev: ModeStats, r: GameResult): { stats: ModeStats; newBest: boolean } {
   const s: ModeStats = { ...prev, history: [...prev.history, r].slice(-HISTORY) };
@@ -54,8 +55,7 @@ export function applyResult(prev: ModeStats, r: GameResult): { stats: ModeStats;
     s.currentStreak++;
     s.bestStreak = Math.max(s.bestStreak, s.currentStreak);
     if (r.assists === 0 && (s.bestTimeMs == null || r.timeMs < s.bestTimeMs)) {
-      // Only call it a "new best" if there was a previous best to beat.
-      newBest = s.bestTimeMs != null;
+      newBest = s.bestTimeMs != null; // only "new" if there was one to beat
       s.bestTimeMs = r.timeMs;
     }
   } else {
@@ -64,29 +64,45 @@ export function applyResult(prev: ModeStats, r: GameResult): { stats: ModeStats;
   return { stats: s, newBest };
 }
 
-export function recordResult(gameId: string, mode: string, result: Omit<GameResult, 'at'>): { newBest: boolean } {
-  let newBest = false;
-  statsStore.set((data) => {
-    const prev = getModeStats(data, gameId, mode);
-    const res = applyResult(prev, { ...result, at: Date.now() });
-    newBest = res.newBest;
-    return { ...data, [gameId]: { ...data[gameId], [mode]: res.stats } };
-  });
-  return { newBest };
+/**
+ * Statistics of one game: per-mode results (games/game/<id>/stats) and, optionally,
+ * daily challenge completions (games/game/<id>/daily).
+ *
+ * The generic Statistics screen, the "reset statistics" button and backups all work through
+ * this object, so a game gets them for free by creating one.
+ */
+export interface GameStats {
+  gameId: string;
+  modes: StatsMode[];
+  store: Store<StatsByMode>;
+  daily: Store<DailyRecord> | null;
+  get(mode: string): ModeStats;
+  record(mode: string, result: Omit<GameResult, 'at'>): { newBest: boolean };
+  /** Record a daily completion (first completion per day counts). */
+  markDaily(date: string, entry: DailyEntry): void;
+  reset(): void;
 }
 
-export function resetStats(gameId?: string): void {
-  statsStore.set((data) => {
-    if (!gameId) return {};
-    const { [gameId]: _removed, ...rest } = data;
-    return rest;
-  });
-}
-
-/** Combine all modes of a game (for the overview). */
-export function totals(data: StatsData, gameId: string): { played: number; won: number } {
-  return Object.values(data[gameId] ?? {}).reduce(
-    (acc, s) => ({ played: acc.played + s.played, won: acc.won + s.won }),
-    { played: 0, won: 0 },
-  );
+export function createGameStats(gameId: string, opts: { modes: StatsMode[]; daily?: boolean }): GameStats {
+  const store = defineStore<StatsByMode>({ key: gameKey(gameId, 'stats'), version: 1, initial: {} });
+  const daily = opts.daily ? defineStore<DailyRecord>({ key: gameKey(gameId, 'daily'), version: 1, initial: {} }) : null;
+  return {
+    gameId,
+    modes: opts.modes,
+    store,
+    daily,
+    get: (mode) => store.get()[mode] ?? emptyModeStats(),
+    record(mode, result) {
+      const res = applyResult(store.get()[mode] ?? emptyModeStats(), { ...result, at: Date.now() });
+      store.set((s) => ({ ...s, [mode]: res.stats }));
+      return { newBest: res.newBest };
+    },
+    markDaily(date, entry) {
+      daily?.set((d) => (d[date] ? d : { ...d, [date]: entry }));
+    },
+    reset() {
+      store.set({});
+      daily?.set({});
+    },
+  };
 }

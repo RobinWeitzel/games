@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
-import { GAMES, GameDef } from '../../games/registry';
-import { useNav, Screen } from '../nav';
+import { GAMES } from '../../games/registry';
+import type { GameModule } from '../../games/types';
+import { useNav, Screen } from '../../ui/nav';
 import { haptic } from '../../core/haptics';
 import { IconGear, IconPlay, IconShare } from '../../ui/icons';
 import { Settings } from './Settings';
@@ -32,7 +33,7 @@ export function Home() {
             style={{ background: g.color }}
             onClick={() => {
               haptic('selection');
-              nav.push(g.home());
+              nav.push(<g.Hub />);
             }}
           >
             <g.Icon size={44} />
@@ -49,18 +50,19 @@ export function Home() {
   );
 }
 
-function ContinueCard({ game }: { game: GameDef }) {
+function ContinueCard({ game }: { game: GameModule }) {
   const nav = useNav();
   const [, force] = useState(0);
-  useEffect(() => game.saved?.store.subscribe(() => force((n) => n + 1)), [game]);
-  const info = game.saved?.describe();
-  if (!info || !game.saved) return null;
+  useEffect(() => game.resume?.store.subscribe(() => force((n) => n + 1)), [game]);
+  const resume = game.resume;
+  const info = resume?.describe();
+  if (!info || !resume) return null;
   return (
     <button
       class="continue-card"
       onClick={() => {
         haptic('selection');
-        nav.push(game.saved!.resume());
+        nav.push(<resume.Screen />);
       }}
     >
       <span class="continue-icon" style={{ background: game.color }}>

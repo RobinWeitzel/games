@@ -45,5 +45,6 @@ export default defineConfig({
   worker: { format: 'es' },
   test: {
     include: ['src/**/*.test.ts'],
+    setupFiles: ['src/test/setup.ts'],
   },
 });

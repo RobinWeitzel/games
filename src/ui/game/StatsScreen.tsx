@@ -1,33 +1,35 @@
 import { useState } from 'preact/hooks';
 import { Screen } from '../nav';
-import { Section, Segmented } from '../../ui/components';
-import { useStore } from '../../core/store';
-import { GameResult, getModeStats, statsStore } from '../../core/stats';
-import { bestDailyStreak, dailyStore, dailyStreak } from '../../core/daily';
+import { Section, Segmented } from '../components';
+import { useOptionalStore, useStore } from '../../core/storage';
+import { GameResult, GameStats, emptyModeStats } from '../../core/stats';
+import { DailyRecord, bestDailyStreak, dailyStreak } from '../../core/daily';
 import { formatTime } from '../../core/format';
-import type { GameDef } from '../../games/registry';
-import { IconFlame } from '../../ui/icons';
+import { IconFlame } from '../icons';
 
-export function Stats({ game, initialMode }: { game: GameDef; initialMode?: string }) {
-  const data = useStore(statsStore);
-  const daily = useStore(dailyStore);
-  const [mode, setMode] = useState(initialMode ?? game.modes[0].id);
-  const s = getModeStats(data, game.id, mode);
+const NO_DAILY: DailyRecord = {};
+
+/** Generic statistics screen for any game, driven by its GameStats. */
+export function StatsScreen({ stats, backLabel, initialMode }: { stats: GameStats; backLabel: string; initialMode?: string }) {
+  const data = useStore(stats.store);
+  const daily = useOptionalStore(stats.daily) ?? NO_DAILY;
+  const [mode, setMode] = useState(initialMode ?? stats.modes[0].id);
+  const s = data[mode] ?? emptyModeStats();
   const avg = s.won ? s.winTimeTotalMs / s.won : null;
-  const isDaily = mode === 'daily';
+  const isDaily = mode === 'daily' && !!stats.daily;
 
   return (
-    <Screen title="Statistics" back={game.name}>
+    <Screen title="Statistics" back={backLabel}>
       <div class="stats-picker">
-        <Segmented value={mode} onChange={setMode} options={game.modes.map((m) => ({ value: m.id, label: m.label }))} />
+        <Segmented value={mode} onChange={setMode} options={stats.modes.map((m) => ({ value: m.id, label: m.label }))} />
       </div>
 
       {isDaily && (
         <div class="streak-banner">
           <IconFlame size={28} />
           <div>
-            <div class="streak-value">{dailyStreak(daily[game.id])} day streak</div>
-            <div class="streak-sub">Best: {bestDailyStreak(daily[game.id])} days</div>
+            <div class="streak-value">{dailyStreak(daily)} day streak</div>
+            <div class="streak-sub">Best: {bestDailyStreak(daily)} days</div>
           </div>
         </div>
       )}
