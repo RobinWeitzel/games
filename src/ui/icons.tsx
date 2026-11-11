@@ -110,3 +110,10 @@ export const IconBook = (p: P) => (
     <path d="M12 7v13" />
   </Icon>
 );
+/** Deal from the stock: a card with cards coming off it. */
+export const IconDeal = (p: P) => (
+  <Icon {...p}>
+    <rect x="7" y="3" width="10" height="13" rx="2" />
+    <path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
+  </Icon>
+);

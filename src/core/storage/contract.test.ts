@@ -45,6 +45,8 @@ const CONTRACT = {
     'data  games/game/solitaire/save       v1',
     'data  games/game/solitaire/settings   v1',
     'data  games/game/solitaire/stats      v1',
+    'data  games/game/spider/save          v1',
+    'data  games/game/spider/stats         v1',
     'data  games/game/sudoku/daily         v1',
     'data  games/game/sudoku/save          v1',
     'data  games/game/sudoku/settings      v2',
