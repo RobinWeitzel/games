@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { markStorageReady } from '../../core/storage/store';
 import { createRng, hashString } from '../../core/random';
 import {
   Action,
@@ -188,6 +189,8 @@ describe('minesweeper daily', () => {
 });
 
 describe('minesweeper session', () => {
+  beforeAll(() => markStorageReady()); // as after initStorage() at launch
+
   it('counts a touched game as abandoned when a new one starts', () => {
     msSave.set(run(newGame('easy'), { type: 'tap', cell: 0 }));
     expect(hasGameToAbandon()).toBe(true);
@@ -223,6 +226,7 @@ describe('minesweeper session', () => {
     );
     // Fresh module, so the store loads from storage like on app launch.
     vi.resetModules();
+    (await import('../../core/storage/store')).markStorageReady();
     const { msSave: fresh } = await import('./storage');
     const g = fresh.get()!;
     expect(g.flagMode).toBe(true);

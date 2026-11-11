@@ -35,6 +35,10 @@ what can be checked automatically. The rest is the review checklist at the end.
   the full width (only safe areas are mandatory in the HIG; margins are ours to choose).
 - Game screens **fit without scrolling** in portrait, from iPhone SE (375×667pt) up, including
   with large text. Size the board from the available height, like `sudoku.css`'s `.board-wrap`.
+  A board that would otherwise need cells under 44pt may instead **scroll vertically inside its
+  area** while the status line and controls stay fixed (Minesweeper). Never horizontally: the left
+  edge is swipe-back. A drag must never count as a tap, and neither may a touch that stops a
+  flick-scroll.
 - Primary game controls in the **bottom half** (thumb reach). Navigation and status at the top.
 
 ### 3. Typography (Dynamic Type)
@@ -185,8 +189,10 @@ and shake. Haptics: `selection` for a calculation, `success` for hitting the tar
 invalid step or a lost game. The tile gradient is 5.7:1 against white text. Also fixed in the shell: long back
 labels now truncate instead of overlapping the title at large text sizes. The audit now covers every game.
 
-**2026-11 Minesweeper.** Portrait boards (8×10, 10×14, 12×17) sized from the available height so they
-fit on iPhone SE without scrolling; a daily board that starts with an open area. Every board can be
+**2026-11 Minesweeper.** Boards are always 8 columns wide, so every cell is ≥ 44pt on iPhone SE
+(8×10, 8×16, 8×24). Taller boards scroll vertically inside the board area; the screen itself, the
+status line and the tools never move. The spacing between tiles is part of each cell (a transparent
+border), so there are no dead gaps. The game opens scrolled to the open area. A daily board starts with an open area. Every board can be
 solved **without guessing**: layouts are generated from the first tap until a logic-only solver
 (`solver.ts`) clears them, and hints open the next cell that can be proven safe. Tap opens, and
 *touch and hold* flags. That custom gesture follows rule 5b: a one-line tip until the player has used it

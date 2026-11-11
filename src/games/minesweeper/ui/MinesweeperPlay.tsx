@@ -9,7 +9,7 @@ import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
 import { IconBulb, IconPause, IconPlay } from '../../../ui/icons';
 import { GAME_ID, msSave, msSettings, msStats } from '../storage';
-import { Action, Event, MinesweeperGame, minesLeft, reduce } from '../state';
+import { Action, Event, MinesweeperGame, OPEN, minesLeft, reduce } from '../state';
 import { MODE_LABEL, createGame } from '../session';
 import { Board } from './Board';
 import { FlagGlyph } from './glyphs';
@@ -102,6 +102,24 @@ export function MinesweeperPlay() {
     heldHaptic.current = null;
   }, []);
 
+  // Scrolling board: remember when it last moved, so a touch that stops a flick isn't a tap.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const lastScroll = useRef(-Infinity);
+  const isScrolling = useCallback(() => performance.now() - lastScroll.current < 100, []);
+
+  // Open the screen on the open area (daily start, resumed game) rather than the top of the board.
+  useEffect(() => {
+    const el = scrollRef.current;
+    const g = gameRef.current;
+    if (!el || !g || el.scrollHeight <= el.clientHeight) return;
+    const rows = g.cells.flatMap((s, i) => (s === OPEN ? [Math.floor(i / g.cols)] : []));
+    if (!rows.length) return;
+    const rowH = el.scrollHeight / g.rows;
+    const mid = (Math.min(...rows) + Math.max(...rows) + 1) / 2;
+    el.scrollTop = mid * rowH - el.clientHeight / 2;
+    lastScroll.current = -Infinity; // that was us, not the player
+  }, []);
+
   // Hardware keyboard: F toggles flag mode.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -150,19 +168,23 @@ export function MinesweeperPlay() {
           <span class="hints">{game.hints ? `Hints ${game.hints}` : ''}</span>
         </div>
 
-        {/* Takes all height left over by the controls; the board is the largest rectangle that fits. */}
+        {/* Takes all height left over by the controls. The board fills the width (cells ≥ 44pt);
+            a board taller than this area scrolls vertically inside it, so the controls never move.
+            Only vertically: horizontal drags at the left edge are swipe-back. */}
         <div class="ms-board-area">
-          <div class="ms-board-wrap" style={{ '--cols': String(game.cols), '--rows': String(game.rows) }}>
-            <Board game={game} fresh={fresh} hidden={showPause} onTap={onTap} onHold={onHold} onRelease={onRelease} />
-            {showPause && (
-              <button class="pause-overlay" onClick={() => setPaused(false)}>
-                <span class="pause-play">
-                  <IconPlay size={34} />
-                </span>
-                <span>Paused · tap to resume</span>
-              </button>
-            )}
+          <div class={`ms-scroll ${showPause ? 'ms-scroll-paused' : ''}`} ref={scrollRef} onScroll={() => (lastScroll.current = performance.now())}>
+            <div class="ms-board-wrap" style={{ '--cols': String(game.cols) }}>
+              <Board game={game} fresh={fresh} hidden={showPause} onTap={onTap} onHold={onHold} onRelease={onRelease} isScrolling={isScrolling} />
+            </div>
           </div>
+          {showPause && (
+            <button class="pause-overlay" onClick={() => setPaused(false)}>
+              <span class="pause-play">
+                <IconPlay size={34} />
+              </span>
+              <span>Paused · tap to resume</span>
+            </button>
+          )}
         </div>
 
         {/* One line, always reserved so the layout doesn't jump: teaches touch and hold, explains flag mode. */}
