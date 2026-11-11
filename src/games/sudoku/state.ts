@@ -36,13 +36,17 @@ export interface SudokuGame {
    * mode). Optional, added after release: saves without it simply have no lock.
    */
   lockedDigit?: number | null;
+  /**
+   * Autofill for this game: cells whose notes are reduced to one are filled (cascading). Off at
+   * the start of every game (it would fill half-written notes); the player turns it on for the
+   * end phase. Optional, added after release: older saves simply have it off.
+   */
+  autoFill?: boolean;
 }
 
 export interface Options {
   mistakeLimit: boolean;
   autoRemoveNotes: boolean;
-  /** Fill a cell when its notes are reduced to a single one (cascades). Optional for older callers. */
-  autoFillSingles?: boolean;
 }
 
 export type Action =
@@ -53,6 +57,8 @@ export type Action =
   | { type: 'lockDigit'; digit: number }
   | { type: 'erase' }
   | { type: 'toggleNotes' }
+  /** Turn autofill on (also fills cells that already have one note) or off. */
+  | { type: 'toggleAutoFill' }
   | { type: 'undo' }
   | { type: 'hint' }
   | { type: 'fillNotes' }
@@ -136,9 +142,18 @@ function placeCorrect(g: SudokuGame, cell: number, opts: Options): [SudokuGame, 
 }
 
 export function reduce(g: SudokuGame, action: Action, opts: Options): [SudokuGame, GameEvent] {
+  if (action.type === 'toggleAutoFill') {
+    if (g.status !== 'playing') return [g, { kind: 'none' }];
+    if (g.autoFill) return [{ ...g, autoFill: false }, { kind: 'none' }];
+    // Switching on means "my notes are complete": fill every cell that has one note right now.
+    // Recorded as a move only if something was filled, so one Undo reverts the whole cascade.
+    const on = { ...g, autoFill: true };
+    const [filled, ev] = fillSingles(g, { ...on, undo: snapshot(g) }, { kind: 'none' }, opts, true);
+    return ev.kind === 'none' ? [on, ev] : [filled, ev];
+  }
   const [next, ev] = reduceAction(g, action, opts);
   // Moves that can take notes away (placing a digit, removing a note) may leave cells with one note.
-  if (opts.autoFillSingles && next !== g && (action.type === 'input' || action.type === 'select' || action.type === 'hint')) {
+  if (next.autoFill && next !== g && (action.type === 'input' || action.type === 'select' || action.type === 'hint')) {
     return fillSingles(g, next, ev, opts);
   }
   return [next, ev];
@@ -159,10 +174,11 @@ const bitCount = (m: number) => {
  * the cascade (silently skipping it would reveal that the note is wrong).
  * The whole cascade is part of the player's move, so one Undo reverts it all.
  */
-function fillSingles(prev: SudokuGame, g: SudokuGame, ev: GameEvent, opts: Options): [SudokuGame, GameEvent] {
+function fillSingles(prev: SudokuGame, g: SudokuGame, ev: GameEvent, opts: Options, allSingles = false): [SudokuGame, GameEvent] {
   if (g.status !== 'playing' || (ev.kind !== 'correct' && ev.kind !== 'none')) return [g, ev];
   let cur = g;
-  let before = prev.notes;
+  // allSingles (switching autofill on): the first round takes every single-note cell.
+  let before = allSingles ? prev.notes.map(() => 0b1111111110) : prev.notes;
   const filled: number[] = [];
   const units = ev.kind === 'correct' ? [...ev.completedUnits] : [];
   let result: GameEvent | null = null;
@@ -235,6 +251,9 @@ function reduceAction(g: SudokuGame, action: Action, opts: Options): [SudokuGame
 
     case 'toggleNotes':
       return [{ ...g, notesMode: !g.notesMode }, none];
+
+    case 'toggleAutoFill':
+      return [g, none]; // handled in reduce(): it needs the cascade
 
     case 'input': {
       // While a digit is locked, the keypad switches the lock instead of entering numbers.

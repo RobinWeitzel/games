@@ -13,18 +13,25 @@ import type { SudokuGame } from './state';
 export const GAME_ID = 'sudoku';
 
 /** games/game/sudoku/settings */
-export const sudokuSettings = createGameSettings(GAME_ID, {
-  /** End the game after 3 mistakes. */
-  mistakeLimit: true,
-  /** Highlight all cells with the selected number. */
-  highlightSame: true,
-  /** Remove a digit from notes in the same row / column / box when it is placed. */
-  autoRemoveNotes: true,
-  /** Fill a cell when its notes are reduced to one (cascades). Opt-in. */
-  autoFillSingles: false,
-  /** The "hold a number" tip was shown and the player has used number lock (not a visible setting). */
-  numberLockTipSeen: false,
-});
+export const sudokuSettings = createGameSettings(
+  GAME_ID,
+  {
+    /** End the game after 3 mistakes. */
+    mistakeLimit: true,
+    /** Highlight all cells with the selected number. */
+    highlightSame: true,
+    /** Remove a digit from notes in the same row / column / box when it is placed. */
+    autoRemoveNotes: true,
+    /** The "hold a number" tip was shown and the player has used number lock (not a visible setting). */
+    numberLockTipSeen: false,
+  },
+  2,
+  {
+    // v1 → v2: "Fill single notes" (autoFillSingles) moved from Settings to the per-game
+    // Autofill switch in the game screen, because it must start off in every game.
+    1: ({ autoFillSingles: _removed, ...rest }: Record<string, unknown>) => rest,
+  },
+);
 
 /** games/game/sudoku/stats and games/game/sudoku/daily */
 export const sudokuStats = createGameStats(GAME_ID, {

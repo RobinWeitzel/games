@@ -99,3 +99,8 @@ export const IconChevron = (p: P) => (
     <path d="m2 2 6 7-6 7" stroke-width="2" />
   </Icon>
 );
+export const IconBolt = (p: P) => (
+  <Icon {...p}>
+    <path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12l1-8Z" />
+  </Icon>
+);

@@ -7,7 +7,7 @@ import { useRestorable } from '../../../ui/game/useRestorable';
 import { haptic } from '../../../core/haptics';
 import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
-import { IconBulb, IconErase, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
+import { IconBolt, IconBulb, IconErase, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
 import { GAME_ID, savedGame, sudokuSettings, sudokuStats } from '../storage';
 import { Action, MAX_MISTAKES, SudokuGame, digitCounts, reduce } from '../state';
 import { createGame } from '../session';
@@ -114,6 +114,7 @@ export function SudokuPlay() {
       next.values !== g.values ||
       next.notes !== g.notes ||
       next.notesMode !== g.notesMode ||
+      !!next.autoFill !== !!g.autoFill ||
       (next.lockedDigit ?? null) !== (g.lockedDigit ?? null);
     if (changed) persist(next);
   };
@@ -235,6 +236,10 @@ export function SudokuPlay() {
           <Tool label="Auto notes" onClick={() => dispatch({ type: 'fillNotes' })}>
             <IconWand />
           </Tool>
+          {/* Per game, off at the start: turn on for the end phase (it fills cells left with one note). */}
+          <Tool label="Autofill" onClick={() => dispatch({ type: 'toggleAutoFill' })} active={!!game.autoFill}>
+            <IconBolt />
+          </Tool>
           <Tool label="Hint" onClick={() => dispatch({ type: 'hint' })}>
             <IconBulb />
           </Tool>
@@ -248,6 +253,10 @@ export function SudokuPlay() {
                 {game.notesMode ? 'Noting' : 'Filling'} {game.lockedDigit}
               </strong>{' '}
               · tap {game.lockedDigit} again to stop
+            </span>
+          ) : game.autoFill ? (
+            <span>
+              <strong>Autofill on</strong> · cells left with one note are filled
             </span>
           ) : !settings.numberLockTipSeen ? (
             <span>Tip: hold a number to fill several cells</span>

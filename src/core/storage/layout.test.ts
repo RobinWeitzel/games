@@ -31,7 +31,7 @@ describe('layout migrations', () => {
     // Chain: layout 1 → 2 writes settings v1, then the store migrates v1 → v2 (theme removed).
     expect(JSON.parse(localStorage.getItem('games/app/settings')!).v).toBe(2);
     // Player's values survive; settings added later get their defaults.
-    expect(sudoku.sudokuSettings.get()).toEqual({ mistakeLimit: false, highlightSame: true, autoRemoveNotes: false, numberLockTipSeen: false, autoFillSingles: false });
+    expect(sudoku.sudokuSettings.get()).toEqual({ mistakeLimit: false, highlightSame: true, autoRemoveNotes: false, numberLockTipSeen: false });
     expect(sudoku.sudokuStats.get('easy')).toEqual(MODE_STATS_V1);
     expect(sudoku.sudokuStats.get('daily').played).toBe(1);
     expect(sudoku.sudokuStats.daily!.get()).toEqual({ '2026-11-10': { timeMs: 500000, assists: 0 } });
@@ -73,6 +73,20 @@ describe('layout migrations', () => {
     const { report, store } = await boot();
     expect(report.status).toBe('newer');
     expect(store.getReadOnlyReason()).not.toBeNull();
+  });
+});
+
+describe('sudoku settings', () => {
+  it('v1 → v2 drops the old "Fill single notes" setting and keeps the rest', async () => {
+    localStorage.setItem('games/meta', JSON.stringify({ layout: 2 }));
+    // Literal value as stored by the release that had the setting (settings v1).
+    localStorage.setItem(
+      'games/game/sudoku/settings',
+      JSON.stringify({ v: 1, data: { mistakeLimit: false, highlightSame: true, autoRemoveNotes: true, autoFillSingles: true, numberLockTipSeen: true } }),
+    );
+    const { sudoku } = await boot();
+    expect(sudoku.sudokuSettings.get()).toEqual({ mistakeLimit: false, highlightSame: true, autoRemoveNotes: true, numberLockTipSeen: true });
+    expect(JSON.parse(localStorage.getItem('games/game/sudoku/settings')!).v).toBe(2);
   });
 });
 

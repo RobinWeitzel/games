@@ -17,9 +17,6 @@ export function SudokuSettings() {
       <Row title="Auto-remove notes" subtitle="When a number is placed">
         <Toggle label="Auto-remove notes" checked={s.autoRemoveNotes} onChange={(v) => set({ autoRemoveNotes: v })} />
       </Row>
-      <Row title="Fill single notes" subtitle="When a cell is left with one note">
-        <Toggle label="Fill single notes" checked={s.autoFillSingles} onChange={(v) => set({ autoFillSingles: v })} />
-      </Row>
     </Section>
   );
 }

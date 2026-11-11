@@ -29,7 +29,7 @@ const CONTRACT = {
     'cache games/cache/sudoku/pool         v1',
     'data  games/game/sudoku/daily         v1',
     'data  games/game/sudoku/save          v1',
-    'data  games/game/sudoku/settings      v1',
+    'data  games/game/sudoku/settings      v2',
     'data  games/game/sudoku/stats         v1',
   ],
 };

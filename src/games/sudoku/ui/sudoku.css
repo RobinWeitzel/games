@@ -225,8 +225,8 @@
 /* ---------- Tools ---------- */
 .tools {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
 }
 .tool {
   display: flex;
@@ -259,9 +259,12 @@
   font-weight: 600;
 }
 .tool-label {
-  /* Dynamic Type, capped so the fixed game layout still fits. */
-  font-size: min(var(--fs-caption1), 15px);
+  /* Dynamic Type, capped so five tools still fit side by side on iPhone SE. */
+  font-size: min(var(--fs-caption1), 13px);
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---------- Number lock status ---------- */
