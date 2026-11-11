@@ -7,6 +7,7 @@ import { formatDate, formatTime } from '../../core/format';
 import type { GameStats } from '../../core/stats';
 import { IconCalendar, IconChart, IconCheck, IconFlame, IconPlay } from '../icons';
 import { StatsScreen } from './StatsScreen';
+import './game.css';
 
 /**
  * Building blocks for a game's hub screen. A typical hub is:

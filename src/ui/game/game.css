@@ -1,0 +1,112 @@
+/*
+ * Shared game screen chrome (imported by the game kit in ui/game/hub.tsx): the fixed layout,
+ * the status line with the timer, the pause overlay and the tool row. Game-specific styles stay
+ * in the game's own CSS file.
+ */
+.play .navbar {
+  background: var(--bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.play-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Narrow sides so the board uses the full width (taps on the swipe-back strip pass through). */
+  padding: 2px calc(8px + var(--safe-right)) 10px calc(8px + var(--safe-left));
+}
+
+.play-info {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  font-size: min(var(--fs-subheadline), 18px);
+  color: var(--label-2);
+  font-variant-numeric: tabular-nums;
+}
+.play-info .hints {
+  text-align: right;
+}
+.timer {
+  font-size: min(var(--fs-body), 21px);
+  font-weight: 600;
+  color: var(--label);
+}
+
+/* ---------- Pause ---------- */
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--label-2);
+  font-size: min(var(--fs-subheadline), 20px);
+}
+.pause-play {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  padding-left: 4px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 150ms var(--ease);
+}
+.pause-overlay:active .pause-play {
+  transform: scale(0.92);
+}
+
+/* ---------- Tools ---------- */
+.tools {
+  /* One equal column per tool. */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  color: var(--label-2);
+  border-radius: 12px;
+  transition: transform 120ms var(--ease), background 120ms;
+}
+.tool:active:not(:disabled) {
+  transform: scale(0.9);
+  background: var(--fill);
+}
+.tool:disabled {
+  opacity: 0.35;
+}
+.tool-icon {
+  position: relative;
+  color: var(--label);
+}
+.tool.active {
+  /* Shape + colour change, so the state isn't conveyed by colour alone. */
+  background: var(--accent-soft);
+}
+.tool.active .tool-icon,
+.tool.active .tool-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+.tool-label {
+  /* Dynamic Type, capped so five tools fit side by side on iPhone SE. */
+  font-size: min(var(--fs-caption1), 13px);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
