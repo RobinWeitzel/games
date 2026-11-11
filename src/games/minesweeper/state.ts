@@ -1,4 +1,5 @@
 import type { Rng } from '../../core/random';
+import { isSolvable, provablySafe } from './solver';
 
 /**
  * Minesweeper game logic: pure functions only (no storage, no UI), unit-tested in state.test.ts.
@@ -118,11 +119,26 @@ export function placeMines(g: MinesweeperGame, safe: number, rng: Rng): number[]
   return mines;
 }
 
+/** Practically never reached: boards need about 1–4 tries (see solver.test.ts). */
+const MAX_TRIES = 10000;
+
+/**
+ * Place mines so the board can be cleared from `safe` by logic alone: no guessing is ever
+ * needed (docs/DESIGN.md). Random layouts are tried until the solver clears one.
+ */
+export function placeSolvableMines(g: MinesweeperGame, safe: number, rng: Rng): number[] {
+  for (let i = 0; i < MAX_TRIES; i++) {
+    const mines = placeMines(g, safe, rng);
+    if (isSolvable({ cols: g.cols, rows: g.rows, mines }, safe)) return mines;
+  }
+  return placeMines(g, safe, rng);
+}
+
 /** Daily challenge: the same board and the same opened start area for everyone on a date. */
 export function newDailyGame(date: string, rng: Rng): MinesweeperGame {
   const g = newGame('daily', date);
   const start = Math.floor(rng() * g.cells.length);
-  const mines = placeMines(g, start, rng);
+  const mines = placeSolvableMines(g, start, rng);
   const [next] = openCells({ ...g, mines }, [start]);
   // The start area isn't the player's move: the clock starts (and leaving counts) with the first tap.
   return { ...next, touched: false };
@@ -166,8 +182,8 @@ function openCells(g: MinesweeperGame, start: number[]): [MinesweeperGame, Event
 
 function open(g: MinesweeperGame, cell: number, rng: Rng): [MinesweeperGame, Event] {
   if (g.cells[cell] !== HIDDEN) return [g, { kind: 'none' }];
-  // First open of the game: lay the mines so this cell is safe.
-  const ready = g.mines.length ? g : { ...g, mines: placeMines(g, cell, rng) };
+  // First open of the game: lay the mines so this cell is safe and the rest needs no guessing.
+  const ready = g.mines.length ? g : { ...g, mines: placeSolvableMines(g, cell, rng) };
   return openCells(ready, [cell]);
 }
 
@@ -191,11 +207,13 @@ function chord(g: MinesweeperGame, cell: number): [MinesweeperGame, Event] {
 }
 
 /**
- * A safe hidden cell to reveal as a hint: one next to the open area if possible (that's where
- * the player is stuck), else any safe cell.
+ * A safe hidden cell to reveal as a hint: the next logical step if there is one (a cell that
+ * can be proven safe from the open numbers), else one next to the open area, else any safe cell.
  */
 export function hintCell(g: MinesweeperGame, rng: Rng): number | null {
   if (!g.mines.length) return null;
+  const logical = provablySafe(g, g.cells.map((s) => s === OPEN));
+  if (logical.length) return logical[Math.floor(rng() * logical.length)];
   const safe = g.cells.map((s, i) => (s !== OPEN && !g.mines[i] ? i : -1)).filter((i) => i >= 0);
   const frontier = safe.filter((i) => neighbours(g, i).some((n) => g.cells[n] === OPEN));
   const pool = frontier.length ? frontier : safe;

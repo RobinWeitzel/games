@@ -186,7 +186,9 @@ invalid step or a lost game. The tile gradient is 5.7:1 against white text. Also
 labels now truncate instead of overlapping the title at large text sizes. The audit now covers every game.
 
 **2026-11 Minesweeper.** Portrait boards (8×10, 10×14, 12×17) sized from the available height so they
-fit on iPhone SE without scrolling; a daily board that starts with an open area. Tap opens, and
+fit on iPhone SE without scrolling; a daily board that starts with an open area. Every board can be
+solved **without guessing**: layouts are generated from the first tap until a logic-only solver
+(`solver.ts`) clears them, and hints open the next cell that can be proven safe. Tap opens, and
 *touch and hold* flags. That custom gesture follows rule 5b: a one-line tip until the player has used it
 (`holdTipSeen`), the Flag tool as the standard-tap alternative (filled when on, plus a status line
 "Flag mode · tap to flag, hold to open"), and an `aria-describedby` hint for VoiceOver. Shapes carry
