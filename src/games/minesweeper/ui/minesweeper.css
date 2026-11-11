@@ -1,0 +1,170 @@
+/*
+ * Minesweeper. Classes are prefixed with .ms- (all game styles load globally).
+ *
+ * Number colours are the classic ones, darkened/lightened to ≥ 4.5:1 against the card
+ * background (light #fff, dark #1c1c1e; ratios in the comments). The digit itself carries the
+ * meaning, so colour is never the only cue.
+ */
+:root {
+  --ms-1: #0062cc; /* 5.8 */
+  --ms-2: #1e7b34; /* 5.3 */
+  --ms-3: #d70015; /* 5.4 */
+  --ms-4: #3634a3; /* 9.7 */
+  --ms-5: #a0400a; /* 6.5 */
+  --ms-6: #00727a; /* 5.7 */
+  --ms-7: #000000; /* 21 */
+  --ms-8: #636366; /* 6.0 */
+  --ms-flag: #d70015;
+  --ms-mine-shine: #ffffff;
+}
+:root[data-theme='dark'] {
+  --ms-1: #64a8ff; /* 7.0 */
+  --ms-2: #4cd964; /* 9.3 */
+  --ms-3: #ff6961; /* 6.0 */
+  --ms-4: #a5a3ff; /* 7.5 */
+  --ms-5: #ffb340; /* 9.5 */
+  --ms-6: #5ad8e6; /* 10.1 */
+  --ms-7: #ffffff; /* 17 */
+  --ms-8: #aeaeb2; /* 7.7 */
+  --ms-flag: #ff6961;
+  --ms-mine-shine: #1c1c1e;
+}
+
+/* ---------- Status line ---------- */
+.ms-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--label);
+  font-weight: 600;
+}
+.ms-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.ms-status strong {
+  color: var(--label);
+}
+
+/* ---------- Board ---------- */
+.ms-board-area {
+  /* All vertical space the controls don't need: the board is the largest rectangle that fits. */
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.ms-board-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh * var(--cols) / var(--rows));
+}
+.ms-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  aspect-ratio: var(--cols) / var(--rows);
+  width: 100%;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  transition: filter 250ms;
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+.ms-cell {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  font-size: calc(100cqw / var(--cols) * 0.6);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* Closed cells are raised tiles; open cells are flat (shape, not only colour). */
+.ms-closed {
+  background: var(--fill-strong);
+  color: var(--label);
+  transition: transform 100ms var(--ease);
+}
+.ms-closed:active {
+  transform: scale(0.88);
+}
+.ms-open {
+  background: transparent;
+}
+.ms-n1 { color: var(--ms-1); }
+.ms-n2 { color: var(--ms-2); }
+.ms-n3 { color: var(--ms-3); }
+.ms-n4 { color: var(--ms-4); }
+.ms-n5 { color: var(--ms-5); }
+.ms-n6 { color: var(--ms-6); }
+.ms-n7 { color: var(--ms-7); }
+.ms-n8 { color: var(--ms-8); }
+
+.ms-cell .ms-glyph {
+  width: 72%;
+  height: 72%;
+}
+.ms-cross {
+  display: none;
+}
+.ms-mine {
+  color: var(--label);
+}
+/* The mine that was opened: solid red tile with an outline, so it stands out by shape too. */
+.ms-exploded {
+  background: var(--ms-flag);
+  color: #fff;
+  outline: 2px solid var(--label);
+  outline-offset: -2px;
+  --ms-mine-shine: var(--ms-flag);
+}
+.ms-wrong .ms-cross {
+  display: inline;
+}
+
+/* Opened by a flood fill: cells fade in, explaining where the open area came from. */
+.ms-fresh {
+  animation: ms-fade 300ms var(--ease) both;
+}
+@keyframes ms-fade {
+  from {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+}
+.ms-board-won .ms-closed {
+  animation: ms-won 600ms var(--ease) both;
+}
+@keyframes ms-won {
+  40% {
+    background: color-mix(in srgb, var(--green) 45%, var(--card));
+  }
+}
+
+.ms-board-hidden {
+  filter: blur(12px);
+}
+.ms-board-hidden .ms-cell > * {
+  visibility: hidden;
+}
+
+/* ---------- Tools ---------- */
+.ms-tools .tool {
+  min-height: 52px;
+}
+.tool.active .ms-flag {
+  color: var(--accent);
+}
