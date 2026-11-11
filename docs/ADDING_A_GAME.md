@@ -75,6 +75,7 @@ Then add the new keys to the list in `src/core/storage/contract.test.ts`. Read
 | Need | Use |
 |---|---|
 | Screen with nav bar, back button, swipe-back | `Screen` from `ui/nav` (`largeTitle` for the hub, `title` + `fixed` for the game screen) |
+| Game screen chrome (layout, status line, timer, tool row, pause overlay) | classes `play`, `play-layout`, `play-info`, `timer`, `tools`/`tool`, `pause-overlay` from `ui/game/game.css` (loaded with the game kit) |
 | Hub building blocks | `ContinueRow`, `DailyCard`, `ModeList`, `StatsRow`, `ConfirmNewGameSheet`, `LoadingOverlay` from `ui/game/hub` |
 | Timer that pauses in the background and saves | `useGameClock` from `ui/game/useGameClock` |
 | Come back to the game after iOS closes the app | `useRestorable` from `ui/game/useRestorable` |
@@ -85,7 +86,8 @@ Then add the new keys to the list in `src/core/storage/contract.test.ts`. Read
 | Seeded randomness (daily puzzles) | `createRng`, `hashString` from `core/random` |
 | Dates for daily challenges | `todayKey`, `dailyStreak` from `core/daily` |
 
-`src/games/sudoku/` is the reference implementation of all of these.
+`src/games/sudoku/` is the reference implementation of all of these. `src/games/numbers/` is a smaller
+example without a board grid, and with a setup step before the clock starts.
 
 **Every screen must follow [DESIGN.md](DESIGN.md)** (Apple HIG). It's not optional. The essentials
 for a game screen:
@@ -148,7 +150,8 @@ export const GAMES: GameModule[] = [sudoku, minesweeper];
 
 ```sh
 npm test           # logic tests, storage contract, architecture boundaries, design lint
-npm run audit:ios  # HIG audit: hit targets, text sizes, overflow, game fits (SE, large text, Pro Max)
+npm run audit:ios  # HIG audit of every game: hit targets, text sizes, overflow, game fits (SE, large text, Pro Max)
+                   # If your game starts with a setup step, mark one control with data-audit-next.
 npm run preview    # try it on the phone
 ```
 

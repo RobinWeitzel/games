@@ -1,0 +1,250 @@
+/* Numbers game. Shared chrome (.play-layout, .play-info, .tools, .pause-overlay) is in ui/game/game.css. */
+
+.nb-layout {
+  gap: 8px;
+}
+
+/* Target, calculations and the pause overlay: everything that is hidden while paused. */
+.nb-main {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.nb-hidden .nb-target-value,
+.nb-hidden .nb-steps > *,
+.nb-slots.nb-hidden .nb-slot {
+  filter: blur(10px);
+  visibility: hidden;
+}
+
+/* ---------- Target ---------- */
+.nb-target {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px 12px;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.nb-target-label {
+  font-size: min(var(--fs-footnote), 15px);
+  font-weight: 600;
+  color: var(--label-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.nb-target-value {
+  font-size: clamp(44px, 9dvh, 64px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+/* Time left in the 30-second mode; the same value is shown as text in the status line. */
+.nb-timebar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--fill);
+}
+.nb-timebar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 500ms linear;
+}
+
+/* ---------- Calculations ---------- */
+.nb-steps {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 8px;
+}
+.nb-steps ol,
+.nb-result ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+.nb-steps li {
+  font-size: min(var(--fs-title3), 24px);
+  line-height: 1.35;
+  text-align: center;
+  color: var(--label);
+}
+.nb-steps li:last-child {
+  font-weight: 600;
+}
+.nb-help {
+  margin: 0;
+  text-align: center;
+  font-size: min(var(--fs-subheadline), 19px);
+  color: var(--label-2);
+}
+
+/* One line, always reserved so the layout doesn't jump. */
+.nb-message {
+  min-height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+}
+.nb-message.error {
+  color: var(--red);
+}
+
+/* ---------- Number tiles ---------- */
+.nb-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.nb-slot {
+  height: clamp(48px, 7.4dvh, 64px);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--label);
+  box-shadow: var(--shadow);
+  font-size: 28px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: transform 100ms var(--ease), background 100ms;
+}
+.nb-slot.len-m {
+  font-size: 22px;
+}
+.nb-slot.len-l {
+  font-size: 17px;
+}
+.nb-slot.empty {
+  background: none;
+  box-shadow: none;
+  border: 1.5px dashed var(--separator);
+}
+.nb-slot:active:not(:disabled) {
+  transform: scale(0.94);
+}
+/* Filled (shape) + colour, so selection isn't conveyed by colour alone. White on --accent-fill ≥ 4.5:1. */
+.nb-slot.selected {
+  background: var(--accent-fill);
+  color: #fff;
+  box-shadow: none;
+}
+.nb-slot.pop {
+  animation: nb-pop 420ms var(--ease);
+}
+@keyframes nb-pop {
+  from {
+    transform: scale(0.7);
+  }
+}
+.nb-slot.shake {
+  animation: nb-shake 380ms ease;
+}
+@keyframes nb-shake {
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* ---------- Operations ---------- */
+.nb-ops {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.nb-op {
+  height: clamp(46px, 6.6dvh, 56px);
+  border-radius: 12px;
+  background: var(--fill);
+  color: var(--accent);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  transition: transform 100ms var(--ease), background 100ms;
+}
+.nb-op:active:not(:disabled) {
+  transform: scale(0.94);
+  background: var(--fill-strong);
+}
+.nb-op:disabled {
+  opacity: 0.35;
+}
+.nb-op.active {
+  background: var(--accent-fill);
+  color: #fff;
+}
+
+/* ---------- Large number picker ---------- */
+.nb-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+.nb-picker-title {
+  font-size: min(var(--fs-body), 20px);
+  font-weight: 600;
+  color: var(--label);
+}
+.nb-picker-keys {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.nb-key {
+  height: clamp(52px, 8dvh, 68px);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--accent);
+  box-shadow: var(--shadow);
+  font-size: 30px;
+  font-weight: 600;
+  transition: transform 100ms var(--ease), background 100ms;
+}
+.nb-key:active {
+  transform: scale(0.92);
+  background: var(--fill-strong);
+}
+.nb-picker-note {
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+}
+
+/* ---------- Result sheet ---------- */
+.nb-result {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nb-result p {
+  margin: 0;
+}
+.nb-result-label {
+  color: var(--label-2);
+}
+.nb-result ol {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--label);
+}

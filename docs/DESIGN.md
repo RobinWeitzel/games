@@ -178,3 +178,9 @@ controls, Toggles, Accessibility, Motion, Loading, Launching, Designing for game
 **2026-11 Sudoku number lock.** New custom gesture (touch and hold a number, then tap cells),
 designed to rule 5b: in-context tip, filled key plus status line with the exit, Shift+number on
 keyboards, VoiceOver description. Filled keys use `--accent-fill` (white text ≥ 4.5:1; system blue is 4.0:1).
+
+**2026-11 Numbers game.** Pick how many large numbers, then reach a three-digit target with + − × ÷.
+Selected numbers and operations are filled, not only tinted. Invalid steps show the reason in text
+and shake. Haptics: `selection` for a calculation, `success` for hitting the target, `error` for an
+invalid step or a lost game. The tile gradient is 5.7:1 against white text. Also fixed in the shell: long back
+labels now truncate instead of overlapping the title at large text sizes. The audit now covers every game.

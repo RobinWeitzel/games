@@ -112,20 +112,34 @@ try {
     await wait();
     issues.push(...(await audit(page, 'Settings')));
     await back();
-    await page.click('.tile >> nth=0');
-    await wait();
-    issues.push(...(await audit(page, 'Game hub')));
-    await page.click('.screen:last-child .row >> text=Statistics');
-    await wait();
-    issues.push(...(await audit(page, 'Statistics')));
-    await back();
-    await page.click('.screen:last-child .section-body .row >> nth=0'); // first mode
-    await page.waitForSelector('.content-fixed');
-    await wait();
-    issues.push(...(await audit(page, 'Game')));
-    await page.click('.screen:last-child [aria-label=Pause]');
-    await wait();
-    issues.push(...(await audit(page, 'Game (paused)')));
+    // Every game: hub, statistics, game screen (and its next step, if it has one), paused.
+    const games = await page.locator('.tile:not(.tile-soon)').count();
+    for (let g = 0; g < games; g++) {
+      const name = (await page.locator('.tile:not(.tile-soon) .tile-name').nth(g).textContent()).trim();
+      await page.locator('.tile:not(.tile-soon)').nth(g).click();
+      await wait();
+      issues.push(...(await audit(page, `${name} hub`)));
+      await page.click('.screen:last-child .row >> text=Statistics');
+      await wait();
+      issues.push(...(await audit(page, `${name} statistics`)));
+      await back();
+      await page.click('.screen:last-child .section-body .row >> nth=0'); // first mode (or Continue)
+      await page.waitForSelector('.content-fixed');
+      await wait();
+      issues.push(...(await audit(page, `${name} game`)));
+      // A game that starts with a setup step (e.g. choosing numbers) marks the control to continue.
+      const next = page.locator('.screen:last-child [data-audit-next]');
+      if (await next.count()) {
+        await next.first().click();
+        await wait();
+        issues.push(...(await audit(page, `${name} game (started)`)));
+      }
+      await page.click('.screen:last-child [aria-label=Pause]');
+      await wait();
+      issues.push(...(await audit(page, `${name} game (paused)`)));
+      await back();
+      await back();
+    }
     issues.push(...errors.map((e) => `page error: ${e}`));
 
     console.log(`\n${issues.length ? '✗' : '✓'} ${v.name}`);
