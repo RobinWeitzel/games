@@ -76,7 +76,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 - Slitherlink has to hit edges between dots, so its hit areas need care: tap the nearest edge.
 
 ### Numberlink (connect the pairs)
-- Status: `planned` · suggested id: `numberlink`
+- Status: `shipped` · id: `numberlink`
 - Draw paths between matching endpoints until every cell is filled. Endpoints carry **numbers**,
   not just colours.
 - Dragging a path must not fight the edge swipe-back: start paths only on cells, keep the board
@@ -147,7 +147,7 @@ similar).
 ## Suggested order
 
 1. Kakuro (number pad and `core/numberGrid.ts`).
-2. The grid logic pack (Light Up, Nurikabe, Slitherlink), Numberlink.
+2. Board games against an AI (Four in a Row, Reversi), then Slitherlink and Nurikabe.
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -170,4 +170,5 @@ similar).
 | Sliding Puzzle | `sliding-puzzle` | 3×3, 4×4, 5×5, daily 4×4; random permutations fixed to be solvable by the parity rule |
 | Peg Solitaire | `peg-solitaire` | 33-hole cross and 15-hole triangle, no daily (fixed boards); hints from a memoised DFS (the cross solves in ~20ms) |
 | Light Up | `light-up` | Easy 7×7, Medium/Hard 10×10, daily Medium; symmetric walls, greedy bulbs, then numbers removed while a propagation solver keeps one solution |
+| Numberlink | `numberlink` | 5×5, 7×7, 9×9, daily 7×7; the grid is covered with random paths and only their ends are kept; any full joining wins, the generated paths give hints |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

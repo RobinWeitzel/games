@@ -1,0 +1,116 @@
+/*
+ * Numberlink. Classes are prefixed with .nl- (all game styles load globally); cells use the
+ * shared `.cell` class (the audit's board-cell exemption), styled here under .nl-board.
+ * Pairs are told apart by their numbers (white on the pair colour, ≥ 4.5:1) and by the line
+ * itself; colours only help. A joined pair's endpoints get a ring.
+ */
+.nl-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  /* Keep the board clear of the left-edge swipe-back strip: paths are drawn by dragging. */
+  padding: 0 8px;
+}
+.nl-wrap {
+  position: relative;
+  width: min(100cqw - 16px, 100cqh);
+}
+.nl-board {
+  position: relative;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--card);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: filter 250ms;
+}
+.nl-board .cell {
+  min-width: 0;
+  min-height: 0;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+}
+.nl-board .cell.nl-used {
+  background: color-mix(in srgb, var(--c) 16%, var(--card));
+}
+.nl-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.nl-line {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 0.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+:root[data-theme='dark'] .nl-line {
+  stroke: color-mix(in srgb, var(--c) 70%, white);
+}
+.nl-flash {
+  animation: nl-flash 800ms var(--ease);
+}
+@keyframes nl-flash {
+  30% {
+    stroke-width: 0.45;
+  }
+}
+.nl-end {
+  position: absolute;
+  width: calc(100% / var(--n));
+  height: calc(100% / var(--n));
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.nl-end > span {
+  display: grid;
+  place-items: center;
+  width: 76%;
+  height: 76%;
+  border-radius: 50%;
+  background: var(--c);
+  color: #fff;
+  font-size: max(13px, calc(100cqw / var(--n) * 0.42));
+  font-weight: 700;
+  line-height: 1;
+}
+.nl-joined > span {
+  box-shadow: 0 0 0 2.5px var(--card), 0 0 0 4.5px var(--c);
+}
+.nl-hidden {
+  filter: blur(12px);
+}
+.nl-hidden .nl-end span,
+.nl-hidden .nl-lines {
+  visibility: hidden;
+}
+.nl-won .nl-line {
+  animation: nl-flash 700ms var(--ease);
+}
+.nl-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.nl-tools .tool {
+  min-height: 52px;
+}
