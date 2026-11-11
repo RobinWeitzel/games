@@ -21,6 +21,7 @@ const URL = `http://localhost:${PORT}/games/`;
 /** Elements allowed below 44pt, with the HIG reason. Keep this list short. */
 const EXEMPT = [
   ['.cell', 'game board cells: a 9×9 grid cannot have 44pt cells on iPhone; the board is one large target'],
+  ['.pc-card, .pc-slot', 'playing cards on 8- and 10-column tables (FreeCell, Spider): one large table target; a tap moves a card to the best place, and cards can be dragged'],
   ['input.toggle', 'native iOS switch (51×31pt standard control inside a ≥44pt list row)'],
   ['.segmented button', 'segmented control segments use the standard 32pt control height'],
   ['.edge-swipe', 'invisible swipe-back strip, not a tap target'],

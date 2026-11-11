@@ -4,6 +4,7 @@ import { numbers } from './numbers';
 import { minesweeper } from './minesweeper';
 import { solitaire } from './solitaire';
 import { nonogram } from './nonogram';
+import { freecell } from './freecell';
 
 /**
  * All games, in home screen order. To add a game: create src/games/<id>/index.tsx exporting a
@@ -12,7 +13,7 @@ import { nonogram } from './nonogram';
  * Removing a game from this list hides it but keeps its saved data (it's still exported in
  * backups), so it can come back later without anyone losing progress.
  */
-export const GAMES: GameModule[] = [sudoku, numbers, minesweeper, solitaire, nonogram];
+export const GAMES: GameModule[] = [sudoku, numbers, minesweeper, solitaire, freecell, nonogram];
 
 export function validateRegistry(games: GameModule[] = GAMES): void {
   const seen = new Set<string>();
