@@ -13,6 +13,8 @@ import { slidingPuzzle } from './sliding-puzzle';
 import { pegSolitaire } from './peg-solitaire';
 import { lightUp } from './light-up';
 import { numberlink } from './numberlink';
+import { fourInARow } from './four-in-a-row';
+import { reversi } from './reversi';
 import { freecell } from './freecell';
 import { spider } from './spider';
 import { tripeaks } from './tripeaks';
@@ -25,7 +27,7 @@ import { golf } from './golf';
  * Removing a game from this list hides it but keeps its saved data (it's still exported in
  * backups), so it can come back later without anyone losing progress.
  */
-export const GAMES: GameModule[] = [sudoku, numbers, minesweeper, solitaire, freecell, spider, tripeaks, golf, nonogram, calcudoku, killerSudoku, bridges, starBattle, codebreaker, slidingPuzzle, pegSolitaire, lightUp, numberlink];
+export const GAMES: GameModule[] = [sudoku, numbers, minesweeper, solitaire, freecell, spider, tripeaks, golf, nonogram, calcudoku, killerSudoku, bridges, starBattle, codebreaker, slidingPuzzle, pegSolitaire, lightUp, numberlink, fourInARow, reversi];
 
 export function validateRegistry(games: GameModule[] = GAMES): void {
   const seen = new Set<string>();

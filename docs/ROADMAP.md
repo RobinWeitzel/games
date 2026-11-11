@@ -124,7 +124,10 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   SE with ≥ 44pt tiles. That last part is the hard part.
 
 ### Board games against an AI: Reversi, Four in a Row, Dots and Boxes, Checkers
-- Status: `planned` · suggested ids: `reversi`, `four-in-a-row`, `dots-and-boxes`, `checkers`
+- Status: Reversi and Four in a Row `shipped`; Dots and Boxes and Checkers `planned` · suggested ids: `dots-and-boxes`, `checkers`
+- The shipped ones run the AI on the main thread (negamax + alpha-beta; worst case ~150ms at the
+  highest level on a desktop). If a level ever feels slow on a phone, move it into a worker.
+- Statistics know only won/lost, so a draw is recorded as not won (no storage change needed).
 - Fit 8×8 grids and save-every-move well. Need an AI (minimax plus alpha-beta) with difficulty
   modes, run in a worker or in small time slices so the UI never stalls. Get little value from
   the daily. Stats per difficulty (win/loss).
@@ -147,7 +150,7 @@ similar).
 ## Suggested order
 
 1. Kakuro (number pad and `core/numberGrid.ts`).
-2. Board games against an AI (Four in a Row, Reversi), then Slitherlink and Nurikabe.
+2. Slitherlink and Nurikabe, Kakuro, Pyramid; Dots and Boxes.
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -171,4 +174,6 @@ similar).
 | Peg Solitaire | `peg-solitaire` | 33-hole cross and 15-hole triangle, no daily (fixed boards); hints from a memoised DFS (the cross solves in ~20ms) |
 | Light Up | `light-up` | Easy 7×7, Medium/Hard 10×10, daily Medium; symmetric walls, greedy bulbs, then numbers removed while a propagation solver keeps one solution |
 | Numberlink | `numberlink` | 5×5, 7×7, 9×9, daily 7×7; the grid is covered with random paths and only their ends are kept; any full joining wins, the generated paths give hints |
+| Four in a Row | `four-in-a-row` | vs the computer, Easy/Medium/Hard (2/4/8 plies), who starts alternates; your discs a ring, the computer's a cross |
+| Reversi | `reversi` | vs the computer, Easy/Medium/Hard (1/3/5 plies, position weights + mobility); legal moves shown as dots |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
