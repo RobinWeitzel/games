@@ -40,6 +40,7 @@ tapped. Settings shows the installed build (version + commit).
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the app is put together and the module boundaries
 - [docs/DESIGN.md](docs/DESIGN.md): **mandatory** iOS design rules (Apple HIG) and the review checklist
 - [docs/ADDING_A_GAME.md](docs/ADDING_A_GAME.md): step-by-step guide and checklist for a new game
+- [docs/ROADMAP.md](docs/ROADMAP.md): candidate games, ranked by fit, for picking the next one
 - [docs/STORAGE.md](docs/STORAGE.md): how saved data is versioned and migrated so updates never lose
   progress. **Read this before changing anything that is stored.**
 

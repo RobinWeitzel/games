@@ -9,6 +9,7 @@ Read before working:
 - `docs/DESIGN.md`: **mandatory** iOS design rules (Apple Human Interface Guidelines)
 - `docs/STORAGE.md`: **mandatory** rules for anything that is persisted
 - `docs/ADDING_A_GAME.md`: step-by-step guide for new games
+- `docs/ROADMAP.md`: planned games, ranked by fit; pick from here and keep its statuses current
 
 ## Non-negotiable rules
 
