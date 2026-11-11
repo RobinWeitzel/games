@@ -36,6 +36,8 @@ const CONTRACT = {
     'data  games/game/codebreaker/daily    v1',
     'data  games/game/codebreaker/save     v1',
     'data  games/game/codebreaker/stats    v1',
+    'data  games/game/dots-and-boxes/save  v1',
+    'data  games/game/dots-and-boxes/stats v1',
     'data  games/game/four-in-a-row/save   v1',
     'data  games/game/four-in-a-row/stats  v1',
     'data  games/game/freecell/daily       v1',

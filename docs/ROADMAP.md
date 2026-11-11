@@ -124,7 +124,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   SE with ≥ 44pt tiles. That last part is the hard part.
 
 ### Board games against an AI: Reversi, Four in a Row, Dots and Boxes, Checkers
-- Status: Reversi and Four in a Row `shipped`; Dots and Boxes and Checkers `planned` · suggested ids: `dots-and-boxes`, `checkers`
+- Status: Reversi, Four in a Row and Dots and Boxes `shipped`; Checkers `planned` · suggested id: `checkers`
 - The shipped ones run the AI on the main thread (negamax + alpha-beta; worst case ~150ms at the
   highest level on a desktop). If a level ever feels slow on a phone, move it into a worker.
 - Statistics know only won/lost, so a draw is recorded as not won (no storage change needed).
@@ -150,7 +150,7 @@ similar).
 ## Suggested order
 
 1. Kakuro (number pad and `core/numberGrid.ts`).
-2. Slitherlink and Nurikabe, Kakuro; Dots and Boxes.
+2. Slitherlink and Nurikabe, Kakuro; Checkers.
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -177,4 +177,5 @@ similar).
 | Four in a Row | `four-in-a-row` | vs the computer, Easy/Medium/Hard (2/4/8 plies), who starts alternates; your discs a ring, the computer's a cross |
 | Reversi | `reversi` | vs the computer, Easy/Medium/Hard (1/3/5 plies, position weights + mobility); legal moves shown as dots |
 | Pyramid | `pyramid` | Classic and daily, three passes through the stock; deals proven winnable by a memoised DFS (~45% of random deals pass, ~20ms each), which also gives hints |
+| Dots and Boxes | `dots-and-boxes` | vs the computer, 3×3/4×4/5×5; Medium never hands over boxes it can avoid, Hard plays the last 16 lines perfectly (bitmask memo search) |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
