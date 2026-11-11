@@ -123,5 +123,80 @@ describe('sudoku state', () => {
       expect(g.values).toEqual(old.values);
     });
   });
+
+  describe('fill single notes', () => {
+    const on = { ...opts, autoFillSingles: true };
+    // Solved board except four cells in row 1: p, a, b, c (cells 0..3).
+    // Notes: a = {A, P}, b = {B, A}, c = {C, B}. Placing P in p should fill a, then b, then c.
+    const setup = (extraEmpty = false) => {
+      const g = fresh();
+      const sol = g.solution;
+      const values = sol.slice();
+      for (const i of [0, 1, 2, 3]) values[i] = 0;
+      if (extraEmpty) values[80] = 0; // keeps the game from being won by the cascade
+      const notes = new Array(81).fill(0);
+      const [P, A, B, C] = [sol[0], sol[1], sol[2], sol[3]];
+      notes[1] = bit(A) | bit(P);
+      notes[2] = bit(B) | bit(A);
+      notes[3] = bit(C) | bit(B);
+      return { g: { ...g, puzzle: values.slice(), values, notes, selected: 0 }, P, A, B, C };
+    };
+
+    it('cascades: each fill can leave the next cell with one note', () => {
+      const { g, P } = setup(true);
+      const [next, ev] = reduce(g, { type: 'input', digit: P }, on);
+      expect(next.values.slice(0, 4)).toEqual(g.solution.slice(0, 4));
+      expect(ev).toMatchObject({ kind: 'correct', autoFilled: [1, 2, 3] });
+    });
+
+    it('does nothing when the setting is off', () => {
+      const { g, P, A } = setup(true);
+      const [next] = reduce(g, { type: 'input', digit: P }, opts);
+      expect(next.values[1]).toBe(0);
+      expect(next.notes[1]).toBe(bit(A));
+    });
+
+    it('can win the game', () => {
+      const { g, P } = setup();
+      const [next, ev] = reduce(g, { type: 'input', digit: P }, on);
+      expect(ev.kind).toBe('won');
+      expect(next.status).toBe('won');
+    });
+
+    it('never fills a cell when its first note is added', () => {
+      const { g } = setup(true);
+      const empty = { ...g, values: g.values.map((v, i) => (i === 80 ? 0 : v)), notes: new Array(81).fill(0), selected: 80, notesMode: true };
+      const [next] = reduce(empty, { type: 'input', digit: g.solution[80] }, on);
+      expect(next.values[80]).toBe(0);
+      expect(next.notes[80]).toBe(bit(g.solution[80]));
+    });
+
+    it('fills when the player removes a note and one is left', () => {
+      const { g, P } = setup(true);
+      const [next, ev] = reduce({ ...g, selected: 1, notesMode: true }, { type: 'input', digit: P }, on);
+      expect(next.values[1]).toBe(g.solution[1]);
+      expect(ev).toMatchObject({ kind: 'correct', autoFilled: [1, 2, 3] });
+    });
+
+    it('enters a wrong single note as a mistake and stops the cascade', () => {
+      const { g, P, A, B } = setup(true);
+      const wrong = [1, 2, 3, 4, 5, 6, 7, 8, 9].find((d) => d !== A && d !== P && d !== B)!;
+      const notes = g.notes.slice();
+      notes[1] = bit(wrong) | bit(P); // the player's notes are wrong in cell a
+      const [next, ev] = reduce({ ...g, notes }, { type: 'input', digit: P }, on);
+      expect(ev).toEqual({ kind: 'mistake', cell: 1 });
+      expect(next.values[1]).toBe(wrong);
+      expect(next.mistakes).toBe(1);
+      expect(next.values[2]).toBe(0); // cascade stopped
+    });
+
+    it('is undone together with the move that triggered it', () => {
+      const { g, P } = setup(true);
+      const [next] = reduce(g, { type: 'input', digit: P }, on);
+      const [undone] = reduce(next, { type: 'undo' }, on);
+      expect(undone.values).toEqual(g.values);
+      expect(undone.notes).toEqual(g.notes);
+    });
+  });
 });
 

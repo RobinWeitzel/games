@@ -10,6 +10,8 @@ interface Props {
   lockedDigit?: number | null;
   /** Cells currently playing the "unit completed" flash. */
   flash: Set<number>;
+  /** Cells just filled automatically ("Fill single notes"). */
+  pop?: Set<number>;
   shake: number | null;
   hidden: boolean;
   won: boolean;
@@ -18,7 +20,7 @@ interface Props {
 
 const NOTE_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-export const Board = memo(function Board({ game, highlightSame, lockedDigit, flash, shake, hidden, won, onSelect }: Props) {
+export const Board = memo(function Board({ game, highlightSame, lockedDigit, flash, pop, shake, hidden, won, onSelect }: Props) {
   const pointerTapped = useRef(false);
   const sel = game.selected;
   // Digit to highlight across the board: the locked one, else the selected cell's (if enabled).
@@ -63,6 +65,7 @@ export const Board = memo(function Board({ game, highlightSame, lockedDigit, fla
           related ? 'related' : '',
           same ? 'same' : '',
           flash.has(i) ? 'flash' : '',
+          pop?.has(i) ? 'pop' : '',
           shake === i ? 'shake' : '',
           c % 3 === 2 && c < 8 ? 'box-r' : '',
           r % 3 === 2 && r < 8 ? 'box-b' : '',

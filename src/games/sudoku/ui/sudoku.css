@@ -151,6 +151,19 @@
     background: color-mix(in srgb, var(--green) 35%, var(--card));
   }
 }
+/* Filled automatically from a single note: the digit pops in. */
+.cell.pop .cell-value {
+  animation: pop-in 450ms var(--ease) both;
+}
+@keyframes pop-in {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+.cell.pop {
+  animation: unit-flash 700ms var(--ease);
+}
 .cell.shake .cell-value {
   animation: shake 380ms ease;
 }

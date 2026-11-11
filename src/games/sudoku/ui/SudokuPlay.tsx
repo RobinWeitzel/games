@@ -33,6 +33,7 @@ export function SudokuPlay() {
 
   const [result, setResult] = useState<Result | null>(null);
   const [flash, setFlash] = useState<Set<number>>(new Set());
+  const [pop, setPop] = useState<Set<number>>(new Set());
   const [shake, setShake] = useState<number | null>(null);
   const [starting, setStarting] = useState(false);
 
@@ -82,6 +83,11 @@ export function SudokuPlay() {
 
     switch (ev.kind) {
       case 'correct':
+        if (ev.autoFilled?.length) {
+          // Show what "Fill single notes" did, so a cascade never feels like magic.
+          setPop(new Set(ev.autoFilled));
+          setTimeout(() => setPop(new Set()), 700);
+        }
         if (ev.completedUnits.length) {
           haptic('success');
           setFlash(new Set(ev.completedUnits.flat()));
@@ -199,6 +205,7 @@ export function SudokuPlay() {
               highlightSame={settings.highlightSame}
               lockedDigit={game.lockedDigit}
               flash={flash}
+              pop={pop}
               shake={shake}
               hidden={showPause}
               won={result?.outcome === 'won'}

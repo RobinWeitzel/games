@@ -20,6 +20,8 @@ export const sudokuSettings = createGameSettings(GAME_ID, {
   highlightSame: true,
   /** Remove a digit from notes in the same row / column / box when it is placed. */
   autoRemoveNotes: true,
+  /** Fill a cell when its notes are reduced to one (cascades). Opt-in. */
+  autoFillSingles: false,
   /** The "hold a number" tip was shown and the player has used number lock (not a visible setting). */
   numberLockTipSeen: false,
 });

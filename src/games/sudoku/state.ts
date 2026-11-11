@@ -41,6 +41,8 @@ export interface SudokuGame {
 export interface Options {
   mistakeLimit: boolean;
   autoRemoveNotes: boolean;
+  /** Fill a cell when its notes are reduced to a single one (cascades). Optional for older callers. */
+  autoFillSingles?: boolean;
 }
 
 export type Action =
@@ -58,7 +60,13 @@ export type Action =
 
 /** Side effects for the UI (haptics, animations). */
 export type GameEvent =
-  | { kind: 'correct'; cell: number; completedUnits: number[][] }
+  | {
+      kind: 'correct';
+      cell: number;
+      completedUnits: number[][];
+      /** Cells filled automatically because they were left with a single note. */
+      autoFilled?: number[];
+    }
   | { kind: 'mistake'; cell: number }
   | { kind: 'won' }
   | { kind: 'lost' }
@@ -128,6 +136,78 @@ function placeCorrect(g: SudokuGame, cell: number, opts: Options): [SudokuGame, 
 }
 
 export function reduce(g: SudokuGame, action: Action, opts: Options): [SudokuGame, GameEvent] {
+  const [next, ev] = reduceAction(g, action, opts);
+  // Moves that can take notes away (placing a digit, removing a note) may leave cells with one note.
+  if (opts.autoFillSingles && next !== g && (action.type === 'input' || action.type === 'select' || action.type === 'hint')) {
+    return fillSingles(g, next, ev, opts);
+  }
+  return [next, ev];
+}
+
+const bitCount = (m: number) => {
+  let c = 0;
+  for (; m; m &= m - 1) c++;
+  return c;
+};
+
+/**
+ * "Fill single notes": every empty cell whose notes were *reduced* to exactly one (by a placed
+ * digit clearing peer notes, or by the player removing a note) gets that digit. Each fill clears
+ * more notes, so this repeats until nothing changes. Adding a first note never triggers it.
+ *
+ * A wrong single note is entered like the player would have: it counts as a mistake and stops
+ * the cascade (silently skipping it would reveal that the note is wrong).
+ * The whole cascade is part of the player's move, so one Undo reverts it all.
+ */
+function fillSingles(prev: SudokuGame, g: SudokuGame, ev: GameEvent, opts: Options): [SudokuGame, GameEvent] {
+  if (g.status !== 'playing' || (ev.kind !== 'correct' && ev.kind !== 'none')) return [g, ev];
+  let cur = g;
+  let before = prev.notes;
+  const filled: number[] = [];
+  const units = ev.kind === 'correct' ? [...ev.completedUnits] : [];
+  let result: GameEvent | null = null;
+
+  outer: for (;;) {
+    const targets = cur.notes
+      .map((n, i) => (cur.values[i] === 0 && bitCount(n) === 1 && bitCount(before[i]) > 1 ? i : -1))
+      .filter((i) => i >= 0);
+    if (!targets.length) break;
+    before = cur.notes;
+    for (const i of targets) {
+      if (cur.values[i] !== 0 || bitCount(cur.notes[i]) !== 1) continue; // changed by an earlier fill
+      const d = Math.log2(cur.notes[i]);
+      filled.push(i);
+      if (d === cur.solution[i]) {
+        const [next, e] = placeCorrect(cur, i, opts);
+        cur = next;
+        if (e.kind === 'won') {
+          result = e;
+          break outer;
+        }
+        if (e.kind === 'correct') units.push(...e.completedUnits);
+      } else {
+        const values = cur.values.slice();
+        values[i] = d;
+        const notes = cur.notes.slice();
+        notes[i] = 0;
+        const mistakes = cur.mistakes + 1;
+        const lost = opts.mistakeLimit && mistakes >= MAX_MISTAKES;
+        cur = { ...cur, values, notes, mistakes, status: lost ? 'lost' : 'playing' };
+        result = lost ? { kind: 'lost' } : { kind: 'mistake', cell: i };
+        break outer;
+      }
+    }
+  }
+
+  if (!filled.length) return [g, ev];
+  if (cur.lockedDigit && digitCounts(cur)[cur.lockedDigit] === 9) cur = { ...cur, lockedDigit: null };
+  return [
+    { ...cur, touched: true },
+    result ?? { kind: 'correct', cell: ev.kind === 'correct' ? ev.cell : filled[0], completedUnits: units, autoFilled: filled },
+  ];
+}
+
+function reduceAction(g: SudokuGame, action: Action, opts: Options): [SudokuGame, GameEvent] {
   const none: GameEvent = { kind: 'none' };
   if (action.type === 'restart') {
     return [{ ...newGame({ ...g }), id: g.id }, none];
@@ -158,7 +238,7 @@ export function reduce(g: SudokuGame, action: Action, opts: Options): [SudokuGam
 
     case 'input': {
       // While a digit is locked, the keypad switches the lock instead of entering numbers.
-      if (g.lockedDigit) return reduce(g, { type: 'lockDigit', digit: action.digit }, opts);
+      if (g.lockedDigit) return reduceAction(g, { type: 'lockDigit', digit: action.digit }, opts);
       if (g.selected == null) return [g, none];
       return enterDigit(g, g.selected, action.digit, opts);
     }
