@@ -184,3 +184,15 @@ Selected numbers and operations are filled, not only tinted. Invalid steps show 
 and shake. Haptics: `selection` for a calculation, `success` for hitting the target, `error` for an
 invalid step or a lost game. The tile gradient is 5.7:1 against white text. Also fixed in the shell: long back
 labels now truncate instead of overlapping the title at large text sizes. The audit now covers every game.
+
+**2026-11 Minesweeper.** Portrait boards (8×10, 10×14, 12×17) sized from the available height so they
+fit on iPhone SE without scrolling; a daily board that starts with an open area. Every board can be
+solved **without guessing**: layouts are generated from the first tap until a logic-only solver
+(`solver.ts`) clears them, and hints open the next cell that can be proven safe. Tap opens, and
+*touch and hold* flags. That custom gesture follows rule 5b: a one-line tip until the player has used it
+(`holdTipSeen`), the Flag tool as the standard-tap alternative (filled when on, plus a status line
+"Flag mode · tap to flag, hold to open"), and an `aria-describedby` hint for VoiceOver. Shapes carry
+the meaning: closed cells are raised tiles, flags and mines are glyphs, wrong flags get a cross, and
+the opened mine is a filled tile with an outline. Number colours are ≥ 4.5:1 in light and dark (see
+`minesweeper.css`). Haptics: `selection` for opening or flagging, `success` for a cleared field,
+`error` for a mine. After a loss, "Show Board" closes the sheet so the player can see where the mines were.
