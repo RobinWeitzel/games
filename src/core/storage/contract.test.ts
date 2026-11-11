@@ -60,6 +60,9 @@ const CONTRACT = {
     'data  games/game/sudoku/save          v1',
     'data  games/game/sudoku/settings      v2',
     'data  games/game/sudoku/stats         v1',
+    'data  games/game/tripeaks/daily       v1',
+    'data  games/game/tripeaks/save        v1',
+    'data  games/game/tripeaks/stats       v1',
   ],
 };
 
