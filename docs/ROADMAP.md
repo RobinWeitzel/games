@@ -30,16 +30,6 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 
 ## Tier 1: strong fit, builds on existing code
 
-### Nonogram (picture logic)
-- Status: `planned` · suggested id: `nonogram`
-- Fill cells from row and column run clues, and a solved puzzle reveals a picture.
-- Modes: 5×5, 10×10, 15×15 (15×15 uses a scrolling or zoomable board like Minesweeper's) plus daily.
-- Hard part: generated grids must have a **unique, line-solvable solution**. Write a line solver
-  and reject or adjust random grids (same idea as Minesweeper's no-guess generation). Optionally
-  ship a small set of hand-made pictures.
-- UX: fill/cross mode in the tool row, drag to paint a run, clues that grey out when satisfied
-  (text change plus a strikethrough or opacity, not colour alone).
-
 ### More solitaire: FreeCell, Spider, Pyramid, TriPeaks, Golf
 - Status: `planned` · suggested ids: `freecell`, `spider`, `pyramid`, `tripeaks`, `golf`
 - **Prerequisite:** move the reusable card code (card rendering, deck, shuffle/deal, drag)
@@ -156,11 +146,10 @@ similar).
 
 ## Suggested order
 
-1. Nonogram: a new type of puzzle, strong daily, fits existing patterns.
-2. Extract card code to `ui/` and `core/`, then FreeCell and Spider.
-3. Calcudoku or Killer Sudoku (share Sudoku's number-pad UX via `ui/`).
-4. Bridges or Star Battle.
-5. Word guessing, once a name, look and word list are settled (see the rules above).
+1. Extract card code to `ui/` and `core/`, then FreeCell and Spider.
+2. Calcudoku or Killer Sudoku (share Sudoku's number-pad UX via `ui/`).
+3. Bridges or Star Battle.
+4. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
 
@@ -170,3 +159,4 @@ similar).
 | Numbers | `numbers` | reach a target with six numbers |
 | Minesweeper | `minesweeper` | no-guess boards |
 | Solitaire | `solitaire` | Klondike, Draw 1 / Draw 3, daily |
+| Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

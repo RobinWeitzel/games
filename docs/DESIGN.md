@@ -218,3 +218,19 @@ offers Undo, New Game, Keep Looking or Done. Suits are symbols (with the text va
 5.4:1 on the light card face and 5.0:1 on the dark one. Haptics: `selection` for a move or a draw,
 `success` for a finished suit and a won game, `error` for a card that can't go where it was sent
 and for a game with no moves left.
+
+**2026-11 Nonogram.** 5×5, 10×10, 15×15 and a daily 10×10. Every picture is generated and
+accepted only if a line solver (`solver.ts`) solves it one row or column at a time, so it never
+needs a guess and has exactly one solution. The board never scrolls: it is sized from the space
+left over by the controls (`fitBoard` in `Board.tsx`), clue text scales with the cells but never
+below 11pt. Cells are below 44pt on 10×10 and 15×15 (30pt and about 20pt on iPhone SE), so the
+grid is one large target: a stroke starts anywhere on it and follows the finger along its row or
+column, and the clues of the row and column under the finger are highlighted. Tapping a cell and
+dragging are the same gesture (a tap is a one-cell stroke), and VoiceOver activates cells by click.
+The drag is taught by a one-line tip until used once (`dragTipSeen`) and described with
+`aria-describedby`. Fill and Cross are two tools (filled when active, plus a status line in cross
+mode). Marks are shapes: filled squares and ×. Finished clues are struck through as well as
+dimmed. Undo (also ⌘Z) is free; a hint corrects a wrong mark first, else marks a cell that follows
+from one line, and counts as an assist. Haptics: `selection` for a stroke or a hint, `success` for
+the solved picture. There is no `error`: nonograms don't reveal mistakes while playing. When solved,
+the crosses and grid lines fade out so only the picture is left, and "Show Picture" closes the sheet.
