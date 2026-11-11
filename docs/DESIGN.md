@@ -196,3 +196,19 @@ the meaning: closed cells are raised tiles, flags and mines are glyphs, wrong fl
 the opened mine is a filled tile with an outline. Number colours are ≥ 4.5:1 in light and dark (see
 `minesweeper.css`). Haptics: `selection` for opening or flagging, `success` for a cleared field,
 `error` for a mine. After a loss, "Show Board" closes the sheet so the player can see where the mines were.
+
+**2026-11 Solitaire.** Klondike with Draw 1, Draw 3 and a daily Draw 1 deal. Every deal is
+**winnable**: random deals are tried until a solver (`state.ts`, `isWinnable`) finds a way to win.
+Cards are sized from the available width and height, and the fan of a column squeezes so even the
+longest possible column (6 face-down cards plus K to 2) fits on iPhone SE at the largest text size.
+Tap moves a card to the best place it can go (its foundation first, then a column), and tapping the
+stock draws. Dragging a card to a specific pile is a shortcut on top of that tap, built to rule 5b:
+a one-line tip until the player has dragged once (`dragTipSeen`), and an `aria-describedby`
+description for VoiceOver. Undo (also ⌘Z) and Hint count as assists. A hint outlines the cards to
+move solidly and the destination with a dashed line, and the status line spells out the move. When
+everything is face up, Finish puts the cards home. If no useful move is left, an action sheet
+offers Undo, New Game, Keep Looking or Done. Suits are symbols (with the text variation selector, so
+♥ and ♦ never turn into emoji) and ranks are text, so colour never carries meaning alone. Red is
+5.4:1 on the light card face and 5.0:1 on the dark one. Haptics: `selection` for a move or a draw,
+`success` for a finished suit and a won game, `error` for a card that can't go where it was sent
+and for a game with no moves left.
