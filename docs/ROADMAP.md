@@ -31,7 +31,7 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 ## Tier 1: strong fit, builds on existing code
 
 ### More solitaire: Pyramid
-- Status: `planned` · suggested id: `pyramid` (TriPeaks and Golf have shipped)
+- Status: `shipped` · id: `pyramid` (with TriPeaks and Golf)
 - FreeCell and Spider have shipped (see below). The card code they share with Solitaire lives in
   `src/ui/cards/` (card faces, pile slots, tap and drag) and `src/core/cards.ts` (encoding, names,
   shuffle). Build new card games on those, as separate games with their own stats.
@@ -150,7 +150,7 @@ similar).
 ## Suggested order
 
 1. Kakuro (number pad and `core/numberGrid.ts`).
-2. Slitherlink and Nurikabe, Kakuro, Pyramid; Dots and Boxes.
+2. Slitherlink and Nurikabe, Kakuro; Dots and Boxes.
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -176,4 +176,5 @@ similar).
 | Numberlink | `numberlink` | 5×5, 7×7, 9×9, daily 7×7; the grid is covered with random paths and only their ends are kept; any full joining wins, the generated paths give hints |
 | Four in a Row | `four-in-a-row` | vs the computer, Easy/Medium/Hard (2/4/8 plies), who starts alternates; your discs a ring, the computer's a cross |
 | Reversi | `reversi` | vs the computer, Easy/Medium/Hard (1/3/5 plies, position weights + mobility); legal moves shown as dots |
+| Pyramid | `pyramid` | Classic and daily, three passes through the stock; deals proven winnable by a memoised DFS (~45% of random deals pass, ~20ms each), which also gives hints |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

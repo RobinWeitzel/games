@@ -181,3 +181,15 @@
 .pc-tools .tool {
   min-height: 52px;
 }
+
+/* A picked-up card waiting for its partner (Pyramid): a thick outline in the label colour. */
+.pc-selected {
+  outline: 3px solid var(--label);
+  outline-offset: 1px;
+  translate: 0 -4px;
+}
+
+/* A card mostly covered by others (Pyramid): only its corner shows, so the big pip is left out. */
+.pc-nopip .pc-pip {
+  visibility: hidden;
+}

@@ -1,0 +1,13 @@
+/* Pyramid. Uses the card table (ui/cards). */
+.py-count {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  padding: 0 20px;
+  box-sizing: content-box;
+  text-align: center;
+  white-space: nowrap;
+  font-size: min(var(--fs-caption1), 13px);
+  color: var(--label-2);
+  font-variant-numeric: tabular-nums;
+}

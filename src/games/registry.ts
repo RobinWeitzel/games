@@ -19,6 +19,7 @@ import { freecell } from './freecell';
 import { spider } from './spider';
 import { tripeaks } from './tripeaks';
 import { golf } from './golf';
+import { pyramid } from './pyramid';
 
 /**
  * All games, in home screen order. To add a game: create src/games/<id>/index.tsx exporting a
@@ -27,7 +28,7 @@ import { golf } from './golf';
  * Removing a game from this list hides it but keeps its saved data (it's still exported in
  * backups), so it can come back later without anyone losing progress.
  */
-export const GAMES: GameModule[] = [sudoku, numbers, minesweeper, solitaire, freecell, spider, tripeaks, golf, nonogram, calcudoku, killerSudoku, bridges, starBattle, codebreaker, slidingPuzzle, pegSolitaire, lightUp, numberlink, fourInARow, reversi];
+export const GAMES: GameModule[] = [sudoku, numbers, minesweeper, solitaire, freecell, spider, tripeaks, golf, pyramid, nonogram, calcudoku, killerSudoku, bridges, starBattle, codebreaker, slidingPuzzle, pegSolitaire, lightUp, numberlink, fourInARow, reversi];
 
 export function validateRegistry(games: GameModule[] = GAMES): void {
   const seen = new Set<string>();
