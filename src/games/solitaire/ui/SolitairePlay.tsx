@@ -55,9 +55,15 @@ export function SolitairePlay() {
   const later = (fn: () => void, ms: number) => timers.current.push(setTimeout(fn, ms));
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
+  /**
+   * The player gave up a stuck game. The clock saves when this screen closes (onSuspend), which
+   * must not put that game back (over a new deal, or as "Continue" after Done).
+   */
+  const givenUp = useRef(false);
+
   /** Save the game in progress (with the current time); finished games are removed. */
   const persist = (g: SolitaireGame | null = gameRef.current) => {
-    if (!g) return;
+    if (!g || givenUp.current) return;
     solSave.set(g.status === 'playing' ? { ...g, elapsedMs: clock.elapsed() } : null);
   };
 
@@ -178,6 +184,7 @@ export function SolitairePlay() {
     const g = gameRef.current;
     if (g && g.status === 'playing') solStats.record(g.mode, { outcome: 'lost', timeMs: clock.stop(), assists: assistsOf(g) });
     solSave.set(null);
+    givenUp.current = true;
   };
 
   /** Next game of the same mode; the daily deal is the same again (another try). */
