@@ -1,0 +1,10 @@
+/* Golf. Uses the card table (ui/cards); the stock count style is shared with TriPeaks. */
+.gf-count {
+  position: absolute;
+  left: 0;
+  top: 0;
+  text-align: center;
+  font-size: min(var(--fs-caption1), 13px);
+  color: var(--label-2);
+  font-variant-numeric: tabular-nums;
+}

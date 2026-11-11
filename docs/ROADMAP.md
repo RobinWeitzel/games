@@ -30,13 +30,13 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 
 ## Tier 1: strong fit, builds on existing code
 
-### More solitaire: Pyramid, TriPeaks, Golf
-- Status: `planned` · suggested ids: `pyramid`, `tripeaks`, `golf`
+### More solitaire: Pyramid
+- Status: `planned` · suggested id: `pyramid` (TriPeaks and Golf have shipped)
 - FreeCell and Spider have shipped (see below). The card code they share with Solitaire lives in
   `src/ui/cards/` (card faces, pile slots, tap and drag) and `src/core/cards.ts` (encoding, names,
   shuffle). Build new card games on those, as separate games with their own stats.
-- TriPeaks and Golf: fast, low effort. Pyramid: pairs that add up to 13; needs a solver or
-  reverse dealing for winnable deals.
+- Pyramid: pairs that add up to 13; needs a solver or reverse dealing for winnable deals (Golf
+  builds its deals backwards from a random winning game, which is fast and certain).
 
 ### Calcudoku / Killer Sudoku
 - Status: Calcudoku `shipped`; Killer Sudoku `planned` · suggested id: `killer-sudoku`
@@ -145,7 +145,7 @@ similar).
 ## Suggested order
 
 1. Killer Sudoku (number pad from `ui/game/numpad.tsx`).
-2. TriPeaks or Golf (on `ui/cards`).
+2. Codebreaker, sliding puzzle, peg solitaire (small engines).
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -161,4 +161,6 @@ similar).
 | Calcudoku | `calcudoku` | 4×4 to 7×7 and a daily 6×6; random Latin square + random cages, kept only with exactly one solution (cage-by-cage solver) |
 | Bridges | `bridges` | 7×7, 9×9, 11×11 and a daily 9×9; grown island networks kept only with one solution (bounds-propagation solver); tap the water or drag from an island |
 | Star Battle | `star-battle` | 6×6, 8×8 (1 star), 10×10 (2 stars), daily 8×8; random star layout, regions grown around it, then repaired until one solution remains; neighbouring regions get different tints plus thick borders |
+| TriPeaks | `tripeaks` | Classic and daily; deals proven winnable by a memoised DFS (~90% of random deals pass), which also gives hints |
+| Golf | `golf` | Classic and daily; only ~30% of random deals can be won, so deals are built backwards from a random winning game |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
