@@ -83,13 +83,13 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   away from the left edge.
 
 ### Codebreaker (code-breaking with pegs)
-- Status: `planned` · suggested id: `codebreaker`
+- Status: `shipped` · id: `codebreaker`
 - Guess a hidden code of 4 to 5 pegs; feedback gives exact and partial hits. Natural daily.
 - Pegs need symbols or shapes besides colour, and feedback is shown as counts or icons, not just
   black and white dots.
 
 ### Classics: sliding puzzle (15-puzzle), peg solitaire
-- Status: `planned` · suggested ids: `sliding-puzzle`, `peg-solitaire`
+- Status: sliding puzzle `shipped`; peg solitaire `planned` · suggested id: `peg-solitaire`
 - Trivial engines and great for move-count and best-time stats. The sliding puzzle must only
   generate solvable permutations (parity check).
 
@@ -147,7 +147,7 @@ similar).
 ## Suggested order
 
 1. Kakuro (number pad and `core/numberGrid.ts`).
-2. Codebreaker, sliding puzzle, peg solitaire (small engines).
+2. Peg solitaire, then the grid logic pack (Light Up, Nurikabe, Slitherlink).
 3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
@@ -166,4 +166,6 @@ similar).
 | TriPeaks | `tripeaks` | Classic and daily; deals proven winnable by a memoised DFS (~90% of random deals pass), which also gives hints |
 | Golf | `golf` | Classic and daily; only ~30% of random deals can be won, so deals are built backwards from a random winning game |
 | Killer Sudoku | `killer-sudoku` | Easy/Medium/Hard by cage size, daily Medium; random grid + cages without repeated digits; while a second solution exists, a cage is split where the solutions differ |
+| Codebreaker | `codebreaker` | 4 of 6, 5 of 8, daily 4 of 6; symbols differ by shape, feedback marks by shape (dot, ring, dash) |
+| Sliding Puzzle | `sliding-puzzle` | 3×3, 4×4, 5×5, daily 4×4; random permutations fixed to be solvable by the parity rule |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
