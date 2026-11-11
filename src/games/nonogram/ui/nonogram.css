@@ -1,0 +1,163 @@
+/*
+ * Nonogram. Classes are prefixed with .ng- (all game styles load globally).
+ *
+ * Marks are shapes, so colour never carries meaning alone: filled cells are solid squares,
+ * crossed cells show an ×, finished clues are struck through as well as dimmed.
+ */
+
+/* ---------- Status line ---------- */
+.ng-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.ng-status strong {
+  color: var(--label);
+}
+
+/* ---------- Board ---------- */
+.ng-board-area {
+  /* All vertical space the controls don't need. */
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+}
+.ng-area {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ng-board {
+  /* Clues top and left, grid bottom right. Sizes come from Board.tsx (fitBoard). */
+  display: grid;
+  transition: filter 250ms;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Clues: board-sized text (never below 11pt, see fitBoard), tabular digits. */
+.ng-clue {
+  font-size: var(--clue-fs);
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--label);
+  border-radius: 4px;
+}
+.ng-col-clues {
+  display: flex;
+  padding: 0 2px 2px;
+}
+.ng-col-clue {
+  width: var(--cell);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 2px;
+}
+.ng-row-clues {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 2px 2px 0;
+}
+.ng-row-clue {
+  height: var(--cell);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45em;
+  padding-right: 4px;
+  white-space: nowrap;
+}
+/* Every other clue line gets a faint stripe, so neighbouring numbers ("2 12 3") don't run together. */
+.ng-clue:nth-child(even) {
+  background: var(--fill);
+}
+/* A line that matches its clue: dimmed and struck through (not colour alone). */
+.ng-done {
+  color: var(--label-2);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+/* The row and column under the finger, so the right clues are easy to find on small cells. */
+.ng-active {
+  background: var(--accent-soft);
+}
+
+.ng-grid {
+  display: grid;
+  border: 2px solid var(--label-2);
+  border-radius: 3px;
+  background: var(--card);
+  /* Drags paint cells; the screen itself never scrolls. */
+  touch-action: none;
+}
+.ng-cell {
+  width: var(--cell);
+  height: var(--cell);
+  display: grid;
+  place-items: center;
+  /* Grid lines are drawn inside each cell, so cells have no gaps between them (no dead touch spots).
+     Every fifth line is thicker, to help counting. */
+  --gx: 1px;
+  --gy: 1px;
+  --gx-c: var(--separator);
+  --gy-c: var(--separator);
+  box-shadow: inset calc(-1 * var(--gx)) 0 0 var(--gx-c), inset 0 calc(-1 * var(--gy)) 0 var(--gy-c);
+  transition: background-color 120ms;
+}
+.ng-x5 {
+  --gx: 2px;
+  --gx-c: var(--label-2);
+}
+.ng-y5 {
+  --gy: 2px;
+  --gy-c: var(--label-2);
+}
+.ng-fill {
+  background-color: var(--label);
+}
+.ng-cross svg {
+  width: 56%;
+  height: 56%;
+  stroke: var(--label-2);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  fill: none;
+}
+/* The cell a hint marked: an outline (shape), not only a colour. */
+.ng-hinted {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+/* Solved: the grid lines fade out and the picture is left. */
+.ng-won .ng-cell {
+  --gx-c: transparent;
+  --gy-c: transparent;
+  transition: box-shadow 600ms var(--ease);
+}
+.ng-won .ng-grid {
+  border-color: transparent;
+  transition: border-color 600ms var(--ease);
+}
+
+.ng-hidden {
+  filter: blur(12px);
+}
+.ng-hidden .ng-cell,
+.ng-hidden .ng-clue span {
+  visibility: hidden;
+}
+.ng-hidden .ng-cell {
+  background-color: transparent;
+}
