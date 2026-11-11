@@ -1,5 +1,6 @@
 import { memo } from 'preact/compat';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { useClickEcho } from '../../../ui/game/clickEcho';
 import {
   Card,
   Move,
@@ -129,7 +130,7 @@ export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onT
   const [drag, setDrag] = useState<{ from: Pile; index: number; dx: number; dy: number } | null>(null);
   const press = useRef<{ pile: Pile; index: number; x: number; y: number; pickable: boolean; dragging: boolean } | null>(null);
   // Pointer taps are handled on pointerup; the click that follows must not count again.
-  const pointerTapped = useRef(false);
+  const echo = useClickEcho();
 
   useLayoutEffect(() => {
     const el = area.current!;
@@ -184,7 +185,6 @@ export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onT
         if (!e.isPrimary || hidden) return;
         const t = targetOf(e);
         if (!t) return;
-        pointerTapped.current = true;
         press.current = { ...t, x: e.clientX, y: e.clientY, pickable: canPickUp(game, t.pile, t.index), dragging: false };
         (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
       }}
@@ -210,19 +210,16 @@ export const Board = memo(function Board({ game, hidden, fresh, shake, hint, onT
         } else if (p) {
           onTap(p.pile, p.index);
         }
-        // If no click follows (finger moved away), don't swallow a later VoiceOver activation.
-        setTimeout(() => (pointerTapped.current = false), 500);
+        echo.touched();
       }}
       onPointerCancel={() => {
         press.current = null;
         setDrag(null);
+        echo.touched();
       }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={(e) => {
-        if (pointerTapped.current) {
-          pointerTapped.current = false; // already handled on pointerup
-          return;
-        }
+        if (echo.isEcho(e)) return; // already handled on pointerup
         const t = targetOf(e);
         if (t) onTap(t.pile, t.index);
       }}

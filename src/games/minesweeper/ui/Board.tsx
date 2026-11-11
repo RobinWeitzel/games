@@ -1,5 +1,6 @@
 import { memo } from 'preact/compat';
 import { useRef } from 'preact/hooks';
+import { useClickEcho } from '../../../ui/game/clickEcho';
 import { FLAG, HIDDEN, MinesweeperGame, OPEN, count } from '../state';
 import { FlagGlyph, MineGlyph } from './glyphs';
 
@@ -30,7 +31,7 @@ export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, o
     held: false,
   });
   // Pointer taps are handled on pointerup; the click that follows must not count again.
-  const pointerTapped = useRef(false);
+  const echo = useClickEcho();
   const finished = game.status !== 'playing';
 
   /** The press became a scroll (or was interrupted): it's neither a tap nor a hold. */
@@ -54,7 +55,6 @@ export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, o
         if (!e.isPrimary) return;
         const cell = cellOf(e);
         clearTimeout(press.current.timer);
-        pointerTapped.current = true;
         // A touch that stops a flick-scroll must never open a cell.
         if (cell == null || isScrolling?.()) {
           press.current.cell = null;
@@ -83,20 +83,16 @@ export const Board = memo(function Board({ game, fresh, hidden, onTap, onHold, o
           else onTap(p.cell);
         }
         p.cell = null;
-        // If no click follows (finger moved away), don't swallow a later VoiceOver activation.
-        setTimeout(() => (pointerTapped.current = false), 500);
+        echo.touched();
       }}
       // The browser took over the touch to scroll the board.
       onPointerCancel={() => {
         cancel();
-        setTimeout(() => (pointerTapped.current = false), 500);
+        echo.touched();
       }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={(e) => {
-        if (pointerTapped.current) {
-          pointerTapped.current = false; // already handled on pointerup
-          return;
-        }
+        if (echo.isEcho(e)) return; // already handled on pointerup
         const cell = cellOf(e);
         if (cell != null) onTap(cell);
       }}
