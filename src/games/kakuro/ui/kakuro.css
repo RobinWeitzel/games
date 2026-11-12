@@ -1,0 +1,183 @@
+/*
+ * Kakuro. Classes are prefixed with .kk- (all game styles load globally); cells use the shared
+ * `.cell` class (the audit's board-cell exemption), styled here under .kk-board.
+ * Clue cells are dark with a diagonal line: the across sum sits above it (top right), the down
+ * sum below it (bottom left). The sums of the selected cell's runs turn into light pills (shape,
+ * not only colour), and the status line spells them out.
+ */
+:root {
+  --kk-clue: #3a3a3c;
+  --kk-clue-ink: #ffffff; /* 11.4 */
+  --kk-diag: rgba(255, 255, 255, 0.45);
+  --kk-cell: var(--card);
+}
+:root[data-theme='dark'] {
+  /* Clue cells stay the darkest thing on the board, as in light mode. */
+  --kk-clue: #000000;
+  --kk-clue-ink: #ffffff; /* 21 */
+  --kk-diag: rgba(255, 255, 255, 0.4);
+  --kk-cell: #2c2c2e;
+}
+.kk-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.kk-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+}
+.kk-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--kk-cell);
+  transition: filter 250ms;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.kk-board .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+  font-variant-numeric: tabular-nums;
+  transition: background-color 120ms;
+}
+.kk-board .cell.kk-clue {
+  background: var(--kk-clue);
+  color: var(--kk-clue-ink);
+  border-color: color-mix(in srgb, var(--kk-clue-ink) 18%, var(--kk-clue));
+}
+.kk-board .cell.kk-has {
+  /* The diagonal runs from the top-left to the bottom-right corner. */
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.75px), var(--kk-diag) calc(50% - 0.75px), var(--kk-diag) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+    var(--kk-clue);
+}
+.kk-sum {
+  position: absolute;
+  padding: 0 2px;
+  border-radius: 4px;
+  font-size: max(11px, calc(100cqw / var(--n) * 0.3));
+  font-weight: 700;
+  line-height: 1.1;
+}
+.kk-a {
+  top: 2px;
+  right: 2px;
+}
+.kk-d {
+  bottom: 2px;
+  left: 2px;
+}
+.kk-sum.on {
+  background: var(--kk-clue-ink);
+  color: var(--kk-clue);
+}
+.kk-value {
+  font-size: calc(100cqw / var(--n) * 0.56);
+  line-height: 1;
+  color: var(--accent);
+}
+.kk-board .cell.wrong .kk-value {
+  color: var(--red);
+  /* Not colour alone (HIG accessibility): wrong digits are also underlined. */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.kk-board .cell.wrong:not(.selected) {
+  background: var(--red-soft);
+}
+.kk-board .cell.related {
+  background: color-mix(in srgb, var(--accent) 9%, var(--kk-cell));
+}
+.kk-board .cell.same {
+  background: color-mix(in srgb, var(--accent) 20%, var(--kk-cell));
+}
+.kk-board .cell.selected {
+  background: color-mix(in srgb, var(--accent) 32%, var(--kk-cell));
+}
+.kk-notes {
+  position: absolute;
+  inset: 2px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  font-size: max(11px, calc(100cqw / var(--n) * 0.24));
+  line-height: 1;
+  color: var(--label-2);
+  font-weight: 500;
+}
+.kk-notes span {
+  display: grid;
+  place-items: center;
+}
+.kk-notes .note-hl {
+  color: var(--accent);
+  font-weight: 700;
+}
+.kk-board .cell.flash {
+  animation: kk-flash 650ms var(--ease);
+}
+@keyframes kk-flash {
+  30% {
+    background: color-mix(in srgb, var(--green) 35%, var(--kk-cell));
+  }
+}
+.kk-board .cell.shake .kk-value {
+  animation: kk-shake 380ms ease;
+}
+@keyframes kk-shake {
+  20%,
+  60% {
+    transform: translateX(-3px);
+  }
+  40%,
+  80% {
+    transform: translateX(3px);
+  }
+}
+.kk-won .kk-white {
+  animation: kk-won 700ms var(--ease) both;
+  animation-delay: var(--d);
+}
+@keyframes kk-won {
+  40% {
+    background: color-mix(in srgb, var(--green) 40%, var(--kk-cell));
+  }
+}
+.kk-hidden {
+  filter: blur(12px);
+}
+.kk-hidden .kk-value,
+.kk-hidden .kk-notes,
+.kk-hidden .kk-sum {
+  visibility: hidden;
+}
+.kk-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.kk-mistakes.has {
+  color: var(--red);
+}
