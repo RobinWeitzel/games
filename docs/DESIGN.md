@@ -242,3 +242,36 @@ detail screen with an inline title and the back label of the game. The rules are
 inset-grouped sections (Goal, Playing, Modes…), using `--fs-body` so they follow Dynamic Type. Each
 game keeps its rules in `rules.ts`; a game without rules, or a hub without the row, fails
 `npm test`. `audit:ios` checks the screen for every game.
+
+**2026-11 Kakuro.** Easy 5 × 5, Medium 7 × 7, Hard 8 × 8 white cells (plus the clue row and
+column, so the grid is 6, 8 or 9 cells wide), and a daily Medium. Built on the shared number pad and
+`core/numberGrid` (notes, mistakes, undo, hints), like Killer Sudoku. Clue cells are dark with a
+diagonal line: the across sum above it, the down sum below, at least 11pt. Selecting a cell
+highlights its two runs, turns their sums into light pills (shape, not only colour) and spells
+them out in the status line ("Across 12 (3 cells) · Down 4 (2 cells)"). Black cells can't be
+selected, and arrow keys skip them. Clue ink on clue cells is 11.4:1 (light) and 21:1 (dark).
+
+**2026-11 Nurikabe.** 6 × 6, 8 × 8, 10 × 10 and a daily 8 × 8. Tap cycles empty → shaded → dot,
+and a drag gives every cell what the first one got (one undo step). Shaded cells are solid blue
+squares (6.7:1 against white cells; in dark mode a lighter blue, 4.7:1 against the cells), dots
+are dots. A 2 × 2 pool gets red stripes and a red inner border, and a wrong number a red ring; a
+finished island's number fades. Haptics: `selection` for a move or hint, `error` for a move that
+makes a pool or breaks a number, `success` for the solved puzzle. Generation can take a moment on
+10 × 10, so it runs in a Web Worker (`core/puzzleSource`) with one puzzle per mode prepared while
+the player browses; the spinner overlay only shows when none is ready.
+
+**2026-11 Slitherlink.** 5 × 5, 7 × 7, 9 × 9 and a daily 7 × 7. The edges between dots are too
+thin to be targets, so the board is one large target (like Bridges): a tap goes to the nearest
+edge, and a drag from dot to dot draws lines (or erases, if it starts on a line). There is a third
+of a cell of margin around the grid so the outer edges are as easy to hit as inner ones.
+VoiceOver, Switch Control and keyboards use invisible edge buttons with labels ("Across from dot
+at row 1, column 2 to row 1, column 3: line"), and the numbers are listed in a hidden text.
+Lines are thick strokes, crosses small × marks. A number with too many lines (or too many crosses)
+gets a red ring, a dot where lines branch a big red disc, and a satisfied number fades (a 0 only
+once its four sides are crossed, or every 0 would look done at the start). Generated in a worker
+like Nurikabe.
+
+**2026-11 Spider daily.** 1 Suit deals and the new Daily Challenge (a 1 Suit deal) are proven
+winnable before they are dealt: a best-first solver plays them through knowing every card. Hints
+still don't use the solver, so they never give away face-down cards.
+

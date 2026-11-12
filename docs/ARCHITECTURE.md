@@ -22,7 +22,8 @@ src/
     session.ts      which screen to restore on relaunch
     stats.ts        createGameStats(): per-mode results, best times, streaks, daily
     cards.ts        playing cards: encoding, names, shuffled deck
-    numberGrid.ts   play logic of number puzzles with a known solution (Calcudoku, Killer Sudoku)
+    numberGrid.ts   play logic of number puzzles with a known solution (Calcudoku, Killer Sudoku, Kakuro)
+    puzzleSource.ts puzzle generation in a Web Worker with an in-memory pool (Nurikabe, Slitherlink)
     daily.ts, random.ts, format.ts, haptics.ts
   styles/         global tokens (iOS colours, light/dark) and shell styles
 docs/             this documentation
