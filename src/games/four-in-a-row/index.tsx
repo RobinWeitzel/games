@@ -13,6 +13,7 @@ export const fourInARow: GameModule = {
   id: GAME_ID,
   name: 'Four in a Row',
   tagline: 'Drop discs, line up four',
+  category: 'board',
   Icon: FourIcon,
   color: 'linear-gradient(135deg, #1b5fbf, #123f80)', // white text ≥ 4.5:1
   Hub: FourHub,

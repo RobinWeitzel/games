@@ -13,6 +13,7 @@ export const tripeaks: GameModule = {
   id: GAME_ID,
   name: 'TriPeaks',
   tagline: 'One up or one down, clear the peaks',
+  category: 'cards',
   Icon: TriPeaksIcon,
   color: 'linear-gradient(135deg, #2f7d32, #1f5c22)', // white text ≥ 4.5:1
   Hub: TriPeaksHub,

@@ -20,6 +20,7 @@ src/
     storage/        versioned key-value storage, layout migrations, backups
     settings.ts     app settings + createGameSettings()
     session.ts      which screen to restore on relaunch
+    favorites.ts    games pinned to the Favorites group on the home screen
     stats.ts        createGameStats(): per-mode results, best times, streaks, daily
     cards.ts        playing cards: encoding, names, shuffled deck
     numberGrid.ts   play logic of number puzzles with a known solution (Calcudoku, Killer Sudoku, Kakuro)
@@ -48,7 +49,8 @@ The shell only knows the `GameModule` interface (`src/games/types.ts`):
 
 | Shell feature | Uses |
 |---|---|
-| Home tile | `name`, `tagline`, `Icon`, `color`. Tapping pushes `<Hub/>` |
+| Home tile | `name`, `tagline`, `Icon`, `color`, listed under its `category` group (titles and order in `Home.tsx`) and under Favorites if starred. Tapping pushes `<Hub/>` |
+| Favorites star | nothing: the shell puts it in every hub's navigation bar (`BarAccessory` in `ui/nav`), stored in `core/favorites.ts` |
 | How to Play | `rules` (the hub shows them with `HowToPlayRow`; required for every game) |
 | Home "Continue" card | `resume.describe()`, `resume.store` (to update live), `resume.Screen` |
 | Settings | `SettingsSection` |

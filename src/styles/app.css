@@ -476,11 +476,20 @@
 .tile-tagline {
   font-size: var(--fs-footnote);
 }
-.tile-soon {
-  background: var(--card);
+.tile-group + .tile-group {
+  margin-top: 28px;
+}
+.tile-group-title {
+  font-size: var(--fs-title2);
+  font-weight: 700;
+  color: var(--label);
+  margin: 0 0 10px;
+}
+.home-footnote {
+  font-size: var(--fs-footnote);
   color: var(--label-2);
-  box-shadow: none;
-  border: 1.5px dashed var(--separator);
+  text-align: center;
+  margin: 24px 16px 0;
 }
 
 .continue-card {

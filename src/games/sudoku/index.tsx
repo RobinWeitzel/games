@@ -15,6 +15,7 @@ export const sudoku: GameModule = {
   id: GAME_ID,
   name: 'Sudoku',
   tagline: 'Classic 9×9 number puzzle',
+  category: 'numbers',
   Icon: SudokuIcon,
   color: 'linear-gradient(135deg, #4b49c9, #5856d6)', // white text ≥ 4.5:1
   Hub: SudokuHub,

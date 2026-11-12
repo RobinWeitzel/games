@@ -4,6 +4,12 @@ import type { Store } from '../core/storage';
 import type { GameRules } from '../ui/game/rules';
 
 /**
+ * Group on the home screen. Labels and order live in the shell (app/screens/Home.tsx), so
+ * groups can be renamed or reordered without touching games. Not persisted.
+ */
+export type GameCategory = 'numbers' | 'logic' | 'cards' | 'board';
+
+/**
  * The contract between the app shell and a game. The shell (home screen, settings,
  * statistics, backups) only ever talks to games through this interface, so adding a game
  * never requires changes outside `src/games/<id>/` and one line in `registry.ts`.
@@ -19,6 +25,8 @@ export interface GameModule {
   name: string;
   /** One line shown on the home tile. */
   tagline: string;
+  /** Home screen group the tile is listed under. */
+  category: GameCategory;
   /** White glyph drawn on the tile. */
   Icon: FunctionComponent<{ size?: number }>;
   /** CSS background of the tile (usually a gradient). */

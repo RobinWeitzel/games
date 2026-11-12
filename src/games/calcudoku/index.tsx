@@ -13,6 +13,7 @@ export const calcudoku: GameModule = {
   id: GAME_ID,
   name: 'Calcudoku',
   tagline: 'Sudoku with sums and products',
+  category: 'numbers',
   Icon: CalcudokuIcon,
   color: 'linear-gradient(135deg, #d0480f, #a3330a)', // white text ≥ 4.5:1
   Hub: CalcudokuHub,

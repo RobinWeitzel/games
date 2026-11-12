@@ -13,6 +13,7 @@ export const kakuro: GameModule = {
   id: GAME_ID,
   name: 'Kakuro',
   tagline: 'Cross sums: no number twice in a run',
+  category: 'numbers',
   Icon: KakuroIcon,
   color: 'linear-gradient(135deg, #b03a2e, #85291f)', // white text ≥ 4.5:1 (6.0:1 / 9.0:1)
   Hub: KakuroHub,

@@ -13,6 +13,7 @@ export const dotsAndBoxes: GameModule = {
   id: GAME_ID,
   name: 'Dots and Boxes',
   tagline: 'Draw lines, close boxes',
+  category: 'board',
   Icon: DotsIcon,
   color: 'linear-gradient(135deg, #b4304f, #8a2038)', // white text ≥ 4.5:1
   Hub: DotsHub,

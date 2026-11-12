@@ -13,6 +13,7 @@ export const killerSudoku: GameModule = {
   id: GAME_ID,
   name: 'Killer Sudoku',
   tagline: 'Sudoku with cage sums, no givens',
+  category: 'numbers',
   Icon: KillerIcon,
   color: 'linear-gradient(135deg, #5b5bd6, #3e3eb0)', // white text ≥ 4.5:1
   Hub: KillerHub,

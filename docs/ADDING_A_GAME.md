@@ -149,6 +149,7 @@ export const minesweeper: GameModule = {
   id: GAME_ID,
   name: 'Minesweeper',
   tagline: 'Clear the field, avoid the mines',
+  category: 'logic', // home screen group: 'numbers' | 'logic' | 'cards' | 'board'
   Icon: MinesweeperIcon,
   color: 'linear-gradient(135deg, #30b0c7, #0a84ff)',
   Hub: MinesweeperHub,

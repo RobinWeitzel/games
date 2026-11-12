@@ -13,6 +13,7 @@ export const freecell: GameModule = {
   id: GAME_ID,
   name: 'FreeCell',
   tagline: 'Every card face up, every deal winnable',
+  category: 'cards',
   Icon: FreeCellIcon,
   color: 'linear-gradient(135deg, #0f7b8a, #0b5a66)', // white text ≥ 4.5:1
   Hub: FreeCellHub,
