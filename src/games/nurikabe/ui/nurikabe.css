@@ -1,0 +1,123 @@
+/*
+ * Nurikabe. Classes are prefixed with .nk- (all game styles load globally); cells use the shared
+ * `.cell` class (the audit's board-cell exemption), styled here under .nk-board.
+ * Shaded cells are solid blue squares, island marks are dots, numbers are bold text: shape and
+ * brightness, not only hue. A 2 × 2 pool gets red stripes and a red inner border; a finished
+ * number fades, a wrong one gets a red ring.
+ */
+:root {
+  --nk-cell: var(--card);
+  --nk-sea: #2c5f8a; /* vs the white cell 6.7:1 */
+  --nk-num: var(--label);
+}
+:root[data-theme='dark'] {
+  --nk-cell: #2c2c2e;
+  --nk-sea: #5b9bd5; /* lighter than the cells in dark mode (4.7:1 vs #2c2c2e) */
+}
+.nk-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.nk-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+}
+.nk-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--nk-cell);
+  transition: filter 250ms;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.nk-board .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+  transition: background-color 120ms;
+}
+.nk-board .cell.nk-sea {
+  background: var(--nk-sea);
+}
+.nk-board .cell.nk-pool {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 59, 48, 0.75) 0 3px, transparent 3px 8px),
+    var(--nk-sea);
+  box-shadow: inset 0 0 0 2px #ff3b30;
+}
+.nk-num span {
+  display: grid;
+  place-items: center;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: calc(100cqw / var(--n) * 0.5);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--nk-num);
+  font-variant-numeric: tabular-nums;
+}
+.nk-ok span {
+  opacity: 0.45;
+}
+.nk-bad span {
+  box-shadow: 0 0 0 2.5px #ff3b30;
+}
+.nk-dot {
+  width: 20%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--label-2);
+}
+.nk-flash {
+  animation: nk-pop 450ms var(--ease) both;
+}
+@keyframes nk-pop {
+  40% {
+    transform: scale(0.82);
+  }
+}
+.nk-won .cell {
+  animation: nk-won 700ms var(--ease) both;
+  animation-delay: var(--d);
+}
+@keyframes nk-won {
+  40% {
+    filter: brightness(1.2);
+  }
+}
+.nk-hidden {
+  filter: blur(12px);
+}
+.nk-hidden .nk-num span,
+.nk-hidden .nk-dot {
+  visibility: hidden;
+}
+.nk-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.nk-tools .tool {
+  min-height: 52px;
+}
