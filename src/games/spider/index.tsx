@@ -13,6 +13,7 @@ export const spider: GameModule = {
   id: GAME_ID,
   name: 'Spider',
   tagline: 'Build eight runs from king to ace',
+  category: 'cards',
   Icon: SpiderIcon,
   color: 'linear-gradient(135deg, #6e4fc4, #4b2f99)', // white text ≥ 4.5:1
   Hub: SpiderHub,

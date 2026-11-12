@@ -13,6 +13,7 @@ export const slidingPuzzle: GameModule = {
   id: GAME_ID,
   name: 'Sliding Puzzle',
   tagline: 'Slide the tiles into order',
+  category: 'board',
   Icon: SlideIcon,
   color: 'linear-gradient(135deg, #a8550f, #7f3f0a)', // white text ≥ 4.5:1
   Hub: SlideHub,

@@ -13,6 +13,7 @@ export const golf: GameModule = {
   id: GAME_ID,
   name: 'Golf',
   tagline: 'Clear the columns, one up or one down',
+  category: 'cards',
   Icon: GolfIcon,
   color: 'linear-gradient(135deg, #8a6d1f, #6b5214)', // white text ≥ 4.5:1
   Hub: GolfHub,

@@ -13,6 +13,7 @@ export const pyramid: GameModule = {
   id: GAME_ID,
   name: 'Pyramid',
   tagline: 'Pairs that add up to 13',
+  category: 'cards',
   Icon: PyramidIcon,
   color: 'linear-gradient(135deg, #7a2f8a, #5a1f66)', // white text ≥ 4.5:1
   Hub: PyramidHub,

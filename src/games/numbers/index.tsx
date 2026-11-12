@@ -13,6 +13,7 @@ export const numbers: GameModule = {
   id: GAME_ID,
   name: 'Numbers',
   tagline: 'Hit the target with six numbers',
+  category: 'numbers',
   Icon: NumbersIcon,
   color: 'linear-gradient(135deg, #00727a, #00666d)', // white text ≥ 4.5:1
   Hub: NumbersHub,

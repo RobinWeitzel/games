@@ -13,6 +13,7 @@ export const nurikabe: GameModule = {
   id: GAME_ID,
   name: 'Nurikabe',
   tagline: 'Shade a sea around numbered islands',
+  category: 'logic',
   Icon: NurikabeIcon,
   color: 'linear-gradient(135deg, #2e6f8e, #1f5068)', // white text ≥ 4.5:1 (5.6:1 / 8.7:1)
   Hub: NurikabeHub,

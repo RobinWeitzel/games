@@ -13,6 +13,7 @@ export const slitherlink: GameModule = {
   id: GAME_ID,
   name: 'Slitherlink',
   tagline: 'Draw one loop around the numbers',
+  category: 'logic',
   Icon: SlitherlinkIcon,
   color: 'linear-gradient(135deg, #5c6b1f, #434f12)', // white text ≥ 4.5:1 (5.9:1 / 8.9:1)
   Hub: SlitherlinkHub,

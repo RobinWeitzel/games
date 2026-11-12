@@ -12,6 +12,7 @@ export const solitaire: GameModule = {
   id: GAME_ID,
   name: 'Solitaire',
   tagline: 'Build the four suits from ace to king',
+  category: 'cards',
   Icon: SolitaireIcon,
   color: 'linear-gradient(135deg, #1f7a46, #145c34)', // white text ≥ 4.5:1 (5.3:1 / 8.0:1)
   Hub: SolitaireHub,

@@ -13,6 +13,7 @@ export const starBattle: GameModule = {
   id: GAME_ID,
   name: 'Star Battle',
   tagline: 'One star in every row, column and region',
+  category: 'logic',
   Icon: StarBattleIcon,
   color: 'linear-gradient(135deg, #b8378a, #8c2468)', // white text ≥ 4.5:1
   Hub: StarBattleHub,

@@ -13,6 +13,7 @@ export const numberlink: GameModule = {
   id: GAME_ID,
   name: 'Numberlink',
   tagline: 'Join the pairs, fill the grid',
+  category: 'logic',
   Icon: NumberlinkIcon,
   color: 'linear-gradient(135deg, #00727a, #00525a)', // white text ≥ 4.5:1
   Hub: NumberlinkHub,

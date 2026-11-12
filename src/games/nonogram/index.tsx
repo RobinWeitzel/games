@@ -13,6 +13,7 @@ export const nonogram: GameModule = {
   id: GAME_ID,
   name: 'Nonogram',
   tagline: 'Fill the grid, reveal the picture',
+  category: 'logic',
   Icon: NonogramIcon,
   color: 'linear-gradient(135deg, #c2185b, #8e1450)',
   Hub: NonogramHub,

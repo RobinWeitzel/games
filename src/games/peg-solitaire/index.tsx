@@ -13,6 +13,7 @@ export const pegSolitaire: GameModule = {
   id: GAME_ID,
   name: 'Peg Solitaire',
   tagline: 'Jump pegs until one is left',
+  category: 'board',
   Icon: PegIcon,
   color: 'linear-gradient(135deg, #6d4c9f, #4e3478)', // white text ≥ 4.5:1
   Hub: PegHub,

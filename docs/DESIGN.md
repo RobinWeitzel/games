@@ -275,3 +275,11 @@ like Nurikabe.
 winnable before they are dealt: a best-first solver plays them through knowing every card. Hints
 still don't use the solver, so they never give away face-down cards.
 
+**2026-11 Home groups and Favorites.** With 25 games the home screen is grouped: Number Puzzles,
+Logic Puzzles, Card Games and Board Games, each with a bold `--fs-title2` heading over the usual
+tile grid. Each game declares its `category`; group titles and order live in the shell. A star
+button in every game hub's navigation bar (outlined, filled when on, `aria-pressed`, label
+"Favorite") pins the game to a Favorites group at the top of the home screen, in the order added.
+It's a standard tap, so no custom gesture or tip is needed; while nothing is pinned, a footnote at
+the end of the home screen points to the star. No haptic (standard control). Favorites are stored in
+`games/app/favorites`; ids of hidden games are kept. The stale "More soon" tile was removed.

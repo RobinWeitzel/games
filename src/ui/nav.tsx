@@ -30,6 +30,13 @@ export const useIsTop = () => useContext(TopContext);
 const IndexContext = createContext(0);
 export const useScreenIndex = () => useContext(IndexContext);
 
+/**
+ * Extra navigation bar button supplied by whoever renders a screen (the shell gives every game
+ * hub its Favorites star this way, so games don't have to). Shown when the Screen has no `right`.
+ */
+const BarAccessoryContext = createContext<ComponentChildren>(null);
+export const BarAccessory = BarAccessoryContext.Provider;
+
 const DURATION = 380;
 let keySeq = 1;
 
@@ -233,6 +240,7 @@ export function Screen(props: {
 }) {
   const nav = useNav();
   const index = useScreenIndex();
+  const accessory = useContext(BarAccessoryContext);
   const [scrolled, setScrolled] = useState(0);
   const onScroll = (e: Event) => {
     const y = (e.currentTarget as HTMLElement).scrollTop;
@@ -258,7 +266,7 @@ export function Screen(props: {
         <div class={`navbar-title ${showBarTitle ? '' : 'navbar-title-hidden'}`} aria-hidden={!showBarTitle}>
           {barTitle}
         </div>
-        <div class="navbar-side navbar-right">{props.right}</div>
+        <div class="navbar-side navbar-right">{props.right ?? accessory}</div>
       </header>
       <main class={props.fixed ? 'content-fixed' : 'content-scroll'} onScroll={props.fixed ? undefined : onScroll}>
         {props.largeTitle && <h1 class="large-title">{props.largeTitle}</h1>}

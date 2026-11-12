@@ -13,6 +13,7 @@ export const reversi: GameModule = {
   id: GAME_ID,
   name: 'Reversi',
   tagline: 'Close in the discs, turn them over',
+  category: 'board',
   Icon: ReversiIcon,
   color: 'linear-gradient(135deg, #2b6b3f, #1b4a2a)', // white text ≥ 4.5:1
   Hub: ReversiHub,

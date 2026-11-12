@@ -13,6 +13,7 @@ export const bridges: GameModule = {
   id: GAME_ID,
   name: 'Bridges',
   tagline: 'Connect every island',
+  category: 'logic',
   Icon: BridgesIcon,
   color: 'linear-gradient(135deg, #1f78c8, #155a99)', // white text ≥ 4.5:1
   Hub: BridgesHub,

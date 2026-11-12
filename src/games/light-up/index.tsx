@@ -13,6 +13,7 @@ export const lightUp: GameModule = {
   id: GAME_ID,
   name: 'Light Up',
   tagline: 'Light every cell, bulbs can’t see each other',
+  category: 'logic',
   Icon: LightUpIcon,
   color: 'linear-gradient(135deg, #b5650a, #8a4a05)', // white text ≥ 4.5:1
   Hub: LightUpHub,

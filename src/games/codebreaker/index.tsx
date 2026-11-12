@@ -13,6 +13,7 @@ export const codebreaker: GameModule = {
   id: GAME_ID,
   name: 'Codebreaker',
   tagline: 'Crack the hidden code',
+  category: 'board',
   Icon: CodebreakerIcon,
   color: 'linear-gradient(135deg, #3a3a8c, #26266b)', // white text ≥ 4.5:1
   Hub: CodebreakerHub,
