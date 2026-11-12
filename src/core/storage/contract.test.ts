@@ -80,6 +80,7 @@ const CONTRACT = {
     'data  games/game/solitaire/save       v1',
     'data  games/game/solitaire/settings   v1',
     'data  games/game/solitaire/stats      v1',
+    'data  games/game/spider/daily         v1',
     'data  games/game/spider/save          v1',
     'data  games/game/spider/stats         v1',
     'data  games/game/star-battle/daily    v1',

@@ -1,7 +1,8 @@
 import { useState } from 'preact/hooks';
 import { Screen, useNav } from '../../../ui/nav';
-import { ConfirmNewGameSheet, ContinueRow, HowToPlayRow, ModeList, StatsRow } from '../../../ui/game/hub';
+import { ConfirmNewGameSheet, ContinueRow, DailyCard, HowToPlayRow, ModeList, StatsRow } from '../../../ui/game/hub';
 import { useStore } from '../../../core/storage';
+import { todayKey } from '../../../core/daily';
 import { formatTime } from '../../../core/format';
 import { RULES } from '../rules';
 import { spSave, spStats } from '../storage';
@@ -9,18 +10,24 @@ import { RUNS, type SpiderMode } from '../state';
 import { MODE_LABEL, hasGameToAbandon, startGame } from '../session';
 import { SpiderPlay } from './SpiderPlay';
 
-const MODE_COLORS: Record<SpiderMode, string> = { suit1: '#34c759', suit2: '#ff9f0a', suit4: '#ff3b30' };
+const MODE_COLORS = { suit1: '#34c759', suit2: '#ff9f0a', suit4: '#ff3b30' };
 
 export function SpiderHub() {
   const nav = useNav();
   const saved = useStore(spSave);
   const [confirm, setConfirm] = useState<SpiderMode | null>(null);
   const inProgress = saved && saved.status === 'playing' ? saved : null;
+  const dailyInProgress = inProgress?.mode === 'daily' && inProgress.date === todayKey();
 
   const launch = (mode: SpiderMode) => {
     setConfirm(null);
     startGame(mode);
     nav.push(<SpiderPlay />);
+  };
+  const request = (mode: SpiderMode) => {
+    if (mode === 'daily' && dailyInProgress) return nav.push(<SpiderPlay />);
+    if (hasGameToAbandon()) setConfirm(mode);
+    else launch(mode);
   };
 
   return (
@@ -31,10 +38,11 @@ export function SpiderHub() {
           onClick={() => nav.push(<SpiderPlay />)}
         />
       )}
+      <DailyCard stats={spStats} badge="1 Suit · winnable deal" inProgress={dailyInProgress} onPlay={() => request('daily')} />
       <ModeList
         stats={spStats}
         modes={(['suit1', 'suit2', 'suit4'] as const).map((m) => ({ id: m, label: MODE_LABEL[m], color: MODE_COLORS[m] }))}
-        onSelect={(id) => (hasGameToAbandon() ? setConfirm(id as SpiderMode) : launch(id as SpiderMode))}
+        onSelect={(id) => request(id as SpiderMode)}
       />
       <HowToPlayRow rules={RULES} gameName="Spider" />
       <StatsRow stats={spStats} gameName="Spider" />

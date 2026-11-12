@@ -8,7 +8,8 @@ import { Card, rankOf, shuffleCards, suitOf } from '../../core/cards';
  * its shape needs a version bump and a migration (docs/STORAGE.md).
  */
 
-export type SpiderMode = 'suit1' | 'suit2' | 'suit4';
+/** 'daily': a 1 Suit deal, the same for everyone on a date. */
+export type SpiderMode = 'suit1' | 'suit2' | 'suit4' | 'daily';
 
 export const COLUMNS = 10;
 /** Complete runs (king down to ace of one suit) needed to win. */
@@ -32,6 +33,8 @@ export interface Completion {
 
 export interface SpiderGame {
   mode: SpiderMode;
+  /** The daily challenge's date (YYYY-MM-DD). */
+  date?: string;
   /** Ten columns, bottom first. */
   tableau: Card[][];
   /** How many cards at the bottom of each column are face down. */
@@ -81,7 +84,7 @@ export type Event =
   | { kind: 'hint'; move: Move | null; text?: string }
   | { kind: 'won' };
 
-export const SUIT_COUNT: Record<SpiderMode, 1 | 2 | 4> = { suit1: 1, suit2: 2, suit4: 4 };
+export const SUIT_COUNT: Record<SpiderMode, 1 | 2 | 4> = { suit1: 1, suit2: 2, suit4: 4, daily: 1 };
 
 const col = (p: Pile) => Number(p.slice(1));
 
@@ -100,12 +103,13 @@ export function spiderDeck(suits: 1 | 2 | 4): Card[] {
 }
 
 /** Columns 1–4 get six cards, 5–10 five; only the top card is face up. The other 50 are the stock. */
-export function deal(mode: SpiderMode, deck: Card[]): SpiderGame {
+export function deal(mode: SpiderMode, deck: Card[], date?: string): SpiderGame {
   const cards = deck.slice();
   const tableau: Card[][] = [];
   for (let i = 0; i < COLUMNS; i++) tableau.push(cards.splice(0, i < 4 ? 6 : 5));
   return {
     mode,
+    ...(date ? { date } : {}),
     tableau,
     faceDown: tableau.map((c) => c.length - 1),
     stock: cards,
@@ -120,7 +124,8 @@ export function deal(mode: SpiderMode, deck: Card[]): SpiderGame {
   };
 }
 
-export const newGame = (mode: SpiderMode, rng: Rng): SpiderGame => deal(mode, shuffleCards(spiderDeck(SUIT_COUNT[mode]), rng));
+/** A random deal (not checked for winnability: see `newWinnableGame` in solver.ts). */
+export const newGame = (mode: SpiderMode, rng: Rng, date?: string): SpiderGame => deal(mode, shuffleCards(spiderDeck(SUIT_COUNT[mode]), rng), date);
 
 // ---------- Reading the board ----------
 
@@ -203,7 +208,7 @@ function finishStep(g: SpiderGame, prev: SpiderGame, step: UndoStep, record: boo
 }
 
 /** Move without checking (the caller checked `whyNot`). */
-function applyMove(g: SpiderGame, m: Move, record = true): SpiderGame {
+export function applyMove(g: SpiderGame, m: Move, record = true): SpiderGame {
   const next = clone(g);
   const from = col(m.from);
   const to = col(m.to);
@@ -215,7 +220,7 @@ function applyMove(g: SpiderGame, m: Move, record = true): SpiderGame {
 }
 
 /** One card from the stock onto every column (the caller checked `whyNoDeal`). */
-function applyDeal(g: SpiderGame, record = true): SpiderGame {
+export function applyDeal(g: SpiderGame, record = true): SpiderGame {
   const next = clone(g);
   for (let i = 0; i < COLUMNS; i++) next.tableau[i].push(next.stock.pop()!);
   const done: Completion[] = [];

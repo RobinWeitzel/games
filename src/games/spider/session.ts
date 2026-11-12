@@ -1,8 +1,10 @@
-import { createRng, randomSeed } from '../../core/random';
+import { todayKey } from '../../core/daily';
+import { createRng, hashString, randomSeed } from '../../core/random';
+import { newWinnableGame } from './solver';
 import { spSave, spStats } from './storage';
-import { SpiderGame, SpiderMode, newGame } from './state';
+import type { SpiderGame, SpiderMode } from './state';
 
-export const MODE_LABEL: Record<SpiderMode, string> = { suit1: '1 Suit', suit2: '2 Suits', suit4: '4 Suits' };
+export const MODE_LABEL: Record<SpiderMode, string> = { suit1: '1 Suit', suit2: '2 Suits', suit4: '4 Suits', daily: 'Daily' };
 
 /** Is there an in-progress game that starting a new one would throw away? */
 export function hasGameToAbandon(): boolean {
@@ -21,10 +23,16 @@ export function abandonSaved(): void {
   spSave.set(null);
 }
 
-export const createGame = (mode: SpiderMode) => newGame(mode, createRng(randomSeed()));
+/** A new deal; 1 Suit and the daily are winnable. The daily deal is the same for everyone on a date. */
+export function createGame(mode: SpiderMode): SpiderGame {
+  if (mode !== 'daily') return newWinnableGame(mode, createRng(randomSeed()));
+  const date = todayKey();
+  return newWinnableGame('daily', createRng(hashString(`spider:${date}`)), date);
+}
 
 /** Replace any game in progress with a fresh one. */
 export function startGame(mode: SpiderMode): void {
+  const g = createGame(mode);
   abandonSaved();
-  spSave.set(createGame(mode));
+  spSave.set(g);
 }

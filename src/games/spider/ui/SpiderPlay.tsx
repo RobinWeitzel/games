@@ -82,6 +82,7 @@ export function SpiderPlay() {
     const timeMs = clock.stop();
     const assists = assistsOf(g);
     const { newBest } = spStats.record(g.mode, { outcome: 'won', timeMs, assists });
+    if (g.mode === 'daily' && g.date) spStats.markDaily(g.date, { timeMs, assists });
     spSave.set(null);
     setResult({ timeMs, newBest });
     later(() => setSheet('won'), 600);
@@ -155,7 +156,7 @@ export function SpiderPlay() {
     givenUp.current = true;
   };
 
-  /** A new deal of the same mode. */
+  /** A new deal of the same mode; the daily deal is the same again (another try). */
   const playAgain = () => {
     const g = gameRef.current;
     if (!g) return;
@@ -249,7 +250,7 @@ export function SpiderPlay() {
           </>
         }
         actions={[
-          { label: 'New Game', style: 'primary', onClick: playAgain },
+          ...(game.mode === 'daily' ? [] : [{ label: 'New Game', style: 'primary' as const, onClick: playAgain }]),
           { label: 'Done', onClick: () => nav.pop() },
         ]}
       />
@@ -259,7 +260,7 @@ export function SpiderPlay() {
         message="Undo a few moves to try another way, or deal a new game."
         actions={[
           { label: 'Undo Last Move', style: 'primary', onClick: () => (setSheet(null), dispatch({ type: 'undo' })) },
-          { label: 'New Game', onClick: playAgain },
+          { label: game.mode === 'daily' ? 'Start Over' : 'New Game', onClick: playAgain },
           { label: 'Keep Looking', onClick: () => setSheet(null) },
           {
             label: 'Done',
