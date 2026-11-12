@@ -8,7 +8,7 @@ import { NurikabeGame, NurikabeMode, newGame } from './state';
 export const MODE_LABEL: Record<NurikabeMode, string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard', daily: 'Daily' };
 export const sizeText = (d: Difficulty) => `${SIZE[d]} × ${SIZE[d]}`;
 
-/** Generating a 10 × 10 puzzle can take a moment: it runs in a worker, with one puzzle per mode kept ready. */
+/** Generating a Hard puzzle can take a moment: it runs in a worker, with one puzzle per mode kept ready. */
 const puzzles = createPuzzleSource(
   () => new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' }),
   (mode: Difficulty, seed: number) => generate(mode, createRng(seed)),
