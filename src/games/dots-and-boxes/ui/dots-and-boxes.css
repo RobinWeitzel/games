@@ -1,0 +1,77 @@
+/*
+ * Dots and Boxes. Classes are prefixed with .db- (all game styles load globally).
+ * Your boxes carry a white ring, the computer's a white cross (shape, not only colour; white on
+ * both ≥ 4.5:1). The last line drawn is thicker and in the accent colour.
+ */
+.db-area {
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+}
+.db-board {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: filter 250ms;
+}
+.db-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--label);
+}
+.db-line {
+  position: absolute;
+  border-radius: 3px;
+  background: var(--label);
+}
+.db-last {
+  background: var(--accent);
+  animation: db-in 250ms var(--ease);
+}
+@keyframes db-in {
+  from {
+    transform: scale(0.3);
+  }
+}
+.db-board .db-open {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.db-box {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  animation: db-in 250ms var(--ease);
+}
+.db-box svg {
+  width: 40%;
+  height: 40%;
+}
+.db-p1 {
+  background: #0066d6;
+}
+.db-p2 {
+  background: #c40012;
+}
+.db-hidden {
+  filter: blur(12px);
+}
+.db-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.db-tools .tool {
+  min-height: 52px;
+}

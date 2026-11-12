@@ -1,34 +1,35 @@
 /*
- * Solitaire. Classes are prefixed with .sol- (all game styles load globally).
+ * Card tables (ui/cards, used by Solitaire, FreeCell and Spider). Classes are prefixed with .pc-
+ * ("playing card").
  *
  * Card faces: black and red suit text ≥ 4.5:1 against the face in light and dark (ratios in
  * the comments). The suit symbol and the rank carry the meaning, so colour is never the only cue.
  * Face-down cards are a patterned back without text, so face up / face down differ in shape too.
  */
 :root {
-  --sol-face: #ffffff;
-  --sol-ink: #1c1c1e; /* 17.0 */
-  --sol-red: #d70015; /* 5.4 */
-  --sol-edge: rgba(60, 60, 67, 0.29);
-  --sol-back: #0066d6;
-  --sol-back-2: #004fa8;
-  --sol-slot: rgba(118, 118, 128, 0.16);
+  --pc-face: #ffffff;
+  --pc-ink: #1c1c1e; /* 17.0 */
+  --pc-red: #d70015; /* 5.4 */
+  --pc-edge: rgba(60, 60, 67, 0.29);
+  --pc-back: #0066d6;
+  --pc-back-2: #004fa8;
+  --pc-slot: rgba(118, 118, 128, 0.16);
 }
 :root[data-theme='dark'] {
-  --sol-face: #3a3a3c;
-  --sol-ink: #ffffff; /* 11.4 */
-  --sol-red: #ff8a82; /* 5.0 */
-  --sol-edge: rgba(255, 255, 255, 0.12);
-  --sol-back: #0a6cdb;
-  --sol-back-2: #074a96;
-  --sol-slot: rgba(118, 118, 128, 0.3);
+  --pc-face: #3a3a3c;
+  --pc-ink: #ffffff; /* 11.4 */
+  --pc-red: #ff8a82; /* 5.0 */
+  --pc-edge: rgba(255, 255, 255, 0.12);
+  --pc-back: #0a6cdb;
+  --pc-back-2: #074a96;
+  --pc-slot: rgba(118, 118, 128, 0.3);
 }
 
 /* ---------- Status line ---------- */
-.sol-moves {
+.pc-moves {
   color: var(--label-2);
 }
-.sol-status {
+.pc-status {
   height: 1.4em;
   font-size: min(var(--fs-footnote), 15px);
   color: var(--label-2);
@@ -40,13 +41,13 @@
 }
 
 /* ---------- Table ---------- */
-.sol-board-area {
-  /* All vertical space the controls don't need: the cards are sized to fit it (Board.tsx). */
+.pc-area {
+  /* All vertical space the controls don't need: the cards are sized to fit it. */
   flex: 1 1 0;
   min-height: 0;
   position: relative;
 }
-.sol-board {
+.pc-table {
   position: absolute;
   inset: 0;
   touch-action: none;
@@ -56,8 +57,8 @@
   transition: filter 250ms;
 }
 
-.sol-slot,
-.sol-card {
+.pc-slot,
+.pc-card {
   position: absolute;
   left: 0;
   top: 0;
@@ -65,61 +66,61 @@
   height: var(--ch);
   border-radius: calc(var(--cw) * 0.12);
 }
-.sol-slot {
+.pc-slot {
   display: grid;
   place-items: center;
-  background: var(--sol-slot);
+  background: var(--pc-slot);
   color: var(--label-3);
 }
-.sol-slot-suit {
-  font-size: calc(var(--sol-font) * 1.6);
+.pc-slot-suit {
+  font-size: calc(var(--pc-font) * 1.6);
   line-height: 1;
 }
-.sol-recycle {
+.pc-recycle {
   width: 55%;
   height: 55%;
   color: var(--label-2);
 }
-.sol-stock:active {
+.pc-stock:active {
   transform: none;
   filter: brightness(0.9);
 }
 
-.sol-card {
+.pc-card {
   overflow: hidden;
-  box-shadow: 0 0 0 0.5px var(--sol-edge), 0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 0 0.5px var(--pc-edge), 0 1px 2px rgba(0, 0, 0, 0.12);
 }
-.sol-up {
-  background: var(--sol-face);
-  color: var(--sol-ink);
+.pc-up {
+  background: var(--pc-face);
+  color: var(--pc-ink);
 }
-.sol-red {
-  color: var(--sol-red);
+.pc-red {
+  color: var(--pc-red);
 }
 /* Card back: a framed diagonal pattern (no text). */
-.sol-down {
+.pc-down {
   background:
     repeating-linear-gradient(45deg, transparent 0 4px, rgba(255, 255, 255, 0.14) 4px 6px),
-    linear-gradient(160deg, var(--sol-back), var(--sol-back-2));
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85), 0 0 0 0.5px var(--sol-edge), 0 1px 2px rgba(0, 0, 0, 0.12);
+    linear-gradient(160deg, var(--pc-back), var(--pc-back-2));
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85), 0 0 0 0.5px var(--pc-edge), 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
-.sol-corner {
+.pc-corner {
   position: absolute;
   left: calc(var(--cw) * 0.07);
   top: calc(var(--cw) * 0.04);
   display: flex;
   align-items: baseline;
   gap: 1px;
-  font-size: var(--sol-font);
+  font-size: var(--pc-font);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.03em;
 }
-.sol-corner-suit {
+.pc-corner-suit {
   font-weight: 400;
 }
-.sol-pip {
+.pc-pip {
   position: absolute;
   left: 0;
   right: 0;
@@ -130,25 +131,25 @@
 }
 
 /* Dragged cards float above everything and follow the finger without lag. */
-.sol-dragging {
-  box-shadow: 0 0 0 0.5px var(--sol-edge), 0 10px 24px rgba(0, 0, 0, 0.28);
+.pc-dragging {
+  box-shadow: 0 0 0 0.5px var(--pc-edge), 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
 /* Moved cards settle in: explains where the card went. */
-.sol-fresh {
-  animation: sol-pop 220ms var(--ease) both;
+.pc-fresh {
+  animation: pc-pop 220ms var(--ease) both;
 }
-@keyframes sol-pop {
+@keyframes pc-pop {
   from {
     filter: brightness(1.15);
     scale: 1.08;
   }
 }
 /* A card that can't move shakes (the status line says why). */
-.sol-shake {
-  animation: sol-shake 320ms var(--ease);
+.pc-shake {
+  animation: pc-shake 320ms var(--ease);
 }
-@keyframes sol-shake {
+@keyframes pc-shake {
   20%,
   60% {
     translate: -5px 0;
@@ -160,23 +161,35 @@
 }
 
 /* Hints: the cards to move get a thick outline, the destination a dashed one (shape, not only colour). */
-.sol-hint {
+.pc-hint {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
 }
-.sol-hint-target {
+.pc-hint-target {
   outline: 3px dashed var(--accent);
   outline-offset: 1px;
 }
 
-.sol-board-hidden {
+.pc-table-hidden {
   filter: blur(12px);
 }
-.sol-board-hidden .sol-card > * {
+.pc-table-hidden .pc-card > * {
   visibility: hidden;
 }
 
 /* ---------- Tools ---------- */
-.sol-tools .tool {
+.pc-tools .tool {
   min-height: 52px;
+}
+
+/* A picked-up card waiting for its partner (Pyramid): a thick outline in the label colour. */
+.pc-selected {
+  outline: 3px solid var(--label);
+  outline-offset: 1px;
+  translate: 0 -4px;
+}
+
+/* A card mostly covered by others (Pyramid): only its corner shows, so the big pip is left out. */
+.pc-nopip .pc-pip {
+  visibility: hidden;
 }

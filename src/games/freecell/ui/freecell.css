@@ -1,0 +1,6 @@
+/* FreeCell. Classes are prefixed with .fc- (all game styles load globally); the table is ui/cards. */
+
+/* Free cells: an inset outline, so they differ from the foundations in shape too (not just the suit mark). */
+.fc-cell {
+  box-shadow: inset 0 0 0 1.5px var(--separator);
+}

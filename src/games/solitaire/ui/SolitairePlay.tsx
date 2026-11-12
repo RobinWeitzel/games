@@ -9,25 +9,23 @@ import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
 import { IconBolt, IconBulb, IconPause, IconPlay, IconUndo } from '../../../ui/icons';
 import { GAME_ID, solSave, solSettings, solStats } from '../storage';
-import { Action, Card, Move, Pile, RANKS, SolitaireGame, autoFinishMove, canAutoFinish, isStuck, pileCards, rankOf, reduce } from '../state';
+import { Action, Card, Move, Pile, SolitaireGame, autoFinishMove, canAutoFinish, isStuck, pileCards, reduce } from '../state';
 import { MODE_LABEL, assistsOf, createGame } from '../session';
-import { Board, suitText } from './Board';
+import { Board } from './Board';
+import { shortName } from '../../../ui/cards';
 
 interface Result {
   timeMs: number;
   newBest: boolean;
 }
 
-/** "7♥" for the status line. */
-const short = (c: Card) => `${RANKS[rankOf(c) - 1]}${suitText(c)}`;
-
 /** "Move 7♥ onto 8♠" / "Draw from the stock", for hints. */
 function describeMove(g: SolitaireGame, m: Move): string {
   if (m.from === 's') return g.stock.length ? 'Draw from the stock' : 'Turn the waste over';
   const card = pileCards(g, m.from)[m.index];
-  if (m.to[0] === 'f') return `Move ${short(card)} to its foundation`;
+  if (m.to[0] === 'f') return `Move ${shortName(card)} to its foundation`;
   const to = pileCards(g, m.to);
-  return to.length ? `Move ${short(card)} onto ${short(to[to.length - 1])}` : `Move ${short(card)} to the empty column`;
+  return to.length ? `Move ${shortName(card)} onto ${shortName(to[to.length - 1])}` : `Move ${shortName(card)} to the empty column`;
 }
 
 /** How long a finish step and a hint stay (ms). */
@@ -99,7 +97,7 @@ export function SolitairePlay() {
     if (ev.kind === 'invalid') {
       const card = pileCards(g, ev.pile)[ev.index];
       setShake(card);
-      setHint({ move: null, text: `${short(card)} can’t go there` });
+      setHint({ move: null, text: `${shortName(card)} can’t go there` });
       later(() => setShake(null), 400);
       haptic('error');
       return;
@@ -218,7 +216,7 @@ export function SolitairePlay() {
     >
       <div class="play-layout">
         <div class="play-info">
-          <span class="sol-moves">Moves {game.moves}</span>
+          <span class="pc-moves">Moves {game.moves}</span>
           <span class="timer" aria-label="Time">
             {formatTime(result ? result.timeMs : clock.elapsed())}
           </span>
@@ -228,7 +226,7 @@ export function SolitairePlay() {
         </div>
 
         {/* Takes all height left over by the controls; the cards are sized to fit it. */}
-        <div class="sol-board-area">
+        <div class="pc-area">
           <Board game={game} hidden={showPause} fresh={fresh} shake={shake} hint={hint?.move ?? null} onTap={onTap} onDrop={onDrop} />
           {showPause && (
             <button class="pause-overlay" onClick={() => setPaused(false)}>
@@ -241,14 +239,14 @@ export function SolitairePlay() {
         </div>
 
         {/* One line, always reserved so the layout doesn't jump: hints, tips and what to do next. */}
-        <div class="sol-status" aria-live="polite">
+        <div class="pc-status" aria-live="polite">
           <span id="sol-board-hint" class="sr-only">
             Tap a card to move it to the best place it can go. Drag a card to choose where it goes. Tap the stock to draw.
           </span>
           {status}
         </div>
 
-        <div class="tools sol-tools">
+        <div class="tools pc-tools">
           <Tool label="Undo" onClick={() => dispatch({ type: 'undo' })} disabled={finished || finishing || !game.history.length}>
             <IconUndo />
           </Tool>

@@ -1,0 +1,160 @@
+/*
+ * Codebreaker. Classes are prefixed with .cb- (all game styles load globally).
+ * Symbols differ by shape first; the colours only help, and every shape has an outline in
+ * --label. Feedback marks differ by shape too: a filled dot (right place), a ring (right symbol,
+ * other place), a small dash (no match).
+ */
+.cb-peg path {
+  stroke: var(--label);
+  stroke-width: 1.4;
+}
+.cb-s0 path { fill: #ff453a; }
+.cb-s1 path { fill: #ff9f0a; }
+.cb-s2 path { fill: #ffd60a; }
+.cb-s3 path { fill: #30d158; }
+.cb-s4 path { fill: #64d2ff; }
+.cb-s5 path { fill: #0a84ff; }
+.cb-s6 path { fill: #bf5af2; }
+.cb-s7 path { fill: #ff375f; }
+
+.cb-area {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cb-row {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 44px;
+  container-type: size;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 2em 1fr 3.4em;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-radius: 10px;
+}
+.cb-row.cb-done {
+  background: var(--card);
+}
+.cb-num {
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.cb-pegs {
+  display: flex;
+  gap: 6px;
+  height: 100%;
+  align-items: center;
+}
+.cb-pegs .cb-peg {
+  width: 72cqh;
+  height: 72cqh;
+  flex: none;
+}
+.cb-empty {
+  flex: none;
+  width: 26cqh;
+  height: 26cqh;
+  border-radius: 50%;
+  background: var(--fill-strong);
+  margin: 0 23cqh;
+}
+.cb-feedback {
+  display: grid;
+  gap: 2px 4px;
+  justify-items: center;
+}
+.cb-mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.cb-exact {
+  background: var(--label);
+}
+.cb-partial {
+  box-shadow: inset 0 0 0 2px var(--label);
+}
+.cb-none {
+  border-radius: 0;
+  background: linear-gradient(var(--label-3), var(--label-3)) center / 7px 2px no-repeat;
+}
+
+/* The guess being built: big slots (tap one to empty it). */
+.cb-input {
+  display: grid;
+  gap: 8px;
+}
+.cb-slot {
+  height: 52px;
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 2px var(--separator);
+  display: grid;
+  place-items: center;
+}
+.cb-slot.cb-next {
+  box-shadow: inset 0 0 0 2.5px var(--accent);
+}
+.cb-slot.cb-locked {
+  /* Revealed by a hint: a dashed frame (shape) and it can't be changed. */
+  box-shadow: inset 0 0 0 2px var(--label-2);
+  outline: 2px dashed var(--accent);
+  outline-offset: -6px;
+}
+.cb-slot .cb-peg {
+  width: 30px;
+  height: 30px;
+}
+
+.cb-keys {
+  display: grid;
+  gap: 8px;
+}
+.cb-key {
+  height: clamp(46px, 6.4dvh, 56px);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  display: grid;
+  place-items: center;
+  color: var(--label);
+  font-size: min(var(--fs-subheadline), 17px);
+  font-weight: 600;
+  transition: transform 100ms var(--ease);
+}
+.cb-key:active:not(:disabled) {
+  transform: scale(0.92);
+}
+.cb-key:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+}
+.cb-key .cb-peg {
+  width: 30px;
+  height: 30px;
+}
+.cb-check {
+  background: var(--accent-fill);
+  color: #fff;
+}
+.cb-hidden .cb-peg,
+.cb-hidden .cb-feedback {
+  visibility: hidden;
+}
+.cb-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}

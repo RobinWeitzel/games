@@ -1,4 +1,5 @@
 import type { Rng } from '../../core/random';
+import { Card, isRed, rankOf, shuffledDeck, suitOf } from '../../core/cards';
 
 /**
  * Solitaire (Klondike) game logic: pure functions only (no storage, no UI), unit-tested in
@@ -10,21 +11,9 @@ import type { Rng } from '../../core/random';
 
 export type SolitaireMode = 'draw1' | 'draw3' | 'daily';
 
-/** Cards are numbers 0–51: suit * 13 + (rank - 1). Suits: 0 ♠, 1 ♥, 2 ♦, 3 ♣. */
-export type Card = number;
-export const SUITS = ['♠', '♥', '♦', '♣'] as const;
-export const SUIT_NAMES = ['spades', 'hearts', 'diamonds', 'clubs'] as const;
-export const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'] as const;
-const RANK_NAMES = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
-
-export const suitOf = (c: Card) => Math.floor(c / 13);
-/** 1 (ace) – 13 (king). */
-export const rankOf = (c: Card) => (c % 13) + 1;
-export const isRed = (c: Card) => suitOf(c) === 1 || suitOf(c) === 2;
-/** "7♥" */
-export const cardText = (c: Card) => `${RANKS[rankOf(c) - 1]}${SUITS[suitOf(c)]}`;
-/** "7 of hearts" (VoiceOver). */
-export const cardName = (c: Card) => `${RANK_NAMES[rankOf(c) - 1]} of ${SUIT_NAMES[suitOf(c)]}`;
+// Cards (0–51, suit * 13 + rank - 1) and their names live in core/cards (shared by the card games).
+export type { Card } from '../../core/cards';
+export { SUITS, SUIT_NAMES, RANKS, suitOf, rankOf, isRed, cardText, cardName, shuffledDeck } from '../../core/cards';
 
 /**
  * A pile: tableau column 't0'…'t6', foundation 'f0'…'f3' (one per suit, in suit order),
@@ -97,15 +86,6 @@ export interface Move {
 }
 
 // ---------- Dealing ----------
-
-export function shuffledDeck(rng: Rng): Card[] {
-  const deck = Array.from({ length: 52 }, (_, i) => i);
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  return deck;
-}
 
 /** Classic Klondike deal: column i gets i + 1 cards, the top one face up; the rest is the stock. */
 export function deal(mode: SolitaireMode, deck: Card[], date?: string): SolitaireGame {

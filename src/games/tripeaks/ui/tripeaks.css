@@ -1,0 +1,14 @@
+/* TriPeaks. Classes are prefixed with .tp- (all game styles load globally); the table is ui/cards. */
+.tp-count {
+  position: absolute;
+  left: 0;
+  top: 0;
+  text-align: center;
+  font-size: min(var(--fs-caption1), 13px);
+  color: var(--label-2);
+  font-variant-numeric: tabular-nums;
+}
+.tp-streak.on {
+  color: var(--label);
+  font-weight: 600;
+}

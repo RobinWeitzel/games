@@ -1,0 +1,158 @@
+/*
+ * Calcudoku. Classes are prefixed with .cd- (all game styles load globally); cells use the
+ * shared `.cell` class (the audit's board-cell exemption).
+ * Cage borders are 2.5px in --label (the full text colour), so they read in light and dark and
+ * don't rely on colour: cages are shapes.
+ */
+.cd-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.cd-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+}
+.cd-board {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2.5px solid var(--label);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--card);
+  transition: filter 250ms;
+  touch-action: none;
+}
+.cd-board .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-right: 0.5px solid var(--separator);
+  border-bottom: 0.5px solid var(--separator);
+  transition: background-color 120ms;
+  font-variant-numeric: tabular-nums;
+}
+.cd-board .cell.cd-r {
+  border-right: 2.5px solid var(--label);
+}
+.cd-board .cell.cd-b {
+  border-bottom: 2.5px solid var(--label);
+}
+.cd-cage {
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  font-size: max(11px, calc(100cqw / var(--n) * 0.2));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--label);
+  white-space: nowrap;
+}
+.cd-value {
+  font-size: calc(100cqw / var(--n) * 0.5);
+  line-height: 1;
+  margin-top: calc(100cqw / var(--n) * 0.12);
+  color: var(--accent);
+}
+.cell.wrong .cd-value {
+  color: var(--red);
+  /* Not colour alone (HIG accessibility): wrong digits are also underlined. */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.cell.wrong:not(.selected) {
+  background: var(--red-soft);
+}
+.cd-board .cell.related {
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+}
+.cd-board .cell.same {
+  background: color-mix(in srgb, var(--accent) 20%, var(--card));
+}
+.cd-board .cell.selected {
+  background: color-mix(in srgb, var(--accent) 32%, var(--card));
+}
+.cd-notes {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  height: 64%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  font-size: max(11px, calc(100cqw / var(--n) * 0.19));
+  line-height: 1;
+  color: var(--label-2);
+  font-weight: 500;
+}
+.cd-notes span {
+  display: grid;
+  place-items: center;
+}
+.cd-notes .note-hl {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* A completed cage flashes. */
+.cd-board .cell.flash {
+  animation: cd-flash 650ms var(--ease);
+}
+@keyframes cd-flash {
+  30% {
+    background: color-mix(in srgb, var(--green) 35%, var(--card));
+  }
+}
+.cd-board .cell.shake .cd-value {
+  animation: cd-shake 380ms ease;
+}
+@keyframes cd-shake {
+  20%,
+  60% {
+    transform: translateX(-3px);
+  }
+  40%,
+  80% {
+    transform: translateX(3px);
+  }
+}
+.cd-won .cell {
+  animation: cd-won 700ms var(--ease) both;
+  animation-delay: var(--d);
+}
+@keyframes cd-won {
+  40% {
+    background: color-mix(in srgb, var(--green) 40%, var(--card));
+  }
+}
+.cd-hidden {
+  filter: blur(12px);
+}
+.cd-hidden .cd-value,
+.cd-hidden .cd-notes,
+.cd-hidden .cd-cage {
+  visibility: hidden;
+}
+.cd-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.cd-mistakes.has {
+  color: var(--red);
+}

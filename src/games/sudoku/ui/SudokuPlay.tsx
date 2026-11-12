@@ -4,10 +4,11 @@ import { Screen, useIsTop, useNav, useScreenIndex } from '../../../ui/nav';
 import { ResultSheet } from '../../../ui/game/hub';
 import { useGameClock } from '../../../ui/game/useGameClock';
 import { useRestorable } from '../../../ui/game/useRestorable';
+import { NumberPad } from '../../../ui/game/numpad';
 import { haptic } from '../../../core/haptics';
 import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
-import { IconBolt, IconBulb, IconErase, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
+import { IconBolt, IconBulb, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
 import { GAME_ID, savedGame, sudokuSettings, sudokuStats } from '../storage';
 import { Action, MAX_MISTAKES, SudokuGame, digitCounts, reduce } from '../state';
 import { createGame } from '../session';
@@ -264,26 +265,19 @@ export function SudokuPlay() {
         </div>
 
         {/* Two rows so every key is at least 44pt wide (HIG minimum hit target). */}
-        <div class={`numpad ${game.notesMode ? 'notes-mode' : ''}`} aria-label={game.notesMode ? 'Notes keypad' : 'Number keypad'}>
-          <span id="numlock-hint" class="sr-only">
-            Touch and hold a number to fill several cells with it.
-          </span>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
-            <NumKey
-              key={d}
-              digit={d}
-              left={9 - counts[d]}
-              notesMode={game.notesMode}
-              locked={game.lockedDigit === d}
-              onTap={() => dispatch({ type: 'input', digit: d })}
-              // Fires mid-touch (no haptics possible there); the key plays it on release.
-              onHold={() => dispatch({ type: 'lockDigit', digit: d }, true)}
-            />
-          ))}
-          <button class="num num-erase" aria-label="Erase" disabled={selectedLocked} onClick={() => dispatch({ type: 'erase' })}>
-            <IconErase size={26} />
-          </button>
-        </div>
+        <NumberPad
+          digits={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
+          left={counts.map((n) => 9 - n)}
+          columns={5}
+          notesMode={game.notesMode}
+          locked={game.lockedDigit}
+          eraseDisabled={selectedLocked}
+          onDigit={(digit) => dispatch({ type: 'input', digit })}
+          // Fires mid-touch (no haptics possible there); the haptic plays on release.
+          onHold={(digit) => dispatch({ type: 'lockDigit', digit }, true)}
+          onHoldEnd={() => haptic('selection')}
+          onErase={() => dispatch({ type: 'erase' })}
+        />
       </div>
 
       <ResultSheet
@@ -312,64 +306,6 @@ export function SudokuPlay() {
         ]}
       />
     </Screen>
-  );
-}
-
-/**
- * Number key. Tap: enter the digit (or, during number lock, switch/stop the lock).
- * Touch and hold (400ms): lock the digit for entering it into several cells.
- */
-function NumKey(props: {
-  digit: number;
-  left: number;
-  notesMode: boolean;
-  locked: boolean;
-  onTap: () => void;
-  onHold: () => void;
-}) {
-  const timer = useRef<ReturnType<typeof setTimeout>>();
-  const held = useRef(false);
-  const start = useRef({ x: 0, y: 0 });
-  const cancel = () => clearTimeout(timer.current);
-  const { digit: d, left } = props;
-  return (
-    <button
-      class={`num ${props.locked ? 'locked' : ''}`}
-      disabled={!left}
-      aria-pressed={props.locked}
-      aria-describedby="numlock-hint"
-      aria-label={`${props.notesMode ? `Note ${d}` : `${d}, ${left} left`}${props.locked ? ', locked' : ''}`}
-      onPointerDown={(e) => {
-        held.current = false;
-        start.current = { x: e.clientX, y: e.clientY };
-        cancel();
-        timer.current = setTimeout(() => {
-          held.current = true;
-          props.onHold();
-        }, 400);
-      }}
-      onPointerMove={(e) => {
-        if (Math.hypot(e.clientX - start.current.x, e.clientY - start.current.y) > 10) cancel();
-      }}
-      onPointerUp={() => {
-        cancel();
-        if (held.current) haptic('selection'); // pointerup is a user gesture, so iOS can play it
-      }}
-      onPointerLeave={cancel}
-      onPointerCancel={cancel}
-      onContextMenu={(e) => e.preventDefault()}
-      onClick={() => {
-        // A long press already locked the digit; don't also treat it as a tap.
-        if (held.current) {
-          held.current = false;
-          return;
-        }
-        props.onTap();
-      }}
-    >
-      <span class="num-digit">{d}</span>
-      <span class="num-left">{left ? left : ''}</span>
-    </button>
   );
 }
 

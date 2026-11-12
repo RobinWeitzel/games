@@ -1,0 +1,114 @@
+/*
+ * Four in a Row. Classes are prefixed with .fr- (all game styles load globally).
+ * Your discs carry a white ring, the computer's a white cross (shape, not only colour); white
+ * on both disc colours is ≥ 4.5:1. The winning four get an outline.
+ */
+:root {
+  --fr-you: #0066d6; /* white 5.4 */
+  --fr-cpu: #c40012; /* white 6.3 */
+  --fr-frame: #1b5fbf;
+}
+:root[data-theme='dark'] {
+  --fr-you: #0a6cdb;
+  --fr-cpu: #d70015;
+  --fr-frame: #23406b;
+}
+.fr-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.fr-board {
+  position: relative;
+  /* 7 × 6 cells: the largest that fits. */
+  width: min(100cqw, 100cqh * 7 / 6);
+  aspect-ratio: 7 / 6;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--fr-frame);
+  transition: filter 250ms;
+}
+.fr-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.fr-cell::before {
+  /* The hole. */
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: var(--bg);
+}
+.fr-disc {
+  position: relative;
+  width: 84%;
+  height: 84%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+}
+.fr-disc svg {
+  width: 52%;
+  height: 52%;
+}
+.fr-p1 {
+  background: var(--fr-you);
+}
+.fr-p2 {
+  background: var(--fr-cpu);
+}
+.fr-new {
+  animation: fr-drop 320ms cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+@keyframes fr-drop {
+  from {
+    transform: translateY(calc(var(--fall) * -100%));
+  }
+}
+.fr-line {
+  outline: 3.5px solid #fff;
+  outline-offset: 2px;
+  animation: fr-pulse 900ms var(--ease) 350ms;
+}
+@keyframes fr-pulse {
+  40% {
+    transform: scale(1.12);
+  }
+}
+/* One tap target per column, over the whole column. */
+.fr-cols {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.fr-col:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.fr-hidden {
+  filter: blur(12px);
+}
+.fr-hidden .fr-disc {
+  visibility: hidden;
+}
+.fr-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.fr-tools .tool {
+  min-height: 52px;
+}

@@ -14,12 +14,15 @@ src/
     nav.tsx         navigation stack, Screen layout, swipe-back
     components.tsx  lists, rows, toggles, segmented control, sheets, toast
     icons.tsx
-    game/           hub building blocks, How to Play (rules.tsx), StatsScreen, ResultSheet, useGameClock, useRestorable
+    game/           hub building blocks, How to Play (rules.tsx), StatsScreen, ResultSheet, useGameClock, useRestorable, number pad
+    cards/          card table for card games: card faces/backs, pile slots, tap and drag handling
   core/           SERVICES, no UI
     storage/        versioned key-value storage, layout migrations, backups
     settings.ts     app settings + createGameSettings()
     session.ts      which screen to restore on relaunch
     stats.ts        createGameStats(): per-mode results, best times, streaks, daily
+    cards.ts        playing cards: encoding, names, shuffled deck
+    numberGrid.ts   play logic of number puzzles with a known solution (Calcudoku, Killer Sudoku)
     daily.ts, random.ts, format.ts, haptics.ts
   styles/         global tokens (iOS colours, light/dark) and shell styles
 docs/             this documentation

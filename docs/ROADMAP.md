@@ -30,19 +30,19 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 
 ## Tier 1: strong fit, builds on existing code
 
-### More solitaire: FreeCell, Spider, Pyramid, TriPeaks, Golf
-- Status: `planned` · suggested ids: `freecell`, `spider`, `pyramid`, `tripeaks`, `golf`
-- **Prerequisite:** move the reusable card code (card rendering, deck, shuffle/deal, drag)
-  out of `src/games/solitaire/` into `src/ui/cards/` (components) and `src/core/cards.ts`
-  (logic). Games may not import each other (`src/architecture.test.ts`). Do this as its own
-  change, with Solitaire behaving identically and its storage untouched.
-- FreeCell: almost every deal is solvable, so it's a great daily. Spider: 1, 2 and 4 suit modes,
-  but 10 columns are tight on the SE, so overlap cards more. TriPeaks and Golf: fast, low effort.
-- Each could be a separate game (own stats) or a mode of Solitaire. Separate games are simpler:
-  adding modes to `solitaire` means a storage migration.
+### More solitaire: Pyramid
+- Status: `shipped` · id: `pyramid` (with TriPeaks and Golf)
+- FreeCell and Spider have shipped (see below). The card code they share with Solitaire lives in
+  `src/ui/cards/` (card faces, pile slots, tap and drag) and `src/core/cards.ts` (encoding, names,
+  shuffle). Build new card games on those, as separate games with their own stats.
+- Pyramid: pairs that add up to 13; needs a solver or reverse dealing for winnable deals (Golf
+  builds its deals backwards from a random winning game, which is fast and certain).
 
 ### Calcudoku / Killer Sudoku
-- Status: `planned` · suggested ids: `calcudoku`, `killer-sudoku`
+- Status: `shipped` (both) · ids: `calcudoku`, `killer-sudoku`
+- The number pad (keys, notes look, touch-and-hold number lock) is shared in `ui/game/numpad.tsx`,
+  and the play logic of number grids with a known solution (digits, notes, mistakes, undo, hints)
+  in `core/numberGrid.ts`. Kakuro can build on both.
 - Arithmetic cages. They reuse Sudoku's input UX: number pad, notes, number lock, autofill.
   Share that via `ui/`, not by importing `sudoku/`.
 - Calcudoku 4×4 to 6×6 gets 44pt cells easily. Killer Sudoku is 9×9 under the `.cell` exemption.
@@ -57,39 +57,39 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 ## Tier 2: good fit, small new engines
 
 ### Bridges (Hashiwokakero)
-- Status: `planned` · suggested id: `bridges`
+- Status: `shipped` · id: `bridges`
 - Connect islands so each has as many bridges as its number, all connected, no crossings.
 - Tap between two islands to cycle 0 → 1 → 2 bridges. Islands are large targets even when the
   grid is dense. It generates well.
 
 ### Star Battle / Queens
-- Status: `planned` · suggested id: `star-battle`
+- Status: `shipped` · id: `star-battle`
 - One star (or two on larger boards) per row, column and region, and no two stars touching.
 - Regions are normally colour-only. **Draw thick region borders as well** (colour rule).
 - Sizes 6×6 to 10×10. Needs a uniqueness solver.
 
 ### Grid logic pack: Slitherlink, Nurikabe, Light Up (Akari)
-- Status: `planned` · suggested ids: `slitherlink`, `nurikabe`, `light-up`
+- Status: Light Up `shipped`; Slitherlink and Nurikabe `planned` · suggested ids: `slitherlink`, `nurikabe`
 - Classic generated logic puzzles. Each needs its own solver for uniqueness. A shared
   constraint-propagation and backtracking helper in `core/` would serve all of them (and Nonogram,
   Star Battle, Kakuro).
 - Slitherlink has to hit edges between dots, so its hit areas need care: tap the nearest edge.
 
 ### Numberlink (connect the pairs)
-- Status: `planned` · suggested id: `numberlink`
+- Status: `shipped` · id: `numberlink`
 - Draw paths between matching endpoints until every cell is filled. Endpoints carry **numbers**,
   not just colours.
 - Dragging a path must not fight the edge swipe-back: start paths only on cells, keep the board
   away from the left edge.
 
 ### Codebreaker (code-breaking with pegs)
-- Status: `planned` · suggested id: `codebreaker`
+- Status: `shipped` · id: `codebreaker`
 - Guess a hidden code of 4 to 5 pegs; feedback gives exact and partial hits. Natural daily.
 - Pegs need symbols or shapes besides colour, and feedback is shown as counts or icons, not just
   black and white dots.
 
 ### Classics: sliding puzzle (15-puzzle), peg solitaire
-- Status: `planned` · suggested ids: `sliding-puzzle`, `peg-solitaire`
+- Status: `shipped` (both) · ids: `sliding-puzzle`, `peg-solitaire`
 - Trivial engines and great for move-count and best-time stats. The sliding puzzle must only
   generate solvable permutations (parity check).
 
@@ -124,7 +124,10 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
   SE with ≥ 44pt tiles. That last part is the hard part.
 
 ### Board games against an AI: Reversi, Four in a Row, Dots and Boxes, Checkers
-- Status: `planned` · suggested ids: `reversi`, `four-in-a-row`, `dots-and-boxes`, `checkers`
+- Status: Reversi, Four in a Row and Dots and Boxes `shipped`; Checkers `planned` · suggested id: `checkers`
+- The shipped ones run the AI on the main thread (negamax + alpha-beta; worst case ~150ms at the
+  highest level on a desktop). If a level ever feels slow on a phone, move it into a worker.
+- Statistics know only won/lost, so a draw is recorded as not won (no storage change needed).
 - Fit 8×8 grids and save-every-move well. Need an AI (minimax plus alpha-beta) with difficulty
   modes, run in a worker or in small time slices so the UI never stalls. Get little value from
   the daily. Stats per difficulty (win/loss).
@@ -146,10 +149,9 @@ similar).
 
 ## Suggested order
 
-1. Extract card code to `ui/` and `core/`, then FreeCell and Spider.
-2. Calcudoku or Killer Sudoku (share Sudoku's number-pad UX via `ui/`).
-3. Bridges or Star Battle.
-4. Word guessing, once a name, look and word list are settled (see the rules above).
+1. Kakuro (number pad and `core/numberGrid.ts`).
+2. Slitherlink and Nurikabe, Kakuro; Checkers.
+3. Word guessing, once a name, look and word list are settled (see the rules above).
 
 ## Shipped
 
@@ -159,4 +161,21 @@ similar).
 | Numbers | `numbers` | reach a target with six numbers |
 | Minesweeper | `minesweeper` | no-guess boards |
 | Solitaire | `solitaire` | Klondike, Draw 1 / Draw 3, daily |
+| FreeCell | `freecell` | Classic and daily; deals proven winnable by a best-first solver (also used for hints); supermoves; safe cards go home by themselves |
+| Spider | `spider` | 1, 2 and 4 suits, no daily (deals aren't checked for winnability). Possible follow-up: a solver for winnable 1-suit deals and a daily |
+| Calcudoku | `calcudoku` | 4×4 to 7×7 and a daily 6×6; random Latin square + random cages, kept only with exactly one solution (cage-by-cage solver) |
+| Bridges | `bridges` | 7×7, 9×9, 11×11 and a daily 9×9; grown island networks kept only with one solution (bounds-propagation solver); tap the water or drag from an island |
+| Star Battle | `star-battle` | 6×6, 8×8 (1 star), 10×10 (2 stars), daily 8×8; random star layout, regions grown around it, then repaired until one solution remains; neighbouring regions get different tints plus thick borders |
+| TriPeaks | `tripeaks` | Classic and daily; deals proven winnable by a memoised DFS (~90% of random deals pass), which also gives hints |
+| Golf | `golf` | Classic and daily; only ~30% of random deals can be won, so deals are built backwards from a random winning game |
+| Killer Sudoku | `killer-sudoku` | Easy/Medium/Hard by cage size, daily Medium; random grid + cages without repeated digits; while a second solution exists, a cage is split where the solutions differ |
+| Codebreaker | `codebreaker` | 4 of 6, 5 of 8, daily 4 of 6; symbols differ by shape, feedback marks by shape (dot, ring, dash) |
+| Sliding Puzzle | `sliding-puzzle` | 3×3, 4×4, 5×5, daily 4×4; random permutations fixed to be solvable by the parity rule |
+| Peg Solitaire | `peg-solitaire` | 33-hole cross and 15-hole triangle, no daily (fixed boards); hints from a memoised DFS (the cross solves in ~20ms) |
+| Light Up | `light-up` | Easy 7×7, Medium/Hard 10×10, daily Medium; symmetric walls, greedy bulbs, then numbers removed while a propagation solver keeps one solution |
+| Numberlink | `numberlink` | 5×5, 7×7, 9×9, daily 7×7; the grid is covered with random paths and only their ends are kept; any full joining wins, the generated paths give hints |
+| Four in a Row | `four-in-a-row` | vs the computer, Easy/Medium/Hard (2/4/8 plies), who starts alternates; your discs a ring, the computer's a cross |
+| Reversi | `reversi` | vs the computer, Easy/Medium/Hard (1/3/5 plies, position weights + mobility); legal moves shown as dots |
+| Pyramid | `pyramid` | Classic and daily, three passes through the stock; deals proven winnable by a memoised DFS (~45% of random deals pass, ~20ms each), which also gives hints |
+| Dots and Boxes | `dots-and-boxes` | vs the computer, 3×3/4×4/5×5; Medium never hands over boxes it can avoid, Hard plays the last 16 lines perfectly (bitmask memo search) |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |

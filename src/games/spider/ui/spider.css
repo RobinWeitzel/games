@@ -1,0 +1,28 @@
+/* Spider. Classes are prefixed with .sp- (all game styles load globally); the table is ui/cards. */
+
+/* The completed runs' place: no suit mark (any suit can go there). */
+.sp-done {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--separator);
+}
+
+/* Deals left, on the Deal tool. */
+.sp-badge {
+  position: absolute;
+  top: -6px;
+  right: -12px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--accent-fill);
+  color: #fff; /* 5.6:1 on --accent-fill */
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.tool:disabled .sp-badge {
+  display: none;
+}

@@ -1,0 +1,107 @@
+/*
+ * Bridges. Classes are prefixed with .br- (all game styles load globally).
+ * Island states differ in shape, not only colour: open = outlined ring, complete = solid disc
+ * (white number on --accent-fill, ≥ 4.5:1), too many = dashed red ring.
+ */
+.br-area {
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+}
+.br-board {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: filter 250ms;
+}
+.br-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.br-bridge {
+  stroke: var(--label);
+  stroke-width: max(2px, calc(var(--s) * 0.075));
+  stroke-linecap: round;
+}
+.br-ghost {
+  stroke: var(--red);
+  stroke-dasharray: 4 4;
+}
+.br-flash {
+  stroke: var(--accent);
+  animation: br-flash 900ms var(--ease);
+}
+@keyframes br-flash {
+  0%,
+  60% {
+    stroke-width: max(4px, calc(var(--s) * 0.14));
+  }
+}
+.br-blocked {
+  animation: br-shake 320ms var(--ease);
+}
+@keyframes br-shake {
+  25% {
+    translate: -3px 0;
+  }
+  75% {
+    translate: 3px 0;
+  }
+}
+/* Invisible tap targets for VoiceOver (touches are handled by the board: the nearest line). */
+.br-board .br-edge {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.br-island {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  box-shadow: inset 0 0 0 2px var(--label);
+  color: var(--label);
+  font-size: max(13px, calc(var(--s) * 0.42));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 150ms, color 150ms;
+}
+.br-done {
+  background: var(--accent-fill);
+  box-shadow: none;
+  color: #fff;
+}
+.br-over {
+  box-shadow: none;
+  outline: 2.5px dashed var(--red);
+  outline-offset: -2.5px;
+  color: var(--red);
+}
+.br-hidden {
+  filter: blur(12px);
+}
+.br-hidden .br-island span {
+  visibility: hidden;
+}
+.br-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.br-tools .tool {
+  min-height: 52px;
+}
