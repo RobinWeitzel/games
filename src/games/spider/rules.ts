@@ -29,7 +29,8 @@ export const RULES: GameRules = [
     header: 'Dealing',
     rules: [
       'Tap the stock or Deal to put one new card on every column. You can only deal when no column is empty.',
-      'When the stock is used up and no move helps any more, the game is stuck: undo a few moves or deal a new game. Not every deal can be won, especially with four suits.',
+      'When the stock is used up and no move helps any more, the game is stuck: undo a few moves or deal a new game.',
+      'Every 1 Suit deal and every Daily Challenge can be won: a solver has played it through before you get it. Deals with two or four suits are random, and not every one can be won.',
     ],
   },
   {
@@ -37,6 +38,7 @@ export const RULES: GameRules = [
     rules: [
       'Undo takes back a move or a deal. Hint shows a good move. Both count as assists.',
       '1 Suit uses only spades and is the easiest. 2 Suits uses spades and hearts. 4 Suits uses all four and is the hardest.',
+      'The Daily Challenge is a 1 Suit deal, the same for everyone on a day. Win it every day to build a streak.',
     ],
   },
 ];

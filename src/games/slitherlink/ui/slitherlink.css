@@ -1,0 +1,101 @@
+/*
+ * Slitherlink. Classes are prefixed with .sl- (all game styles load globally). The board is one
+ * large target: a tap goes to the nearest edge between two dots (Bridges does the same). The
+ * edge buttons are invisible and only there for VoiceOver, Switch Control and keyboards; they
+ * use the shared `.cell` class (the audit's board-cell exemption).
+ * Lines are thick strokes, crosses are small × marks: shape, not only colour. A wrong number gets
+ * a red ring, a dot where lines branch a big red disc.
+ */
+.sl-area {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.sl-wrap {
+  position: relative;
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+}
+.sl-board {
+  position: absolute;
+  inset: 0;
+  background: var(--card);
+  border-radius: 10px;
+  transition: filter 250ms;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.sl-svg {
+  position: absolute;
+  inset: 0;
+}
+.sl-dot {
+  fill: var(--label);
+}
+.sl-dot.sl-branch {
+  fill: #ff3b30;
+}
+.sl-line {
+  stroke: var(--accent);
+  stroke-linecap: round;
+}
+.sl-cross {
+  stroke: var(--label-2);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  fill: none;
+}
+.sl-clue text {
+  fill: var(--label);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.sl-ok text {
+  opacity: 0.4;
+}
+.sl-ring {
+  fill: none;
+  stroke: #ff3b30;
+  stroke-width: 2.5;
+}
+.sl-flash {
+  animation: sl-pop 500ms var(--ease) both;
+}
+@keyframes sl-pop {
+  from {
+    opacity: 0;
+  }
+}
+.sl-won .sl-line {
+  stroke: var(--green);
+  transition: stroke 400ms;
+}
+.sl-board .sl-edge {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.sl-hidden {
+  filter: blur(12px);
+}
+.sl-hidden .sl-svg {
+  visibility: hidden;
+}
+.sl-status {
+  height: 1.4em;
+  font-size: min(var(--fs-footnote), 15px);
+  color: var(--label-2);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: -4px 0;
+}
+.sl-tools .tool {
+  min-height: 52px;
+}

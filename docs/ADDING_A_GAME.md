@@ -88,6 +88,7 @@ Then add the new keys to the list in `src/core/storage/contract.test.ts`. Read
 | Icons | `ui/icons` |
 | Haptics | `haptic('selection' \| 'success' \| 'error')` from `core/haptics` (call it inside a tap handler) |
 | Seeded randomness (daily puzzles) | `createRng`, `hashString` from `core/random` |
+| Puzzle generation in a Web Worker, with one puzzle per mode kept ready in memory | `createPuzzleSource` / `servePuzzles` from `core/puzzleSource` (see `src/games/nurikabe/`) |
 | Dates for daily challenges | `todayKey`, `dailyStreak` from `core/daily` |
 
 `src/games/sudoku/` is the reference implementation of all of these. `src/games/numbers/` is a smaller

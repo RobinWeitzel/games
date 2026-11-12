@@ -50,9 +50,9 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 - Hard part: a generator that produces unique solutions (solver plus cage merging and splitting).
 
 ### Kakuro (cross sums)
-- Status: `planned` · suggested id: `kakuro`
+- Status: `shipped` · id: `kakuro`
 - Number-pad and notes puzzle, a natural fit for people who play Numbers and Sudoku.
-- Hard part: layout generation plus a uniqueness check. Keep sizes ≤ 8 columns for 44pt cells.
+- Built on `ui/game/numpad.tsx` and `core/numberGrid.ts`, like Calcudoku and Killer Sudoku.
 
 ## Tier 2: good fit, small new engines
 
@@ -69,11 +69,12 @@ Mastermind → "Codebreaker", Picross → "Nonogram", Wordle → see [Word guess
 - Sizes 6×6 to 10×10. Needs a uniqueness solver.
 
 ### Grid logic pack: Slitherlink, Nurikabe, Light Up (Akari)
-- Status: Light Up `shipped`; Slitherlink and Nurikabe `planned` · suggested ids: `slitherlink`, `nurikabe`
-- Classic generated logic puzzles. Each needs its own solver for uniqueness. A shared
-  constraint-propagation and backtracking helper in `core/` would serve all of them (and Nonogram,
-  Star Battle, Kakuro).
-- Slitherlink has to hit edges between dots, so its hit areas need care: tap the nearest edge.
+- Status: `shipped` (all three) · ids: `light-up`, `slitherlink`, `nurikabe`
+- Classic generated logic puzzles, each with its own solver for uniqueness. The rules differ too
+  much for one shared solver to pay off; what they share is `core/puzzleSource.ts`, which runs slow
+  generators (Nurikabe, Slitherlink) in a Web Worker with one puzzle per mode kept ready.
+- Slitherlink hits edges between dots by treating the board as one target: a tap goes to the
+  nearest edge, a drag from dot to dot draws lines.
 
 ### Numberlink (connect the pairs)
 - Status: `shipped` · id: `numberlink`
@@ -149,9 +150,9 @@ similar).
 
 ## Suggested order
 
-1. Kakuro (number pad and `core/numberGrid.ts`).
-2. Slitherlink and Nurikabe, Kakuro; Checkers.
-3. Word guessing, once a name, look and word list are settled (see the rules above).
+1. Checkers (decide the rule set first; English/American 8 × 8 is the obvious choice).
+2. Word guessing, once a name, look and word list are settled (see the rules above).
+3. Mahjong solitaire, if a portrait layout with 44pt tiles can be found.
 
 ## Shipped
 
@@ -162,7 +163,7 @@ similar).
 | Minesweeper | `minesweeper` | no-guess boards |
 | Solitaire | `solitaire` | Klondike, Draw 1 / Draw 3, daily |
 | FreeCell | `freecell` | Classic and daily; deals proven winnable by a best-first solver (also used for hints); supermoves; safe cards go home by themselves |
-| Spider | `spider` | 1, 2 and 4 suits, no daily (deals aren't checked for winnability). Possible follow-up: a solver for winnable 1-suit deals and a daily |
+| Spider | `spider` | 1, 2 and 4 suits and a daily 1 Suit deal. 1 Suit and daily deals are proven winnable by a best-first solver that knows every card (~92% of random deals pass, ~20ms each); hints don't use it, so they never reveal face-down cards. 2 and 4 suit deals are random |
 | Calcudoku | `calcudoku` | 4×4 to 7×7 and a daily 6×6; random Latin square + random cages, kept only with exactly one solution (cage-by-cage solver) |
 | Bridges | `bridges` | 7×7, 9×9, 11×11 and a daily 9×9; grown island networks kept only with one solution (bounds-propagation solver); tap the water or drag from an island |
 | Star Battle | `star-battle` | 6×6, 8×8 (1 star), 10×10 (2 stars), daily 8×8; random star layout, regions grown around it, then repaired until one solution remains; neighbouring regions get different tints plus thick borders |
@@ -179,3 +180,6 @@ similar).
 | Pyramid | `pyramid` | Classic and daily, three passes through the stock; deals proven winnable by a memoised DFS (~45% of random deals pass, ~20ms each), which also gives hints |
 | Dots and Boxes | `dots-and-boxes` | vs the computer, 3×3/4×4/5×5; Medium never hands over boxes it can avoid, Hard plays the last 16 lines perfectly (bitmask memo search) |
 | Nonogram | `nonogram` | 5×5, 10×10, 15×15, daily 10×10; generated, line-solvable (unique) pictures. Possible follow-up: a small set of hand-made pictures |
+| Kakuro | `kakuro` | Easy/Medium/Hard (5 × 5, 7 × 7, 8 × 8 white cells), daily Medium; symmetric layouts, random digits, then the digits where a second solution differs are changed towards sums with fewer combinations until one solution remains |
+| Nurikabe | `nurikabe` | 6 × 6, 8 × 8, 10 × 10, daily 8 × 8; random islands grown without splitting the sea, one number each, numbers moved within their islands while a second solution exists; generated in a worker |
+| Slitherlink | `slitherlink` | 5 × 5, 7 × 7, 9 × 9, daily 7 × 7; loops are outlines of random regions, numbers removed while the solver proves one solution within a small guess budget; generated in a worker |

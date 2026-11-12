@@ -11,15 +11,16 @@ import type { SpiderGame } from './state';
 
 export const GAME_ID = 'spider';
 
-/** games/game/spider/stats */
+/** games/game/spider/stats and games/game/spider/daily (added in the second release of Spider) */
 export const spStats = createGameStats(GAME_ID, {
   // Mode ids are stored; never rename them (labels can change freely).
   modes: [
     { id: 'suit1', label: '1 Suit' },
     { id: 'suit2', label: '2 Suits' },
     { id: 'suit4', label: '4 Suits' },
+    { id: 'daily', label: 'Daily' },
   ],
-  daily: false,
+  daily: true,
 });
 
 /**
