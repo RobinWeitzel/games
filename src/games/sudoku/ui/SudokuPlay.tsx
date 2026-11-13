@@ -1,7 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { Screen, useIsTop, useNav, useScreenIndex } from '../../../ui/nav';
-import { ResultSheet } from '../../../ui/game/hub';
+import { ResultSheet, useRestart } from '../../../ui/game/hub';
 import { useGameClock } from '../../../ui/game/useGameClock';
 import { useRestorable } from '../../../ui/game/useRestorable';
 import { NumberPad } from '../../../ui/game/numpad';
@@ -10,7 +10,7 @@ import { useStore } from '../../../core/storage';
 import { formatTime } from '../../../core/format';
 import { IconBolt, IconBulb, IconPause, IconPencil, IconPlay, IconUndo, IconWand } from '../../../ui/icons';
 import { GAME_ID, savedGame, sudokuSettings, sudokuStats } from '../storage';
-import { Action, MAX_MISTAKES, SudokuGame, digitCounts, reduce } from '../state';
+import { Action, MAX_MISTAKES, SudokuGame, clearBoard, digitCounts, reduce } from '../state';
 import { createGame } from '../session';
 import { Board } from './Board';
 import { DIFFICULTY_LABEL } from './labels';
@@ -162,6 +162,19 @@ export function SudokuPlay() {
     savedGame.set(next);
   };
 
+  /** Clear the board and start the same puzzle over (time and assists are kept). */
+  const restartCtl = useRestart({
+    disabled: !game || paused || clearBoard(game) === game,
+    onRestart: () => {
+      const g = gameRef.current;
+      if (!g) return;
+      const next = clearBoard(g);
+      gameRef.current = next;
+      setGame(next);
+      persist(next);
+    },
+  });
+
   if (!game) return <Screen title="Sudoku">{null}</Screen>;
 
   const counts = digitCounts(game);
@@ -177,14 +190,17 @@ export function SudokuPlay() {
       fixed
       class="play"
       right={
-        <button
-          class="nav-icon"
-          aria-label={paused ? 'Resume' : 'Pause'}
-          disabled={game.status !== 'playing'}
-          onClick={() => setPaused((p) => !p)}
-        >
-          {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
-        </button>
+        <>
+          {restartCtl.button}
+          <button
+            class="nav-icon"
+            aria-label={paused ? 'Resume' : 'Pause'}
+            disabled={game.status !== 'playing'}
+            onClick={() => setPaused((p) => !p)}
+          >
+            {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
+          </button>
+        </>
       }
     >
       <div class="play-layout">
@@ -280,6 +296,7 @@ export function SudokuPlay() {
         />
       </div>
 
+      {restartCtl.sheet}
       <ResultSheet
         open={result?.outcome === 'won'}
         title={result?.newBest ? 'New best time! 🎉' : 'Solved! 🎉'}

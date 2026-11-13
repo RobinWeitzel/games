@@ -172,3 +172,13 @@ export function reduce(g: NumberlinkGame, action: Action): [NumberlinkGame, Even
     }
   }
 }
+
+/**
+ * Start the puzzle over: every path is cleared and the undo history goes. Time and hints are
+ * kept, and it counts as one undo (an assist), so restarting can't improve a result. Returns the
+ * same object when there's nothing to clear.
+ */
+export function restart(g: NumberlinkGame): NumberlinkGame {
+  if (g.status !== 'playing' || g.paths.every((p) => !p.length)) return g;
+  return { ...g, paths: g.paths.map(() => []), history: [], undos: g.undos + 1, touched: true };
+}

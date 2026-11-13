@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { generate, isChain } from './engine';
-import { NumberlinkGame, extend, isJoined, newGame, reduce, startAt } from './state';
+import { NumberlinkGame, extend, isJoined, newGame, reduce, restart, startAt } from './state';
 
 describe('engine', () => {
   it('covers the grid with paths of three or more cells', () => {
@@ -70,5 +70,18 @@ describe('drawing', () => {
     expect(ev!.kind).toBe('won');
     const [one] = reduce(g0, { type: 'commit', paths: [[0, 1], []] });
     expect(reduce(one, { type: 'undo' })[0].paths).toEqual(g0.paths);
+  });
+});
+
+describe('restart', () => {
+  it('clears the paths, keeps time and hints, and counts as an undo', () => {
+    const g0 = newGame({ mode: 'medium', ...generate(7, createRng(9)) });
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'hint' })[0], elapsedMs: 5000 };
+    expect(g.paths).not.toEqual(g0.paths);
+    const r = restart(g);
+    expect(r.paths).toEqual(g0.paths);
+    expect(r).toMatchObject({ status: 'playing', history: [], hints: g.hints, undos: g.undos + 1, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

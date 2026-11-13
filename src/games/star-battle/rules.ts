@@ -17,6 +17,7 @@ export const RULES: GameRules = [
       'Drag across cells to cross out several at once.',
       'A star that breaks a rule turns red with a ring around it, and the line below the board says why.',
       'Undo takes back a step. Hint places or fixes one star. Both count as assists.',
+      'Restart (the circular arrow next to Pause) clears the board so you can start the same puzzle over. The timer keeps running, and a restart counts as an undo.',
     ],
   },
   {

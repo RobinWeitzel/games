@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { BLACK, WHITE, generate, solve } from './engine';
-import { BULB, DOT, EMPTY, LightUpGame, clashes, litCells, newGame, numberStates, reduce } from './state';
+import { BULB, DOT, EMPTY, LightUpGame, clashes, litCells, newGame, numberStates, reduce, restart } from './state';
 
 /** A tiny puzzle from rows: '.' white, '#' black, digits numbered blacks. */
 function puzzle(rows: string[]) {
@@ -72,5 +72,16 @@ describe('game', () => {
     expect(whites.every((c) => g.marks[c] === DOT)).toBe(true);
     [g] = reduce(g, { type: 'undo' });
     expect(g.marks.every((m) => m === EMPTY)).toBe(true);
+  });
+
+  it('restart clears the board, keeps time and hints, and counts as an undo', () => {
+    const g0 = fresh();
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'hint' })[0], elapsedMs: 5000 };
+    expect(g.marks).not.toEqual(g0.marks);
+    const r = restart(g);
+    expect(r.marks).toEqual(g0.marks);
+    expect(r).toMatchObject({ status: 'playing', history: [], hints: g.hints, undos: g.undos + 1, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

@@ -1,7 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { Screen, useIsTop, useNav, useScreenIndex } from '../../../ui/nav';
-import { ResultSheet } from '../../../ui/game/hub';
+import { ResultSheet, useRestart } from '../../../ui/game/hub';
 import { useGameClock } from '../../../ui/game/useGameClock';
 import { useRestorable } from '../../../ui/game/useRestorable';
 import { haptic } from '../../../core/haptics';
@@ -125,6 +125,15 @@ export function PegPlay() {
     nav.replace(<PegPlay />);
   };
 
+  /** The board is always the same, so starting again is a new game: the current one counts as lost. */
+  const restartCtl = useRestart({
+    disabled: !game || paused || game.status !== 'playing' || !game.touched,
+    title: 'Start this game again?',
+    message: 'Your current game counts as lost.',
+    label: 'Start Again',
+    onRestart: () => playAgain(),
+  });
+
   if (!game) return <Screen title="Peg Solitaire">{null}</Screen>;
 
   const title = MODE_LABEL[game.mode];
@@ -150,9 +159,12 @@ export function PegPlay() {
       fixed
       class="play"
       right={
-        <button class="nav-icon" aria-label={paused ? 'Resume' : 'Pause'} disabled={finished} onClick={() => setPaused((p) => !p)}>
-          {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
-        </button>
+        <>
+          {restartCtl.button}
+          <button class="nav-icon" aria-label={paused ? 'Resume' : 'Pause'} disabled={finished} onClick={() => setPaused((p) => !p)}>
+            {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
+          </button>
+        </>
       }
     >
       <div class="play-layout">
@@ -195,6 +207,7 @@ export function PegPlay() {
         </div>
       </div>
 
+      {restartCtl.sheet}
       <ResultSheet
         open={sheet === 'won'}
         title={result?.perfect && game.mode === 'english' ? 'Perfect! 🎉' : result?.newBest ? 'New best time! 🎉' : 'One peg left! 🎉'}

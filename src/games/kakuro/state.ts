@@ -1,4 +1,4 @@
-import { GridAction, GridEvent, GridRules, NumberGrid, isEditable, reduceGrid } from '../../core/numberGrid';
+import { GridAction, GridEvent, GridRules, NumberGrid, isEditable, reduceGrid, restartGrid } from '../../core/numberGrid';
 import { Difficulty, Puzzle, Run, puzzleRuns } from './engine';
 
 /**
@@ -111,3 +111,6 @@ export function reduce(g: KakuroGame, action: Action): [KakuroGame, Event] {
   if (action.type === 'hint' && g.selected != null && !isWhite(g, g.selected)) return reduceGrid({ ...g, selected: null }, action, rules(g));
   return reduceGrid(g, action, rules(g));
 }
+
+/** Start the puzzle over (digits, notes and undo cleared; mistakes, hints and time kept). Same object when there's nothing to clear. */
+export const restart = (g: KakuroGame): KakuroGame => restartGrid(g);

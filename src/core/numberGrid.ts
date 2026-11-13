@@ -146,3 +146,13 @@ export function reduceGrid<G extends NumberGrid>(g: G, action: GridAction, rules
     }
   }
 }
+
+/**
+ * Start the puzzle over: every digit and note is cleared and the undo history goes. Mistakes,
+ * hints and time are kept (so restarting can't improve a result). Returns the same object when
+ * there's nothing to clear.
+ */
+export function restartGrid<G extends NumberGrid>(g: G): G {
+  if (g.status !== 'playing' || (g.values.every((v) => v === 0) && g.notes.every((n) => n === 0))) return g;
+  return { ...g, values: g.values.map(() => 0), notes: g.notes.map(() => 0), undo: [] };
+}

@@ -368,3 +368,13 @@ export function progress(g: SudokuGame): number {
   const filled = g.values.filter((v, i) => !g.puzzle[i] && v === g.solution[i]).length;
   return open ? filled / open : 1;
 }
+
+/**
+ * Start the puzzle over mid-game: back to the givens, notes and undo history cleared. Unlike the
+ * `restart` action after a lost game, mistakes, hints and time are kept (so restarting can't
+ * improve a result). Returns the same object when there's nothing to clear.
+ */
+export function clearBoard(g: SudokuGame): SudokuGame {
+  if (g.status !== 'playing' || (g.values.every((v, i) => v === g.puzzle[i]) && g.notes.every((n) => n === 0))) return g;
+  return { ...g, values: g.puzzle.slice(), notes: g.notes.map(() => 0), undo: [], lockedDigit: null };
+}

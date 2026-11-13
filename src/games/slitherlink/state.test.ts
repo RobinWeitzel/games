@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { generate, geometry, isValidSolution, solve } from './engine';
-import { CROSS, EMPTY, LINE, SlitherlinkGame, branches, clueStates, hasClosedLoop, newGame, progress, reduce } from './state';
+import { CROSS, EMPTY, LINE, SlitherlinkGame, branches, clueStates, hasClosedLoop, newGame, progress, reduce, restart } from './state';
 
 /** The loop around a set of cells (row-major indices) of an n × n grid. */
 function outline(n: number, inside: number[]): boolean[] {
@@ -94,5 +94,16 @@ describe('game', () => {
     expect(ev).toEqual({ kind: 'hint', edge: off });
     for (let k = 0; k < 80 && g.status === 'playing'; k++) [g, ev] = reduce(g, { type: 'hint' });
     expect(ev!.kind).toBe('won');
+  });
+
+  it('restart clears the board, keeps time and hints, and counts as an undo', () => {
+    const g0 = fresh();
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'hint' })[0], elapsedMs: 5000 };
+    expect(g.edges).not.toEqual(g0.edges);
+    const r = restart(g);
+    expect(r.edges).toEqual(g0.edges);
+    expect(r).toMatchObject({ status: 'playing', history: [], hints: g.hints, undos: g.undos + 1, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

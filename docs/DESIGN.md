@@ -141,6 +141,9 @@ of standard taps**, and must:
 
 ### 11. Games specifically
 - Pause button in the bar. Pausing hides the board (no peeking) and shows a large resume button.
+- Puzzles also get a Restart button in the bar, before Pause (`useRestart` from `ui/game/hub`). It's
+  disabled until there's something to clear and confirms with an action sheet. Restarting keeps the
+  time and assists, so it can never improve a result.
 - The timer stops when paused, when the app is backgrounded, and when another screen is on top.
 - Win/lose uses `ResultSheet`: a big time readout, the next action first, then "Done".
 - Assisted results (hints) never count as best times.

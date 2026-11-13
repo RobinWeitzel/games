@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { countSolutions, generate, touching } from './engine';
-import { CROSS, EMPTY, STAR, StarBattleGame, conflicts, newGame, reduce } from './state';
+import { CROSS, EMPTY, STAR, StarBattleGame, conflicts, newGame, reduce, restart } from './state';
 
 describe('engine', () => {
   it('knows which cells touch', () => {
@@ -71,5 +71,16 @@ describe('game', () => {
     for (let i = 0; i < 20 && g.status === 'playing'; i++) [g, ev] = reduce(g, { type: 'hint' });
     expect(ev!.kind).toBe('won');
     expect(g.marks[wrong]).not.toBe(STAR);
+  });
+
+  it('restart clears the board, keeps time and hints, and counts as an undo', () => {
+    const g0 = fresh();
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'hint' })[0], elapsedMs: 5000 };
+    expect(g.marks).not.toEqual(g0.marks);
+    const r = restart(g);
+    expect(r.marks).toEqual(g0.marks);
+    expect(r).toMatchObject({ status: 'playing', history: [], hints: g.hints, undos: g.undos + 1, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

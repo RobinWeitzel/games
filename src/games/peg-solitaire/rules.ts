@@ -21,6 +21,7 @@ export const RULES: GameRules = [
     header: 'Tools and Modes',
     rules: [
       'Undo takes back a jump. Hint shows a jump that still leads to a single peg. Both count as assists.',
+      'Start Again (the circular arrow next to Pause) sets up the board again. The game you were playing counts as lost.',
       'Cross is the classic 33-hole board, the centre empty at the start. Triangle has 15 holes, the top one empty.',
     ],
   },

@@ -18,6 +18,7 @@ export const RULES: GameRules = [
       'Drag across cells to give them all what the first cell got.',
       'A finished island’s number fades. A number whose island is too big, touches another number or has too little room gets a red ring. A 2 × 2 pool turns red with stripes.',
       'Undo takes back a step. Hint fixes a wrong mark or shades one cell. Both count as assists.',
+      'Restart (the circular arrow next to Pause) clears the board so you can start the same puzzle over. The timer keeps running, and a restart counts as an undo.',
       'Tip: cells between two numbers are always sea, and so are cells too far from every number.',
     ],
   },

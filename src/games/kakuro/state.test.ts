@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { COMBOS, findRuns, generate, puzzleRuns, runDigits, solve } from './engine';
-import { KakuroGame, isWhite, newGame, progress, reduce } from './state';
+import { KakuroGame, isWhite, newGame, progress, reduce, restart } from './state';
 
 /** A puzzle from rows of digits ('#' = black); the sums come from the digits. */
 function fromRows(rows: string[]) {
@@ -95,5 +95,17 @@ describe('game', () => {
     }
     expect(ev!.kind).toBe('won');
     expect(progress(g)).toBe(1);
+  });
+
+  it('restart clears digits, notes and undo, keeping mistakes, hints and time', () => {
+    const g0 = fresh();
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'hint' })[0], mistakes: 2, elapsedMs: 5000 };
+    expect(g.values).not.toEqual(g0.values);
+    const r = restart(g);
+    expect(r.values).toEqual(g0.values);
+    expect(r.notes).toEqual(g0.notes);
+    expect(r).toMatchObject({ status: 'playing', undo: [], hints: 1, mistakes: 2, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

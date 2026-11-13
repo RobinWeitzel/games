@@ -185,3 +185,13 @@ export function reduce(g: SlitherlinkGame, action: Action): [SlitherlinkGame, Ev
     }
   }
 }
+
+/**
+ * Start the puzzle over: every line and cross is cleared and the undo history goes. Time and hints are
+ * kept, and it counts as one undo (an assist), so restarting can't improve a result. Returns the
+ * same object when there's nothing to clear.
+ */
+export function restart(g: SlitherlinkGame): SlitherlinkGame {
+  if (g.status !== 'playing' || g.edges.every((e) => e === EMPTY)) return g;
+  return { ...g, edges: g.edges.map(() => EMPTY), history: [], undos: g.undos + 1, touched: true };
+}

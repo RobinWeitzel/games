@@ -24,6 +24,7 @@ export const RULES: GameRules = [
       'Tap a cell, then a number. A wrong number turns red and is underlined, and counts as a mistake. Correct numbers stay.',
       'Notes: switch on Notes to write small candidate numbers into a cell. Placing a number removes it from the notes in its row and column.',
       'Undo takes back your last step. Hint fills in a cell: the selected one, or one in the smallest open cage. Hints count as assists.',
+      'Restart (the circular arrow next to Pause) clears every number and note so you can start the same puzzle over. The timer, mistakes and hints are kept.',
     ],
   },
   {

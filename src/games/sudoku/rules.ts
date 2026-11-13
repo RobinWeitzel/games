@@ -24,6 +24,7 @@ export const RULES: GameRules = [
       'Auto notes fills in every possible candidate for all empty cells.',
       'Autofill: while it’s on, any cell left with a single note is filled in for you.',
       'Undo takes back your last move. Hint fills in a correct number and counts as an assist.',
+      'Restart (the circular arrow next to Pause) clears every number you entered and all notes so you can start the same puzzle over. The timer, mistakes and hints are kept.',
     ],
   },
   {

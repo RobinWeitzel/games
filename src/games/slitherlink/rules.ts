@@ -17,6 +17,7 @@ export const RULES: GameRules = [
       'Drag from dot to dot to draw several lines at once. A drag that starts on a line erases instead.',
       'A number fades once it has exactly that many lines (a 0 once its four sides are crossed). A number with too many lines, or too many crosses to still be met, gets a red ring. Lines that branch at a dot turn red there.',
       'Undo takes back a step. Hint fixes a wrong mark or draws one line of the loop. Both count as assists.',
+      'Restart (the circular arrow next to Pause) clears the board so you can start the same puzzle over. The timer keeps running, and a restart counts as an undo.',
       'Tip: a 0 means all four sides are crosses, and a 3 in a corner of the grid always uses both outer sides.',
     ],
   },

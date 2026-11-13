@@ -17,6 +17,7 @@ export const RULES: GameRules = [
       'The line under the tools shows the sums of the selected cell’s runs, and those sums are shown as light labels on their black cells. The cells of those runs are highlighted.',
       'Notes: switch on Notes to write small candidate numbers into a cell. Placing a number removes it from the notes in its runs.',
       'Undo takes back your last step. Hint fills in a cell: the selected one, or one in the runs closest to finished. Hints count as assists.',
+      'Restart (the circular arrow next to Pause) clears every number and note so you can start the same puzzle over. The timer, mistakes and hints are kept.',
       'Tip: some sums can only be made one way. Two cells adding up to 3 are always 1 and 2, and two cells adding up to 17 are always 8 and 9.',
     ],
   },
