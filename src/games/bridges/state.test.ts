@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { Island, countSolutions, crosses, findEdges, generate } from './engine';
-import { BridgesGame, edgeFrom, isSolved, newGame, reduce } from './state';
+import { BridgesGame, edgeFrom, isSolved, newGame, reduce, restart } from './state';
 
 /** A game from islands written as [row, col, n]. Solution: all zeros unless given. */
 function game(w: number, h: number, list: [number, number, number][], solution?: number[]): BridgesGame {
@@ -123,5 +123,19 @@ describe('game', () => {
     ]);
     const [one] = reduce(g, { type: 'cycle', edge: 0 });
     expect(reduce(one, { type: 'undo' })[0].bridges).toEqual([0]);
+  });
+
+  it('restart clears the board, keeps time and hints, and counts as an undo', () => {
+    const g0 = game(4, 1, [
+      [0, 0, 2],
+      [0, 3, 2],
+    ]);
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'cycle', edge: 0 })[0], elapsedMs: 5000 };
+    expect(g.bridges).not.toEqual(g0.bridges);
+    const r = restart(g);
+    expect(r.bridges).toEqual(g0.bridges);
+    expect(r).toMatchObject({ status: 'playing', history: [], hints: g.hints, undos: g.undos + 1, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

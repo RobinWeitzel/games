@@ -16,6 +16,7 @@ export const RULES: GameRules = [
       'Tap a cell, then a number. A wrong number turns red and is underlined, and counts as a mistake. Correct numbers stay.',
       'Notes: switch on Notes to write small candidate numbers into a cell. Placing a number removes it from the notes in its row, column, box and cage.',
       'Undo takes back your last step. Hint fills in a cell: the selected one, or one in the most nearly finished cage. Hints count as assists.',
+      'Restart (the circular arrow next to Pause) clears every number and note so you can start the same puzzle over. The timer, mistakes and hints are kept.',
       'Tip: the numbers 1 to 9 add up to 45, so every row, column and box sums to 45.',
     ],
   },

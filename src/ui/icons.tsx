@@ -25,6 +25,13 @@ export const IconUndo = (p: P) => (
     <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
   </Icon>
 );
+/** Circular arrow (SF Symbols arrow.counterclockwise): restart a puzzle. Distinct from Undo's U-turn. */
+export const IconRestart = (p: P) => (
+  <Icon {...p}>
+    <path d="M3 12a9 9 0 1 0 3-6.7" />
+    <path d="M3 4v5h5" />
+  </Icon>
+);
 export const IconErase = (p: P) => (
   <Icon {...p}>
     <path d="M20 5H9l-6 7 6 7h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" />

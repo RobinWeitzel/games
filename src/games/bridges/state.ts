@@ -165,3 +165,13 @@ export function reduce(g: BridgesGame, action: Action): [BridgesGame, Event] {
     }
   }
 }
+
+/**
+ * Start the puzzle over: every bridge is cleared and the undo history goes. Time and hints are
+ * kept, and it counts as one undo (an assist), so restarting can't improve a result. Returns the
+ * same object when there's nothing to clear.
+ */
+export function restart(g: BridgesGame): BridgesGame {
+  if (g.status !== 'playing' || g.bridges.every((b) => b === 0)) return g;
+  return { ...g, bridges: g.bridges.map(() => 0), history: [], undos: g.undos + 1, touched: true };
+}

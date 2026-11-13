@@ -1,5 +1,5 @@
 import { Cage, PEERS } from './engine';
-import { GridAction, GridEvent, GridRules, NumberGrid, digitCounts, gridProgress, isEditable, reduceGrid } from '../../core/numberGrid';
+import { GridAction, GridEvent, GridRules, NumberGrid, digitCounts, gridProgress, isEditable, reduceGrid, restartGrid } from '../../core/numberGrid';
 import type { Difficulty } from './engine';
 
 /**
@@ -62,3 +62,6 @@ function rules(g: KillerGame): GridRules {
 }
 
 export const reduce = (g: KillerGame, action: Action): [KillerGame, Event] => reduceGrid(g, action, rules(g));
+
+/** Start the puzzle over (digits, notes and undo cleared; mistakes, hints and time kept). Same object when there's nothing to clear. */
+export const restart = (g: KillerGame): KillerGame => restartGrid(g);

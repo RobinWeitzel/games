@@ -24,6 +24,7 @@ export const RULES: GameRules = [
       'Or drag from an island towards a neighbour to do the same.',
       'An island with all its bridges turns solid. An island with too many is drawn with a dashed red ring.',
       'Undo takes back a step. Hint fixes or builds one bridge. Both count as assists.',
+      'Restart (the circular arrow next to Pause) clears the board so you can start the same puzzle over. The timer keeps running, and a restart counts as an undo.',
     ],
   },
   {

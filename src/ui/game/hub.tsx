@@ -1,11 +1,12 @@
 import type { ComponentChildren } from 'preact';
+import { useState } from 'preact/hooks';
 import { useNav } from '../nav';
 import { Row, Section, Sheet, SheetAction } from '../components';
 import { useStore } from '../../core/storage';
 import { dailyStreak, todayKey } from '../../core/daily';
 import { formatDate, formatTime } from '../../core/format';
 import type { GameStats } from '../../core/stats';
-import { IconCalendar, IconChart, IconCheck, IconFlame, IconPlay } from '../icons';
+import { IconCalendar, IconChart, IconCheck, IconFlame, IconPlay, IconRestart } from '../icons';
 import { StatsScreen } from './StatsScreen';
 import './game.css';
 
@@ -153,4 +154,37 @@ export function ResultSheet(props: {
       cancel={false}
     />
   );
+}
+
+/**
+ * Restart the current puzzle from its starting position. Returns the navigation bar button (put
+ * it before the Pause button in `Screen`'s `right`) and the action sheet that confirms it (render
+ * it inside the screen): restarting clears progress that Undo can't bring back (docs/DESIGN.md §6).
+ */
+export function useRestart(opts: { disabled: boolean; onRestart: () => void; title?: string; message?: string; label?: string }) {
+  const [open, setOpen] = useState(false);
+  const button = (
+    <button class="nav-icon" aria-label="Restart" disabled={opts.disabled} onClick={() => setOpen(true)}>
+      <IconRestart size={22} />
+    </button>
+  );
+  const sheet = (
+    <Sheet
+      open={open && !opts.disabled}
+      onClose={() => setOpen(false)}
+      title={opts.title ?? 'Restart this puzzle?'}
+      message={opts.message ?? 'Everything you’ve entered is cleared. The timer keeps running.'}
+      actions={[
+        {
+          label: opts.label ?? 'Restart Puzzle',
+          style: 'destructive',
+          onClick: () => {
+            setOpen(false);
+            opts.onRestart();
+          },
+        },
+      ]}
+    />
+  );
+  return { button, sheet };
 }

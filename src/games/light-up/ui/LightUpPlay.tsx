@@ -1,14 +1,14 @@
 import type { ComponentChildren } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { Screen, useIsTop, useNav, useScreenIndex } from '../../../ui/nav';
-import { ResultSheet } from '../../../ui/game/hub';
+import { ResultSheet, useRestart } from '../../../ui/game/hub';
 import { useGameClock } from '../../../ui/game/useGameClock';
 import { useRestorable } from '../../../ui/game/useRestorable';
 import { haptic } from '../../../core/haptics';
 import { formatTime } from '../../../core/format';
 import { IconBulb, IconPause, IconPlay, IconUndo } from '../../../ui/icons';
 import { GAME_ID, luSave, luStats } from '../storage';
-import { Action, BULB, LightUpGame, clashes, litCells, numberStates, reduce } from '../state';
+import { Action, BULB, LightUpGame, clashes, litCells, numberStates, reduce, restart } from '../state';
 import { isBlack } from '../engine';
 import { MODE_LABEL, assistsOf, createGame } from '../session';
 import { Board } from './Board';
@@ -107,6 +107,21 @@ export function LightUpPlay() {
     nav.replace(<LightUpPlay />);
   };
 
+  /** Clear the board and start the same puzzle over (time and assists are kept). */
+  const restartCtl = useRestart({
+    disabled: !game || paused || restart(game) === game,
+    message: 'Everything you’ve entered is cleared. The timer keeps running, and the restart counts as an undo.',
+    onRestart: () => {
+      const g = gameRef.current;
+      if (!g) return;
+      const next = restart(g);
+      gameRef.current = next;
+      setGame(next);
+      setMessage(null);
+      persist(next);
+    },
+  });
+
   if (!game) return <Screen title="Light Up">{null}</Screen>;
 
   const title = game.mode === 'daily' ? `Daily · ${MODE_LABEL[game.difficulty]}` : MODE_LABEL[game.mode];
@@ -139,9 +154,12 @@ export function LightUpPlay() {
       fixed
       class="play"
       right={
-        <button class="nav-icon" aria-label={paused ? 'Resume' : 'Pause'} disabled={finished} onClick={() => setPaused((p) => !p)}>
-          {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
-        </button>
+        <>
+          {restartCtl.button}
+          <button class="nav-icon" aria-label={paused ? 'Resume' : 'Pause'} disabled={finished} onClick={() => setPaused((p) => !p)}>
+            {paused ? <IconPlay size={22} /> : <IconPause size={22} />}
+          </button>
+        </>
       }
     >
       <div class="play-layout">
@@ -188,6 +206,7 @@ export function LightUpPlay() {
         </div>
       </div>
 
+      {restartCtl.sheet}
       <ResultSheet
         open={!!result}
         title={result?.newBest ? 'New best time! 🎉' : 'Solved! 🎉'}

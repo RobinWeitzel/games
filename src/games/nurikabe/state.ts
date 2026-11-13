@@ -178,3 +178,13 @@ export function reduce(g: NurikabeGame, action: Action): [NurikabeGame, Event] {
     }
   }
 }
+
+/**
+ * Start the puzzle over: every mark is cleared and the undo history goes. Time and hints are
+ * kept, and it counts as one undo (an assist), so restarting can't improve a result. Returns the
+ * same object when there's nothing to clear.
+ */
+export function restart(g: NurikabeGame): NurikabeGame {
+  if (g.status !== 'playing' || g.marks.every((m) => m === EMPTY)) return g;
+  return { ...g, marks: g.marks.map(() => EMPTY), history: [], undos: g.undos + 1, touched: true };
+}

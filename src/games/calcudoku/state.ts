@@ -1,5 +1,5 @@
 import type { Cage } from './engine';
-import { GridAction, GridEvent, GridRules, NumberGrid, digitCounts, gridProgress, isEditable, reduceGrid } from '../../core/numberGrid';
+import { GridAction, GridEvent, GridRules, NumberGrid, digitCounts, gridProgress, isEditable, reduceGrid, restartGrid } from '../../core/numberGrid';
 
 /**
  * Calcudoku game logic. The play logic (digits, notes, mistakes, undo, hints) is shared with
@@ -71,3 +71,6 @@ function rules(g: CalcudokuGame): GridRules {
 }
 
 export const reduce = (g: CalcudokuGame, action: Action): [CalcudokuGame, Event] => reduceGrid(g, action, rules(g));
+
+/** Start the puzzle over (digits, notes and undo cleared; mistakes, hints and time kept). Same object when there's nothing to clear. */
+export const restart = (g: CalcudokuGame): CalcudokuGame => restartGrid(g);

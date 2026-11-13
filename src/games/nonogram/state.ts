@@ -242,3 +242,12 @@ export function reduce(g: NonogramGame, action: Action, rng: Rng = Math.random):
     }
   }
 }
+
+/**
+ * Start the puzzle over: every mark is cleared and the undo history goes. Time and hints are
+ * kept (so restarting can't improve a result). Returns the same object when there's nothing to clear.
+ */
+export function restart(g: NonogramGame): NonogramGame {
+  if (g.status !== 'playing' || g.cells.every((c) => c === BLANK)) return g;
+  return { ...g, cells: g.cells.map(() => BLANK), history: [] };
+}

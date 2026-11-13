@@ -23,6 +23,7 @@ export const RULES: GameRules = [
     header: 'Tools and Modes',
     rules: [
       'Undo takes back a step. Hint draws one pair’s path, cutting paths in its way. Both count as assists.',
+      'Restart (the circular arrow next to Pause) clears the board so you can start the same puzzle over. The timer keeps running, and a restart counts as an undo.',
       '5 × 5, 7 × 7 and 9 × 9 grids, with more pairs on bigger grids. The Daily Challenge is a 7 × 7 puzzle, the same for everyone on a day. Solve it every day to build a streak.',
     ],
   },

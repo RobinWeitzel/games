@@ -23,6 +23,7 @@ export const RULES: GameRules = [
       'Cross: mark cells you know are empty with a ×. Crosses are only notes for you: they don’t count towards the solution.',
       'Mistakes aren’t pointed out while you play. The puzzle is solved as soon as the filled cells match every clue.',
       'Undo takes back your last stroke. Hint fixes a wrong mark, or marks a cell that follows from the clues, and counts as an assist.',
+      'Restart (the circular arrow next to Pause) clears the grid so you can start the same picture over. The timer and hints are kept.',
     ],
   },
   {

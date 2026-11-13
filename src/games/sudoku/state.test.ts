@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { generate } from './engine/generator';
 import { bit } from './engine/board';
-import { Action, SudokuGame, newGame, reduce } from './state';
+import { Action, SudokuGame, clearBoard, newGame, reduce } from './state';
 
 const opts = { mistakeLimit: true, autoRemoveNotes: true };
 const p = generate('easy', createRng(3));
@@ -224,5 +224,21 @@ describe('sudoku state', () => {
       expect(undone.values).toEqual(g.values);
       expect(undone.notes).toEqual(g.notes);
     });
+  });
+});
+
+describe('clearBoard (restart mid-game)', () => {
+  it('goes back to the givens and keeps mistakes, hints and time', () => {
+    const g0 = fresh();
+    expect(clearBoard(g0)).toBe(g0);
+    const i = empty(g0);
+    let g = run(g0, { type: 'select', cell: i }, { type: 'input', digit: wrongDigit(g0, i) }, { type: 'hint' });
+    g = { ...g, elapsedMs: 5000 };
+    expect(g.mistakes).toBe(1);
+    const r = clearBoard(g);
+    expect(r.values).toEqual(g0.puzzle);
+    expect(r.notes.every((n) => n === 0)).toBe(true);
+    expect(r).toMatchObject({ status: 'playing', undo: [], mistakes: 1, hints: 1, elapsedMs: 5000 });
+    expect(clearBoard(r)).toBe(r);
   });
 });

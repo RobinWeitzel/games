@@ -18,6 +18,7 @@ export const RULES: GameRules = [
       'Drag across white cells to dot several at once.',
       'Lit cells turn yellow with fine stripes. Two bulbs that light each other turn red. A number with too many bulbs gets a red ring; a number with exactly enough fades.',
       'Undo takes back a step. Hint places or fixes one bulb. Both count as assists.',
+      'Restart (the circular arrow next to Pause) clears the board so you can start the same puzzle over. The timer keeps running, and a restart counts as an undo.',
     ],
   },
   {

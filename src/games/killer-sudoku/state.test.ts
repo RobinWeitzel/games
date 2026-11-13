@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../core/random';
 import { PEERS, boxOf, generate, randomGrid, solve } from './engine';
-import { newGame, reduce } from './state';
+import { newGame, reduce, restart } from './state';
 
 describe('engine', () => {
   it('builds valid Sudoku grids', () => {
@@ -55,5 +55,17 @@ describe('game', () => {
     let ev;
     for (let k = 0; k < 81; k++) [g, ev] = reduce(g, { type: 'hint' });
     expect(ev!.kind).toBe('won');
+  });
+
+  it('restart clears digits, notes and undo, keeping mistakes, hints and time', () => {
+    const g0 = fresh();
+    expect(restart(g0)).toBe(g0);
+    const g = { ...reduce(g0, { type: 'hint' })[0], mistakes: 2, elapsedMs: 5000 };
+    expect(g.values).not.toEqual(g0.values);
+    const r = restart(g);
+    expect(r.values).toEqual(g0.values);
+    expect(r.notes).toEqual(g0.notes);
+    expect(r).toMatchObject({ status: 'playing', undo: [], hints: 1, mistakes: 2, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });

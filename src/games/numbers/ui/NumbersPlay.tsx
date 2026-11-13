@@ -8,7 +8,7 @@ import { useRestorable } from '../../../ui/game/useRestorable';
 import { haptic } from '../../../core/haptics';
 import { formatTime } from '../../../core/format';
 import { createRng, randomSeed } from '../../../core/random';
-import { IconBulb, IconPause, IconPlay, IconUndo } from '../../../ui/icons';
+import { IconBulb, IconPause, IconPlay, IconRestart, IconUndo } from '../../../ui/icons';
 import { GAME_ID, numbersSave, numbersStats } from '../storage';
 import {
   Action,
@@ -285,7 +285,7 @@ export function NumbersPlay() {
             <IconUndo />
           </Tool>
           <Tool label="Reset" onClick={() => dispatch({ type: 'reset' })} disabled={picking || showPause || !game.moves.length}>
-            <IconReset />
+            <IconRestart />
           </Tool>
           <Tool label="Hint" onClick={() => dispatch({ type: 'hint' })} disabled={picking || showPause}>
             <IconBulb />
@@ -362,13 +362,6 @@ function Tool(props: { label: string; onClick: () => void; disabled?: boolean; c
     </button>
   );
 }
-
-const IconReset = ({ size = 24 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M3 12a9 9 0 1 0 3-6.7" />
-    <path d="M3 4v5h5" />
-  </svg>
-);
 
 const IconFlag = ({ size = 24 }: { size?: number }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -15,6 +15,7 @@ import {
   newGame,
   progress,
   reduce,
+  restart,
   satisfiedLines,
   strokeCells,
   strokeValue,
@@ -194,5 +195,18 @@ describe('nonogram session', () => {
     expect(g.elapsedMs).toBe(4321);
     expect(run(g, { type: 'undo' }).cells.slice(0, 6)).toEqual([1, 1, 0, 0, 0, 0]);
     expect(run(g, tap(g, 2)).cells[2]).toBe(CROSS);
+  });
+});
+
+describe('restart', () => {
+  it('clears every mark and the undo history, keeping time and hints', () => {
+    const g0 = plus();
+    expect(restart(g0)).toBe(g0);
+    const g = { ...run(g0, tap(g0, 0), { type: 'toggleCrossMode' }, { type: 'paint', cells: [1], value: CROSS }, { type: 'hint' }), elapsedMs: 5000 };
+    expect(g.status).toBe('playing');
+    const r = restart(g);
+    expect(r.cells.every((c) => c === BLANK)).toBe(true);
+    expect(r).toMatchObject({ status: 'playing', history: [], hints: 1, elapsedMs: 5000 });
+    expect(restart(r)).toBe(r);
   });
 });
